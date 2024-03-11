@@ -1,5 +1,5 @@
-#include <FastLED.h>
-#include <lightingfordoggos.h>
+//#include <FastLED.h>
+#include <classesfordoggos.h>
 
 //constant declarations reflecting hardware parameters
 const int LARGEFANLEDS = 6;  //Number of LEDs on the chassis fans
@@ -965,113 +965,21 @@ void TransColorsScrollingFrontLeds(int speed, int timingSlot, CRGB color0, CRGB 
     FrameAdvance(speed, timingSlot, FRAMELIMIT);  //advance frame as appropriate
 }
 
-//////////////////////
-//class declarations//
-//////////////////////
+//===================//
+///////////////////////
+//class declarations///
+///////////////////////
+//===================//
 
-class aspect_fan
-{
-  public:
-  const static int NUMLEDS = 6;
-  int initialized = 0;
-  int deviceNumber;
-  CRGB leds[NUMLEDS];
-
-  aspectFan(int deviceNumber)
-  {
-    deviceNumber = deviceNumber;
-  }
-};
-
-class cpu_Fan
+/*
+class led_Device
 {
   public:
 
-  const static int NUMLEDS = 4;
-  bool initialized = 0;
-  int deviceNumber;
-  int accumulatedMilliseconds;
-  int frameNumber;
-  CRGB leds[NUMLEDS];
+}*/
 
-  aspectFan(int deviceNumber)
-  {
-    deviceNumber = deviceNumber;
-  }
 
-  //**********************
-  //management functions//
-  //**********************
 
-  //called by effects function to manage frame write timing
-  bool CheckTimeForFrameDraw(int speed)
-  {
-    if (speed < 0)                            //convert negative speed to positive for internal comparison
-      speed *= -1;
-
-    accumulatedMilliseconds += deltaMillis;   //add elapsed millis since last function call to running total    
-    if (accumulatedMilliseconds < speed)      //check whether enough time has passed to write the next frame
-      return false;                           //if not, return false
-    else    
-    {
-      accumulatedMilliseconds = 0;
-      return true;                            //if so, return true
-    }
-  }
-
-  //called by effects function to see if the frame number is initialized and initialize it if necessary
-  void CheckInitialization()
-  {
-    if (!initialized)
-    {
-      frameNumber = 0;
-      initialized = 1;
-    }
-  }
-
-  //called by effects function to manage frame advancement
-  void FrameAdvance(int speed, int FRAMELIMIT)
-  {
-    if (speed >= 0)
-    {    
-      frameNumber += 1;
-      if (frameNumber == FRAMELIMIT)
-        frameNumber = 0;
-    }
-    else
-    {
-      frameNumber -= 1;
-      if (frameNumber == -1)
-        frameNumber = FRAMELIMIT -1;
-    }
-  }
-
-  //called by effects functions to write the internal output array to the array that gets written to the hardware
-  void WriteColorsToFan()
-  {
-    for (int i = 0; i < NUMLEDS; i++)  //copy internal array (leds[]) to external array(fan3[]) for writing to hardware at end of main loop
-      fan3[i] = leds[i];    
-  }
-
-  //*******************
-  //effects functions//
-  //*******************
-  
-  void SpinOneLed(int speed, CRGB color)  
-  //make one led "spin" around the fan by lighting them sequentially
-  //parameters: speed - milliseconds between frame advances | color: color to use when running the effect 
-  {
-    const int FRAMELIMIT = NUMLEDS;    //number of frames in this effect
-    CheckInitialization();             //check to see if function has been given a start frame at first run and give one if necessary
-    if (!CheckTimeForFrameDraw(speed)) //manage frame write timing
-      return;
-    for (int i = 0; i < NUMLEDS; i++)  //write black to all leds on fan to prepare for writing of frame
-      leds[i] = CRGB::Black;    
-    leds[frameNumber] = color;         //write color to led with same number as frame number
-    FrameAdvance(speed, FRAMELIMIT);          //manage frame advancement
-    WriteColorsToFan();
-  }
-};
 
 cpu_Fan cpuFan0;  //instanatiating an object for CPU fan
 
@@ -1251,6 +1159,9 @@ void loop() {
     cpuFan0.SpinOneLed(90, CRGB::Blue);
   else  
     cpuFan0.SpinOneLed(-90, CRGB::Purple);    //run backward for 10 seconds
+
+  for (int i = 0; i < 4; i++)  //copy internal array (leds[]) to external array(fan3[]) for writing to hardware at end of main loop
+      fan3[i] = cpuFan0.leds[i];   
    
   //write updated arrays to LEDs for display
   FastLED.show();
