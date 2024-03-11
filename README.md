@@ -3,8 +3,11 @@
 
 
 Conversion to OOP is underway. The current code is in:
+
 	*puppygirllightingtoy_beta : main program
+ 
  	*classesfordoggos.h and .cpp : class library
+  
   	*functionsfordoggos.h and .cpp : function library
 
 **Current sub-project is converting to object-oriented code to avoid having to use global state-tracking arrays. This is mostly because
