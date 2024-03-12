@@ -10,6 +10,23 @@
 #include "classesfordoggos.h"
 
 ///////////////////////
+//====SerialPrintColor
+//Accepts a CRGB variable and prints its red, green, and blue values in a formatted way, then prints a newline
+void SerialPrintColor(CRGB color)
+{
+  int r = color.red;
+  int g = color.green;
+  int b = color.blue;
+
+  Serial.print(" RED-");
+  Serial.print(r);
+  Serial.print(" GRN-");
+  Serial.print(g);
+  Serial.print(" BLU-");
+  Serial.println(b);
+}
+
+///////////////////////
 //====MakeRandomColor
 //Parameters: none
 //returns a random CRGB color
@@ -42,7 +59,7 @@ CRGB MakeRandomColor()
 
 CRGB CheckForRandomColor(CRGB color, CRGB savedColor, int FRAMELIMIT, int frameNumber, int speed)
 {
-// if a color is passed to CFRC, write that color to state tracking array for effect and exit
+// if a color other than black is passed to CFRC, return that color
   if (color != CRGB::Black)
     return color;
 	
