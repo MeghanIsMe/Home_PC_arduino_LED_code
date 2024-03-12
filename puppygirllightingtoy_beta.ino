@@ -30,21 +30,6 @@ CRGB largeFans[3][6];
 CRGB fan3[SMALLFANLEDS];  //CPU cooling fan, 4 LEDs
 CRGB ledStrip[20]; //Front panel LEDs: 20 at the moment. 
 
-//Creating arrays to hold timer data, frame number data, and other things I was using static variables for that didn't work out
-//elements are referenced by the timing slot number sent to each function that uses the arrays
-//funcDataMillis tracks accumulated millis until frame write, then resets
-//funcDataFrame tracks the frame number the function's animation sequence is on
-//funcDataInit tracks whether the function has used a one-time frame number init value (IN PROGRESS)
-//funcDataSlotOccupied tracks whether its index number has been assigned to a function (IN PROGRESS)
-//funcDataColor tracks a CRGB color between function calls
-//funcDataStripLedTracking is for tracking things like randomization of strip LEDs without repetition
-int funcDataMillis[30];
-int funcDataFrame[30];
-bool funcDataInit[30];
-bool funcDataSlotOccupied[30];
-CRGB funcDataColor[30];
-bool funcDataStripLedTracking[20]; 
-
 //var declarations for timing.
 //pastMillis begins at 0. Each loop, pastMillis gets the value from current Millis, then currentMillis gets value from millis(),
 //then deltaMillis = currentMillis - pastMills. The result is the number of milliseconds that have passed since the last execution
@@ -63,6 +48,31 @@ cpu_Fan cpuFan0;  //instanatiating an object for CPU fan
 aspect_Fan aspectFan0;  //instantiating an object for Aspect fan 0
 aspect_Fan aspectFan1;  //instantiating an object for Aspect fan 1
 aspect_Fan aspectFan2;  //instantiating an object for Aspect fan 2
+
+// Effects Test Functions: run one effect on all fans
+void TestMovingLine(int speed, CRGB color)
+{  
+  aspectFan0.MovingLine(speed, color);
+  aspectFan1.MovingLine(speed, color);
+  aspectFan2.MovingLine(speed, color);
+  cpuFan0.MovingLine(speed, color);
+}
+void TestSpinOneLed(int speed, CRGB color)
+{
+  aspectFan0.SpinOneLed(speed, color);
+  aspectFan1.SpinOneLed(speed, color);
+  aspectFan2.SpinOneLed( (-1 * speed), color);
+  cpuFan0.SpinOneLed(speed, color);
+}
+
+
+void TestSpinLeds(int speed, CRGB color1, CRGB color2 = CRGB:: Black, CRGB color3 = CRGB:: Black)
+{
+  aspectFan0.SpinLeds(speed, color1, color2, color3);
+  aspectFan1.SpinLeds(speed, color1, color2, color3);
+  aspectFan2.SpinLeds(speed, color1, color2, color3);
+  cpuFan0.SpinLeds(speed, color1, color2, color3);
+}
 
 void setup() {
   srand(millis());
@@ -98,45 +108,42 @@ void loop() {
   variableSpeed2 = variableSpeed + 500;
   if (variableSpeed2 > 500)
     variableSpeed2 -= 1000;
+  
+  //TestMovingLine(variableSpeed, CRGB::Purple);
+  //TestSpinLeds(variableSpeed, CRGB::Blue, CRGB::Purple);
+  TestSpinOneLed(variableSpeed, CRGB::Black);
 
-  //ASPECT FANS
-  aspectFan0.AddElapsedTimeToTotal(deltaMillis);
-  aspectFan1.AddElapsedTimeToTotal(deltaMillis);
-  aspectFan2.AddElapsedTimeToTotal(deltaMillis);
-
-
-  if (((currentMillis / 6000) % 2) == 0)    //run forward for 10 seconds
+  /*
+  // ASPECT FAN EFFECT CALLS
+   if (((currentMillis / 6000) % 2) == 0)    //run forward for 10 seconds
   {
     aspectFan0.SpinOneLed(90, CRGB::Black);
-    aspectFan1.SpinOneLed(-75, CRGB::Black);
-    aspectFan2.SpinOneLed(120, CRGB::Black);
+    aspectFan1.SpinLeds(-75, CRGB::Pink, CRGB::Purple);
+    aspectFan2.MovingLine(600, CRGB::Purple);
   }
   else                                      //run backward for 10 seconds  
   {
     aspectFan0.SpinOneLed(-90, CRGB::Black);
-    aspectFan1.SpinOneLed(50, CRGB::Black);
-    aspectFan2.SpinOneLed(-200, CRGB::Black);
-  }
- 
-  
+    aspectFan1.SpinLeds(100, CRGB::Purple, CRGB::Pink);
+    aspectFan2.SpinColorWave(-120);
+  }    
 
-  //CPU FAN    
-  cpuFan0.AddElapsedTimeToTotal(deltaMillis);
-
+  //CPU FAN EFFECT CALLS 
   if (((currentMillis / 6000) % 2) == 0)    //run forward for 10 seconds
-    cpuFan0.SpinOneLed(90, CRGB::Black);
+    //cpuFan0.SpinLeds(100, CRGB::Blue, CRGB::Red);
+    cpuFan0.MovingLine(100, CRGB::Green);
   else  
-    cpuFan0.SpinOneLed(-90, CRGB::Black);   //run backward for 10 seconds
+    cpuFan0.SpinLeds(-100, CRGB::Blue, CRGB::Red);   //run backward for 10 seconds
 
+   */
   // Write finished colors out to fan hardware arrays
-
   for (int i = 0; i < 6; i++)
   {
     largeFans[0][i] = aspectFan0.leds[i];   
     largeFans[1][i] = aspectFan1.leds[i];    
     largeFans[2][i] = aspectFan2.leds[i];    
   }
-  
+ 
   for (int i = 0; i < 4; i++)  //copy internal array (leds[]) to external array(fan3[]) for writing to hardware at end of main loop
     fan3[i] = cpuFan0.leds[i];   
   
@@ -144,5 +151,6 @@ void loop() {
   FastLED.show();
   //delay(1000); //uncomment this line to add a delay to make troubleshooting via output statements easier. Delay should not affect timing of 
   //properly written functions because they are comparing to millis passed.
+  
 }
 
