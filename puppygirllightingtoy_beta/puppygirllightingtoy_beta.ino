@@ -18,9 +18,13 @@ const CRGB TRANSWHITE = CRGB(128,128,128);
 //Palette and color group declarations
 CRGB transColors[4] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Linen, CRGB::Black};
 //CRGB transColorsTest[6] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Linen, CRGB::DeepPink, CRGB::Turquoise, CRGB::Black};
-CRGB transColorsTest[5] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Linen, CRGB::DeepPink, CRGB::Black};
+
 CRGB rgbTest[4] = {CRGB::Red, CRGB::Lime, CRGB::Blue, CRGB::Black};
 CRGB redBlueTest[3] = {CRGB::Red, CRGB::Blue, CRGB::Black};
+CRGB prideTransgender[5] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Linen, CRGB::DeepPink, CRGB::Black};
+CRGB prideBisexual[4] = {CRGB(214,2,112), CRGB(155,79,150), CRGB(0,56, 168), CRGB::Black};
+CRGB prideLesbian[6] = {CRGB(214,46,2),CRGB(253,152,85),CRGB(149,149,149),CRGB(290,97,162),CRGB(162,1,96),CRGB::Black};
+CRGB prideRainbow[7] = {CRGB(228,3,3),CRGB(255,140,0),CRGB(255,237,0),CRGB(0,128,38),CRGB(26,64,142),CRGB(115,41,130),CRGB::Black};
 
 //constant data pin number declarations
 #define DATA_PIN2 2
@@ -55,8 +59,12 @@ cpu_Fan cpuFan0;  //instanatiating an object for CPU fan
 aspect_Fan aspectFan0;  //instantiating an object for Aspect fan 0
 aspect_Fan aspectFan1;  //instantiating an object for Aspect fan 1
 aspect_Fan aspectFan2;  //instantiating an object for Aspect fan 2
-
 front_LedStrip ledStrip0;  //instantiating an object for front LED strip
+
+int testValue0;
+int testValue1;
+int testValue2;
+int testValue3;
 
 // Effects Test Functions: run one effect on all fans
 void TestMovingLine(int speed, CRGB color)
@@ -109,6 +117,8 @@ void setup() {
 }    
 
 void loop() {
+  //Serial.println();
+  //Serial.println("Main loop beginning");
   //variables for function timing
   pastMillis = currentMillis;
   currentMillis = millis();
@@ -129,13 +139,38 @@ void loop() {
   //TestSpinLeds(variableSpeed, CRGB::Blue, CRGB::Purple);
   //TestSpinOneLed(variableSpeed, CRGB::Black);
 
+  // to remember what the counter values of the led strip were before running the effects methods on them
+  testValue0 = ledStrip0.topLeftFrameNumber;
+  testValue1 = ledStrip0.topRightFrameNumber;
+  testValue2 = ledStrip0.bottomLeftFrameNumber;
+  testValue3 = ledStrip0.bottomRightFrameNumber;
+
   //ledStrip0.BlinkLeds(500, CRGB::Black);
   //TestSpinColorWave(300);
   //ledStrip0.TransColorsScrollingFrontLeds(800, transColors, 1);
   //ledStrip0.TransColorsScrollingFrontLeds(400, transColors, 0);
   //ledStrip0.ScrollColorsOnFrontStrips(400, redBlueTest,1,1,1,1);
-  ledStrip0.ScrollColorsOnFrontStrips(-400, transColorsTest,0,0,1,1);
+  //Serial.println("Running scrollcolors on 1,0,0,0");
+  ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,1,0,1,0);
+  //Serial.println("Running scrollcolors on 0,0,0,1");
+  ledStrip0.ScrollColorsOnFrontStrips(400, prideRainbow,0,1,0,1);
+ 
+  //ledStrip0.ScrollColorsOnFrontStrips(400, prideBisexual,1,1,1,1);
 
+  //  if any of the counters for the led strip have changed, print the values of all of them
+  if ( (ledStrip0.topLeftFrameNumber != testValue0) || (ledStrip0.topRightFrameNumber != testValue1) || (ledStrip0.bottomLeftFrameNumber != testValue2) || (ledStrip0.bottomRightFrameNumber != testValue3)  )
+  {
+    Serial.println();
+    Serial.print("SC: topLeftFrameNumber is: ");
+    Serial.println(ledStrip0.topLeftFrameNumber);
+    Serial.print("SC: topRightFrameNumber is: ");
+    Serial.println(ledStrip0.topRightFrameNumber);
+    Serial.print("SC: bottomLeftFrameNumber is: ");
+    Serial.println(ledStrip0.bottomLeftFrameNumber);
+    Serial.print("SC: bottomRightFrameNumber is: ");	
+    Serial.println(ledStrip0.bottomRightFrameNumber);	
+  }
+  
   /*
   if (((currentMillis / 6000) % 2) == 0)    //run forward for 10 seconds
     ledStrip0.ScrollColorsWhole(400, transColors);
@@ -177,11 +212,11 @@ void loop() {
   for (int i = 0; i < 4; i++)             //CPU fan
     fan3[i] = cpuFan0.leds[i];   
   for (int i = 0; i < 20; i++)            //Front LED strip
-    ledStrip[i] = ledStrip0.leds[i];  //assigning member variables from strip object to array that is written out to hardware at end of main loop
+    ledStrip[i] = ledStrip0.leds[i];      //assigning member variables from strip object to array that is written out to hardware at end of main loop
   
   //write updated arrays to LEDs for display
   FastLED.show();
-  //delay(3000); //uncomment this line to add a delay to make troubleshooting via output statements easier. Delay should not affect timing of 
+  //delay(150); //uncomment this line to add a delay to make troubleshooting via output statements easier. Delay should not affect timing of 
   //properly written functions because they are comparing to millis passed.
   
 }
