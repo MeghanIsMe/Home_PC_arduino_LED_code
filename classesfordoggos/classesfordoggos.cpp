@@ -257,6 +257,9 @@ void generic_Fan::MovingLine(int speed, CRGB color)
 
 // UTILITY FUNCTIONS
 
+///////////////////////
+//==== WriteToOutGoingArray
+// 
 void front_LedStrip::WriteToOutgoingArray(int side, CRGB *outArray)
 {
 	if (side == 0 || side == 1)
@@ -291,12 +294,18 @@ void front_LedStrip::WriteToOutgoingArray(int side, CRGB *outArray)
 
 // EFFECTS FUNCTIONS
 
+///////////////////////
+//==== BlankLeds
+// 
 void front_LedStrip::BlankLeds()
 {
 	for (int i = 0; i < NUMLEDS; i++)
 		leds[i] = CRGB::Black;
 };
 	
+///////////////////////
+//==== BlinkLeds
+// 
 void front_LedStrip::BlinkLeds(int speed, CRGB color)
 {
 	const int FRAMELIMIT = 2;		// frames in this animation
@@ -315,6 +324,9 @@ void front_LedStrip::BlinkLeds(int speed, CRGB color)
 	FrameAdvance(speed, FRAMELIMIT);		// manage frame advancement
 };
 
+///////////////////////
+//==== TransColorsScrollingFrontLeds
+// 
 void front_LedStrip::TransColorsScrollingFrontLeds(int speed, CRGB *palette, int side)
 {
 	const int FRAMELIMIT = 8; 	// update this to programmatically determine based on array passed to function
@@ -396,7 +408,16 @@ void front_LedStrip::TransColorsScrollingFrontLeds(int speed, CRGB *palette, int
 	
 }
 
-void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool tr, bool tl, bool br, bool bl)
+///////////////////////
+//==== ScrollColors
+//  Scrolls a set of colors passed in via an array on one or more quarters of the front LED strips
+//  This is called by ScrollColorsOnFrontStrips
+//			// SCOFS determines the number of vertical rows and passes the booleans determing which parts of the strips to run on
+//	Accepts an array of colors to use
+//	Creates an array of double that length (baseArray) which includes blends of colors between the ones on the input array
+//	Does math to write baseArray's values into outArray in the correct order based on frame number
+//	Calls WriteColorsToOutPutArray to write outArray to the calling object's LED array
+void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool tl, bool tr, bool bl, bool br)
 {
 	int lengthOfInputArray = (GetLengthOfBlackTerminatedCRGBArray(palette));; // the number of colors in the passed array
 	int lengthOfBaseArray = lengthOfInputArray * 2;		// the base array holds the input array plus blends	
@@ -411,11 +432,12 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 			
 	if (changePerMilli < 0)  	// convert to positive change in case of negative speed
 		changePerMilli *= -1;
-	change = changePerMilli * accumulatedMilliseconds;
-		
+	
 	if (!CheckTimeForFrameDraw(speed)) // manage frame write - if false, function progresses with between-frame blending
-		nextFrame = 0;									 // but will not advance frame
-			
+			nextFrame = 0;									 // but will not advance frame
+	
+	change = changePerMilli * accumulatedMilliseconds;  // how much change/blending to apply this function iteration
+					
 	// populating base array
 	for (int i = 0; i < lengthOfBaseArray; i++) // once for each color + each color blend
 	{		
@@ -427,87 +449,44 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 			count++;			
 		}		
 	}
-		
-	Serial.println("Base Array Printing");
-	PrintColorArray(lengthOfBaseArray, baseArray);
-		
-	//delay(2000);	
-	/*		
-	Serial.print("Frame number is: ");
-	Serial.print(frameNumber);
-	Serial.print(" |  length of input array is: ");
-	Serial.print(lengthOfInputArray);
-	Serial.print(" |  length of base array is: ");
-	Serial.println(lengthOfBaseArray);
-	*/
 
- //for positive speed
+ // for positive speed
   if (speed >= 0)
     for (int i = 0; i < vertRows; i++)  //once for each hardware row
-		{		
-			
-			Serial.print("Blending ");
-			Serial.print((i + frameNumber) % lengthOfBaseArray);
-			Serial.print(" and ");
-			Serial.print((i + 1 + frameNumber) % lengthOfBaseArray  );
-		  Serial.print(" | Change is: ");
-			Serial.println(change);			
-						
-      outArray[i] = blend( (baseArray[ (i + frameNumber) % lengthOfBaseArray ]),(baseArray[ (i + 1 + frameNumber) % lengthOfBaseArray ]),change);
+		{							
+      outArray[i] = blend(
+									 (baseArray[ (i + frameNumber) % lengthOfBaseArray ]),      // argument 1
+									 (baseArray[ (i + 1 + frameNumber) % lengthOfBaseArray ]),  // argument 2
+									 change);																						  			// argument 3
 		}     
-  //negative speed requires applying (10 - framenumber) instead of framenumber because I can't make the frames
-  //iterate backwards without rewriting the FrameAdvance function. And just doing the 10 - offset is so simple
-  //but I need to explain that here before I forget why it's there.
-  //The (10 -) inverts the number, making 1 into 9, or 9 into 1.
-  else if (speed < 0)  
-    for (int i = 0; i < 8; i++)
-      outArray[i] = blend( (baseArray[ ((i - (8 - frameNumber)) + 10) % 8 ]),(baseArray[ ((i - 1 - (8 - frameNumber)) + 10 ) % 8 ]),change);
-
-	/*
-	Serial.println("Out Array Printing");
-	PrintColorArray(vertRows, outArray);
-	//delay(2000);	
-	
-		//write left side
-    leds[19] = outArray[0];
-    leds[18] = outArray[1];
-    leds[17] = outArray[2];    
-    leds[16] = outArray[3];  
-    leds[15] = outArray[4];  
-    leds[14] = outArray[5];  
-    leds[13] = outArray[6];  
-    leds[12] = outArray[7];  
-    leds[11] = outArray[8];  
-    leds[10] = outArray[9];
-		//write right side
-    leds[0] = outArray[0];
-    leds[1] = outArray[1];
-    leds[2] = outArray[2];
-    leds[3] = outArray[3];
-    leds[4] = outArray[4];
-    leds[5] = outArray[5];
-    leds[6] = outArray[6];
-    leds[7] = outArray[7];
-    leds[8] = outArray[8];
-    leds[9] = outArray[9];
-		*/
-		
+	// for negative speed
+	else if (speed < 0)  
+			for (int i = 0; i < vertRows; i++)
+			{				
+				outArray[i] = blend(
+										 (baseArray [(i - (lengthOfBaseArray - frameNumber) + 10) % lengthOfBaseArray  ]),		  // argument 1
+										 (baseArray [(i - 1 - (lengthOfBaseArray - frameNumber) + 10) % lengthOfBaseArray ]),   // argument 2
+										  change);																										 													// argument 3		
+			}		
 	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);
 	
-	if (nextFrame)
-    FrameAdvance(speed, FRAMELIMIT);  //advance frame as appropriate
-	
+	//debugging
+	Serial.print("Length of base array is: ");
+	Serial.println(lengthOfBaseArray);
 	Serial.print("Frame number: ");
 	Serial.println(frameNumber);
-	
 	Serial.println();
-
+	
+	if (nextFrame)
+    FrameAdvance(speed, FRAMELIMIT);  //advance frame as appropriate	
 }
 
+///////////////////////
+//==== ScrollColorsOnFrontStrips
+//  Calls ScrollColors and provides the booleans passed to this argument plus the number of vertical rows determined in this function
 void front_LedStrip::ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl, bool tr, bool bl, bool br)
 {
-	int vertRows = 10;
-	
+	int vertRows;	
 	if ( ( (tl) || (tr) ) && ( (bl) || (br) ) )  // if at least one upper and one lower strip are engaged, 10 rows. Else, 5.
 		vertRows = 10;
 	else
@@ -516,8 +495,20 @@ void front_LedStrip::ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl
 	front_LedStrip::ScrollColors(speed, palette, vertRows, tl, tr, bl, br);	
 }
 
+///////////////////////
+//==== WriteColorsToOutputArray
+// 
 void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, bool bl, bool br, int vertRows)
 {
+	Serial.print("top left: ");
+	Serial.println(tl);
+	Serial.print("top right: ");
+	Serial.println(tr);
+	Serial.print("bottom left: ");
+	Serial.println(bl);
+	Serial.print("bottom right: ");
+	Serial.println(br);
+	
 	if (vertRows == 10)
 	{
 		if (tl)
@@ -583,11 +574,11 @@ void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, 
 		}
 		if (br)
 		{
-			leds[5] = outArray[5];
-			leds[6] = outArray[6];
-			leds[7] = outArray[7];
-			leds[8] = outArray[8];
-			leds[9] = outArray[9];
+			leds[5] = outArray[0];
+			leds[6] = outArray[1];
+			leds[7] = outArray[2];
+			leds[8] = outArray[3];
+			leds[9] = outArray[4];
 		}
 	}
 };

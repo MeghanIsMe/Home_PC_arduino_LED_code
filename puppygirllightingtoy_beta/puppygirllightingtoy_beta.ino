@@ -134,7 +134,7 @@ void loop() {
   //ledStrip0.TransColorsScrollingFrontLeds(800, transColors, 1);
   //ledStrip0.TransColorsScrollingFrontLeds(400, transColors, 0);
   //ledStrip0.ScrollColorsOnFrontStrips(400, redBlueTest,1,1,1,1);
-  ledStrip0.ScrollColorsOnFrontStrips(400, transColorsTest,1,1,1,1);
+  ledStrip0.ScrollColorsOnFrontStrips(-400, transColorsTest,0,0,1,1);
 
   /*
   if (((currentMillis / 6000) % 2) == 0)    //run forward for 10 seconds
