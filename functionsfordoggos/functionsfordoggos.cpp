@@ -9,9 +9,13 @@
 #include "FastLED.h"
 #include "classesfordoggos.h"
 
+//******************
+// UTILITY FUNCTIONS
+//******************
+
 ///////////////////////
-//====SerialPrintColor
-//Accepts a CRGB variable and prints its red, green, and blue values in a formatted way, then prints a newline
+//==== SerialPrintColor
+// Accepts a CRGB variable and prints its red, green, and blue values in a formatted way, then prints a newline
 void SerialPrintColor(CRGB color)
 {
   int r = color.red;
@@ -25,6 +29,62 @@ void SerialPrintColor(CRGB color)
   Serial.print(" BLU-");
   Serial.println(b);
 }
+
+///////////////////////
+//==== PrintColorArray
+// Accepts a CRGB array and prints each color in it. Must manual hard-code the array length.
+void PrintColorArray(int length, CRGB *arr)
+{	
+	for (int i = 0; i < length; i++)
+	{
+		Serial.print("Line#: ");
+		Serial.print(i);
+		Serial.print(" ");
+		SerialPrintColor(arr[i]);
+	}
+}
+
+///////////////////////
+//==== GetLengthOfBlackTerminatedArray
+// Accepts a CRGB array and returns the number of elements in it as an int
+int GetLengthOfBlackTerminatedCRGBArray(CRGB *arr)
+{
+		int lengthCount = 0;
+		CRGB color = CRGB::Blue; //doesn't matter what color as long as it's not black
+		do
+		{
+			color = arr[lengthCount];
+			if (color != CRGB::Black)
+				lengthCount++;
+		} while (color != CRGB::Black);
+		
+		return lengthCount;	
+}
+
+///////////////////////
+//==== SerialPrintVars
+// makes debugging via serial.print suck a bit less ass
+// accepts up to 5 int vars, prints them on one line with | in between them, then prints a new line
+void SerialPrintVars(int var0 = 0, int var1 = 0, int var2 = 0, int var3 = 0, int var4 = 0)
+{
+  Serial.print("| ");
+  Serial.print(var0);  
+  Serial.print(" | ");
+  Serial.print(var1);
+  Serial.print(" | ");
+  Serial.print(var2);
+  Serial.print(" | ");
+  Serial.print(var3);
+  Serial.print(" | ");
+  Serial.print(var4);
+  Serial.print(" | ");
+  Serial.println();
+}
+
+//*****************************
+// COLOR MANIPULATION FUNCTIONS
+//*****************************
+
 
 ///////////////////////
 //====MakeRandomColor

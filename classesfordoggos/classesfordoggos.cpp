@@ -9,16 +9,17 @@
 // include this library's description file
 #include "classesfordoggos.h"
 
+//**********************************************************************************************************************
+//**********************************************************************************************************************
+//**************************************** GENERIC LED DEVICE CLASS************************************************************
+//**********************************************************************************************************************
+//**********************************************************************************************************************
 
-//**********************************************************************************************************************
-//**********************************************************************************************************************
-//**************************************** GENERIC FAN CLASS************************************************************
-//**********************************************************************************************************************
-//**********************************************************************************************************************
 
 //********************
 //MANAGEMENT FUNCTIONS
 //********************
+
 
 ///////////////////////////////////
 // 				CHECKINITIALIZATION
@@ -26,7 +27,7 @@
 //called by effects function to see if the frame number is initialized and initialize it if necessary.
 //new fan objects have a non-intialized frame number, so this sets it to 0.
 //could also be used to switch to a different frame number before or while running, possibly. Not implemented yet.
-void generic_Fan::CheckInitialization()
+void generic_LedDevice::CheckInitialization()
 {
 	if (!initialized)
 	{
@@ -34,12 +35,11 @@ void generic_Fan::CheckInitialization()
 	  initialized = 1;
 	}
 }
-
 //////////////////////////////////////
 // 				CHECK TIME FOR FRAME DRAW
 //////////////////////////////////////
 //checks to see whether enough time has passed to advance to the next frame of the effects animation
-bool generic_Fan::CheckTimeForFrameDraw(int speed)  
+bool generic_LedDevice::CheckTimeForFrameDraw(int speed)  
 {
 	accumulatedMilliseconds += deltaMillis;		// add elapsed milliseconds since last main loop to running total
 	if (speed < 0)                            // convert negative speed to positive for internal comparison.
@@ -56,8 +56,11 @@ bool generic_Fan::CheckTimeForFrameDraw(int speed)
 // 				FRAME ADVANCE
 ///////////////////////////////////
 //called by effects function to manage frame advancement
-void generic_Fan::FrameAdvance(int speed, int FRAMELIMIT)
+void generic_LedDevice::FrameAdvance(int speed, int FRAMELIMIT)
 {
+	if (frameNumber > FRAMELIMIT)				 // if another effect left the frame number too high, reset to 0
+		frameNumber = 0;
+		
 	if (speed >= 0)                     //with positive speed, frames increment from 0 to FRAMELIMIT
 	{    
 	  frameNumber += 1;
@@ -71,6 +74,15 @@ void generic_Fan::FrameAdvance(int speed, int FRAMELIMIT)
 		frameNumber = FRAMELIMIT -1;    //when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration
 	}
 }
+
+
+
+
+//**********************************************************************************************************************
+//**********************************************************************************************************************
+//**************************************** GENERIC FAN CLASS************************************************************
+//**********************************************************************************************************************
+//**********************************************************************************************************************
 
 //******************
 // EFFECTS FUNCTIONS
@@ -192,9 +204,7 @@ void generic_Fan::SpinOneLed(int speed, CRGB color)
 void generic_Fan::MovingLine(int speed, CRGB color)
 {
 	const int FRAMELIMIT = NUMLEDS - 2;  // set number of frames in the effect
-	if (frameNumber > FRAMELIMIT)				 // if another effect left the frame number too high, reset to 0
-		frameNumber = 0;
-	
+		
 	if (!CheckTimeForFrameDraw(speed)) // manage frame write timing
 		return;
 	BlankFan();
@@ -229,7 +239,7 @@ void generic_Fan::MovingLine(int speed, CRGB color)
 		}
 		
 		FrameAdvance(speed, FRAMELIMIT);
-}
+};
 
 
 //**********************************************************************************************************************
@@ -237,7 +247,351 @@ void generic_Fan::MovingLine(int speed, CRGB color)
 //**************************************** CPU FAN CLASS****************************************************************
 //**********************************************************************************************************************
 //**********************************************************************************************************************
+
+//**********************************************************************************************************************
+//**********************************************************************************************************************
+//**************************************** FRONT LED STRIP CLASS********************************************************
+//**********************************************************************************************************************
+//**********************************************************************************************************************
+
+
+// UTILITY FUNCTIONS
+
+void front_LedStrip::WriteToOutgoingArray(int side, CRGB *outArray)
+{
+	if (side == 0 || side == 1)
+  {
+    //write left side  
+    leds[19] = outArray[0];
+    leds[18] = outArray[1];
+    leds[17] = outArray[2];    
+    leds[16] = outArray[3];  
+    leds[15] = outArray[4];  
+    leds[14] = outArray[5];  
+    leds[13] = outArray[6];  
+    leds[12] = outArray[7];  
+    leds[11] = outArray[0];  
+    leds[10] = outArray[1];
+  }
+  if (side == 0 || side == 2)
+  {
+    //write right side
+    leds[0] = outArray[0];
+    leds[1] = outArray[1];
+    leds[2] = outArray[2];
+    leds[3] = outArray[3];
+    leds[4] = outArray[4];
+    leds[5] = outArray[5];
+    leds[6] = outArray[6];
+    leds[7] = outArray[7];
+    leds[8] = outArray[0];
+    leds[9] = outArray[1];
+  }
+}
+
+// EFFECTS FUNCTIONS
+
+void front_LedStrip::BlankLeds()
+{
+	for (int i = 0; i < NUMLEDS; i++)
+		leds[i] = CRGB::Black;
+};
+	
+void front_LedStrip::BlinkLeds(int speed, CRGB color)
+{
+	const int FRAMELIMIT = 2;		// frames in this animation
+	
+	if (!CheckTimeForFrameDraw(speed)) // manage frame write timing
+		return;
+		
+	savedColor = CheckForRandomColor(color, savedColor, FRAMELIMIT, frameNumber, speed);  //manage random color use
+	
+	BlankLeds();			// set all LEDs to black before writing frame
+	
+	if (frameNumber == 0)		// On frame 0, set all LEDs on with saved color
+		for (int i = 0; i < NUMLEDS; i++)		// once for each LED
+			leds[i] = savedColor;
+		
+	FrameAdvance(speed, FRAMELIMIT);		// manage frame advancement
+};
+
+void front_LedStrip::TransColorsScrollingFrontLeds(int speed, CRGB *palette, int side)
+{
+	const int FRAMELIMIT = 8; 	// update this to programmatically determine based on array passed to function
+	bool nextFrame = 1; 		 	// flag to advance frame at end of function
+	float change; 						// to track amount of blending to apply to colors based on elapsed millis between frames
+	float changePerMilli = 255 / (float)speed;  //how much change is applied per millisecond
+	CRGB baseArray[10];  		  //creating array to hold basecolors and blended colors
+  CRGB outArray[10];  			//Array to hold colors ready to write out to LEDs
+		
+	if (changePerMilli < 0)  	// convert to positive change in case of negative speed
+		changePerMilli *= -1;
+	
+	if (!CheckTimeForFrameDraw(speed)) // manage frame write - if false, function progresses with between-frame blending
+		nextFrame = 0;									 // but will not advance frame
+		
+	//holding base colors in correct order with gaps between for blends
+  baseArray[0] = palette[0];  //blue  //red for testing
+  baseArray[2] = palette[1];  //pink  //green for testing
+  baseArray[4] = palette[2];  //white  //blue for testing
+  baseArray[6] = palette[1];  //pink  //green for testing
+  baseArray[8] = baseArray[0];  //line 8 will always duplicate line 0
+  //holding blends of base colors in correct order
+  baseArray[1] = blend( palette[0], palette[1], 128 );  //blue to pink  //red to green for testing
+  baseArray[3] = blend( palette[1], palette[2], 128 );  //pink to white  //green to blue for testing
+  baseArray[5] = blend( palette[1], palette[2], 128 );  //pink to white  //green to blue for testing
+  baseArray[7] = blend( palette[0], palette[1], 128 );  //blue to pink  //red to green for testing
+  baseArray[9] = baseArray[1]; //line 9 will always duplicate line 1
+	
+	change = accumulatedMilliseconds * changePerMilli;  //how much blending to apply based on elapsed milliseconds between frames
+	
+	 //for positive speed
+  if (speed >= 0)
+    for (int i = 0; i < 8; i++)
+      outArray[i] = blend( (baseArray[ (i + 8 + frameNumber) % 8 ]),(baseArray[ (i + 1 + 8 + frameNumber) % 8 ]),change);     
   
+  //negative speed requires applying (10 - framenumber) instead of framenumber because I can't make the frames
+  //iterate backwards without rewriting the FrameAdvance function. And just doing the 10 - offset is so simple
+  //but I need to explain that here before I forget why it's there.
+  //The (10 -) inverts the number, making 1 into 9, or 9 into 1.
+  else if (speed < 0)  
+    for (int i = 0; i < 8; i++)
+      outArray[i] = blend( (baseArray[ ((i - (8 - frameNumber)) + 10) % 8 ]),(baseArray[ ((i - 1 - (8 - frameNumber)) + 10 ) % 8 ]),change);
+
+	
+	//left vs. right vs both is controlled by a parameter passed at invocation
+	//WriteToOutgoingArray(side, outArray);
+	if (side == 0 || side == 1)
+  {
+    //write left side  
+	  leds[19] = outArray[0];
+    leds[18] = outArray[1];
+    leds[17] = outArray[2];    
+    leds[16] = outArray[3];  
+    leds[15] = outArray[4];  
+    leds[14] = outArray[5];  
+    leds[13] = outArray[6];  
+    leds[12] = outArray[7];  
+    leds[11] = outArray[0];  
+    leds[10] = outArray[1];
+		
+  }
+  if (side == 0 || side == 2)
+  {
+    //write right side
+    leds[0] = outArray[0];
+    leds[1] = outArray[1];
+    leds[2] = outArray[2];
+    leds[3] = outArray[3];
+    leds[4] = outArray[4];
+    leds[5] = outArray[5];
+    leds[6] = outArray[6];
+    leds[7] = outArray[7];
+    leds[8] = outArray[0];
+    leds[9] = outArray[1];
+  }
+	
+	if (nextFrame)
+    FrameAdvance(speed, FRAMELIMIT);  //advance frame as appropriate
+	
+}
+
+void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool tr, bool tl, bool br, bool bl)
+{
+	int lengthOfInputArray = (GetLengthOfBlackTerminatedCRGBArray(palette));; // the number of colors in the passed array
+	int lengthOfBaseArray = lengthOfInputArray * 2;		// the base array holds the input array plus blends	
+	int count = 1; 														// math for assigning blended colors to baseArray
+	const int FRAMELIMIT = lengthOfBaseArray; // how many frames until positions of input array colors repeat
+	float change; 						// to track amount of blending to apply to colors based on elapsed millis between frames
+	float changePerMilli = 255 / (float)speed;  //how much change is applied per millisecond
+	bool nextFrame = 1; 		 								  // flag to advance frame at end of function
+	CRGB baseArray[lengthOfBaseArray];  		  //creating array to hold basecolors and blended colors
+  CRGB outArray[vertRows];  						  	//Array to hold colors ready to write out to LEDs
+	CRGB blendColor; 												  // to temporarily hold color to write to outarray
+			
+	if (changePerMilli < 0)  	// convert to positive change in case of negative speed
+		changePerMilli *= -1;
+	change = changePerMilli * accumulatedMilliseconds;
+		
+	if (!CheckTimeForFrameDraw(speed)) // manage frame write - if false, function progresses with between-frame blending
+		nextFrame = 0;									 // but will not advance frame
+			
+	// populating base array
+	for (int i = 0; i < lengthOfBaseArray; i++) // once for each color + each color blend
+	{		
+		if (i % 2 == 0)														// even lines (and 0) get colors directly from input array
+			baseArray[i] = palette[ (i / 2) % lengthOfInputArray];
+		else if (i % 2 == 1)											// odd lines get blends of colors from input array
+		{	
+			baseArray[i] = blend( palette[ (i - count) % lengthOfInputArray], palette[ (i - count + 1) % lengthOfInputArray], 128);
+			count++;			
+		}		
+	}
+		
+	Serial.println("Base Array Printing");
+	PrintColorArray(lengthOfBaseArray, baseArray);
+		
+	//delay(2000);	
+	/*		
+	Serial.print("Frame number is: ");
+	Serial.print(frameNumber);
+	Serial.print(" |  length of input array is: ");
+	Serial.print(lengthOfInputArray);
+	Serial.print(" |  length of base array is: ");
+	Serial.println(lengthOfBaseArray);
+	*/
+
+ //for positive speed
+  if (speed >= 0)
+    for (int i = 0; i < vertRows; i++)  //once for each hardware row
+		{		
+			
+			Serial.print("Blending ");
+			Serial.print((i + frameNumber) % lengthOfBaseArray);
+			Serial.print(" and ");
+			Serial.print((i + 1 + frameNumber) % lengthOfBaseArray  );
+		  Serial.print(" | Change is: ");
+			Serial.println(change);			
+						
+      outArray[i] = blend( (baseArray[ (i + frameNumber) % lengthOfBaseArray ]),(baseArray[ (i + 1 + frameNumber) % lengthOfBaseArray ]),change);
+		}     
+  //negative speed requires applying (10 - framenumber) instead of framenumber because I can't make the frames
+  //iterate backwards without rewriting the FrameAdvance function. And just doing the 10 - offset is so simple
+  //but I need to explain that here before I forget why it's there.
+  //The (10 -) inverts the number, making 1 into 9, or 9 into 1.
+  else if (speed < 0)  
+    for (int i = 0; i < 8; i++)
+      outArray[i] = blend( (baseArray[ ((i - (8 - frameNumber)) + 10) % 8 ]),(baseArray[ ((i - 1 - (8 - frameNumber)) + 10 ) % 8 ]),change);
+
+	/*
+	Serial.println("Out Array Printing");
+	PrintColorArray(vertRows, outArray);
+	//delay(2000);	
+	
+		//write left side
+    leds[19] = outArray[0];
+    leds[18] = outArray[1];
+    leds[17] = outArray[2];    
+    leds[16] = outArray[3];  
+    leds[15] = outArray[4];  
+    leds[14] = outArray[5];  
+    leds[13] = outArray[6];  
+    leds[12] = outArray[7];  
+    leds[11] = outArray[8];  
+    leds[10] = outArray[9];
+		//write right side
+    leds[0] = outArray[0];
+    leds[1] = outArray[1];
+    leds[2] = outArray[2];
+    leds[3] = outArray[3];
+    leds[4] = outArray[4];
+    leds[5] = outArray[5];
+    leds[6] = outArray[6];
+    leds[7] = outArray[7];
+    leds[8] = outArray[8];
+    leds[9] = outArray[9];
+		*/
+		
+	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);
+	
+	if (nextFrame)
+    FrameAdvance(speed, FRAMELIMIT);  //advance frame as appropriate
+	
+	Serial.print("Frame number: ");
+	Serial.println(frameNumber);
+	
+	Serial.println();
+
+}
+
+void front_LedStrip::ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl, bool tr, bool bl, bool br)
+{
+	int vertRows = 10;
+	
+	if ( ( (tl) || (tr) ) && ( (bl) || (br) ) )  // if at least one upper and one lower strip are engaged, 10 rows. Else, 5.
+		vertRows = 10;
+	else
+		vertRows = 5;	
+	
+	front_LedStrip::ScrollColors(speed, palette, vertRows, tl, tr, bl, br);	
+}
+
+void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, bool bl, bool br, int vertRows)
+{
+	if (vertRows == 10)
+	{
+		if (tl)
+		{
+			leds[19] = outArray[0];
+			leds[18] = outArray[1];
+			leds[17] = outArray[2];    
+			leds[16] = outArray[3];  
+			leds[15] = outArray[4];  
+		}
+		if (bl)
+		{
+			leds[14] = outArray[5];  
+			leds[13] = outArray[6];  
+			leds[12] = outArray[7];  
+			leds[11] = outArray[8];  
+			leds[10] = outArray[9];
+		}
+		if (tr)
+		{
+			leds[0] = outArray[0];
+			leds[1] = outArray[1];
+			leds[2] = outArray[2];
+			leds[3] = outArray[3];
+			leds[4] = outArray[4];
+		}
+		if (br)
+		{
+			leds[5] = outArray[5];  
+			leds[6] = outArray[6];  
+			leds[7] = outArray[7];  
+			leds[8] = outArray[8];  
+			leds[9] = outArray[9];
+		}
+	}
+		
+	if (vertRows == 5)
+	{
+		if (tl)
+		{
+			leds[19] = outArray[0];
+			leds[18] = outArray[1];
+			leds[17] = outArray[2];    
+			leds[16] = outArray[3];  
+			leds[15] = outArray[4]; 
+		}
+		if (bl)
+		{
+			leds[14] = outArray[0];  
+			leds[13] = outArray[1];  
+			leds[12] = outArray[2];  
+			leds[11] = outArray[3];  
+			leds[10] = outArray[4];
+		}
+		if (tr)
+		{
+			leds[0] = outArray[0];
+			leds[1] = outArray[1];
+			leds[2] = outArray[2];
+			leds[3] = outArray[3];
+			leds[4] = outArray[4];
+			leds[5] = outArray[5];
+		}
+		if (br)
+		{
+			leds[5] = outArray[5];
+			leds[6] = outArray[6];
+			leds[7] = outArray[7];
+			leds[8] = outArray[8];
+			leds[9] = outArray[9];
+		}
+	}
+};
+
 
 
 
