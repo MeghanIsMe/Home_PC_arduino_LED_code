@@ -39,44 +39,49 @@ void generic_LedDevice::CheckInitialization()
 // 				CHECK TIME FOR FRAME DRAW
 //////////////////////////////////////
 //checks to see whether enough time has passed to advance to the next frame of the effects animation
-bool generic_LedDevice::CheckTimeForFrameDraw(int speed)  
-{
-	accumulatedMilliseconds += deltaMillis;		// add elapsed milliseconds since last main loop to running total
+bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)  
+{	
+	*counter += deltaMillis;	 // add elapsed milliseconds since last main loop to running total
+	
 	if (speed < 0)                            // convert negative speed to positive for internal comparison.
 		speed *= -1;	
-	if (accumulatedMilliseconds < speed)      // check whether enough time has passed to write the next frame.
-		return false;                           // if not, return false
+		
+	if (*counter < speed)      // check whether enough time has passed to write the next frame.		
+		return false;                           // if not, return false	
 	else    
-	{
-		accumulatedMilliseconds = 0;						// reset running total of milliseconds to 0
+	{		
+		*counter = 0;						// reset running total of milliseconds to 0
 		return true;                            // if so, return true.
   }
 }
 ///////////////////////////////////
 // 				FRAME ADVANCE
 ///////////////////////////////////
-//called by effects function to manage frame advancement
-void generic_LedDevice::FrameAdvance(int speed, int FRAMELIMIT)
-{
-	if (frameNumber > FRAMELIMIT)				 // if another effect left the frame number too high, reset to 0
-		frameNumber = 0;
+// called by effects function to manage frame advancement
+// Counter: this is the number that will be evaluatede, updated, and returned as the new frame number
+//			most functions pass object member frameNumber to this function, but front strip functions may have 
+//			multiple timers and may pass something else
+//			counter is returned and does not need to be a pointer, unlike CheckTimeForFrameDraw in which it must be a counter becaue the
+//			function returns a boolean
+int generic_LedDevice::FrameAdvance(int speed, int FRAMELIMIT, int counter)
+{	
+	if (counter > FRAMELIMIT)				 // if another effect left the frame number too high, reset to 0
+		counter = 0;
 		
 	if (speed >= 0)                     //with positive speed, frames increment from 0 to FRAMELIMIT
 	{    
-	  frameNumber += 1;
-	  if (frameNumber == FRAMELIMIT)    //when frameNumber reaches FRAMELIMIT, it resets to 0 before next function iteration
-		frameNumber = 0;
+	  counter += 1;
+	  if (counter == FRAMELIMIT)    //when frameNumber reaches FRAMELIMIT, it resets to 0 before next function iteration
+		counter = 0;
 	}
 	else
 	{
-	  frameNumber -= 1;                 //with negative speed, frames decrement from FRAMELIMIT -1 to -1
-	  if (frameNumber == -1)
-		frameNumber = FRAMELIMIT -1;    //when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration
-	}
+	  counter -= 1;                 //with negative speed, frames decrement from FRAMELIMIT -1 to -1
+	  if (counter == -1)
+		counter = FRAMELIMIT -1;    //when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration
+	}		
+	return counter;
 }
-
-
-
 
 //**********************************************************************************************************************
 //**********************************************************************************************************************
@@ -109,13 +114,13 @@ void generic_Fan::SpinColorWave(int speed)
 	const int FRAMELIMIT = NUMLEDS;
 	
 	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
-	if (!CheckTimeForFrameDraw(speed)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
 		return;
 	savedColor = CheckForRandomColor(CRGB::Black, savedColor, FRAMELIMIT, frameNumber, speed);  // generates random color at start frame
 			//hard-coded to black to create a new random color each go-around
 	leds[frameNumber] = savedColor; //	lighting led corresponding to current frame number
 	
-	FrameAdvance(speed, FRAMELIMIT);  //manage frame advancement
+	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);  //manage frame advancement
 }
 
 ///////////////////////////////////
@@ -131,7 +136,7 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
 	// housekeeping portion
 	const int FRAMELIMIT = NUMLEDS;		 // number of frames in this effect
 	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
-	if (!CheckTimeForFrameDraw(speed)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
 		return;
 	
 	// Limiting fans with only 4 LEDS to having two colors
@@ -163,7 +168,7 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
   }  	
 		
 	// housekeeping portion
-	FrameAdvance(speed, FRAMELIMIT);   // manage frame advancement		
+	FrameAdvance(speed, FRAMELIMIT, frameNumber);   // manage frame advancement		
 }
 
 ///////////////////////////////////
@@ -178,7 +183,7 @@ void generic_Fan::SpinOneLed(int speed, CRGB color)
 	const int FRAMELIMIT = NUMLEDS;    // number of frames in this effect
 	
 	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
-	if (!CheckTimeForFrameDraw(speed)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
 		return;
 		
 	// color management portion
@@ -191,7 +196,7 @@ void generic_Fan::SpinOneLed(int speed, CRGB color)
 	// WriteColorsToFan();              // write internal led array to external one for subsequent write to hardware at end of main loop
 	
 	// housekeeping portion
-	FrameAdvance(speed, FRAMELIMIT);   // manage frame advancement
+	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);   // manage frame advancement
 }
 
 ///////////////////////////////////
@@ -205,7 +210,7 @@ void generic_Fan::MovingLine(int speed, CRGB color)
 {
 	const int FRAMELIMIT = NUMLEDS - 2;  // set number of frames in the effect
 		
-	if (!CheckTimeForFrameDraw(speed)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
 		return;
 	BlankFan();
 	
@@ -238,7 +243,7 @@ void generic_Fan::MovingLine(int speed, CRGB color)
 			leds[0] = color;
 		}
 		
-		FrameAdvance(speed, FRAMELIMIT);
+		frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);
 };
 
 
@@ -256,6 +261,39 @@ void generic_Fan::MovingLine(int speed, CRGB color)
 
 
 // UTILITY FUNCTIONS
+
+///////////////////////
+//==== DetermineTimer
+// Determines which frame counting member to use for function timing based on which quarters of the strip are engaged
+// In order of priority, assigns the first timer that matches a booleans: tl, tr, bl, br
+void front_LedStrip::DetermineTimer(bool tl, bool tr, bool bl, bool br)
+{	
+	if (tl)	
+	{
+		p_activeCounter = &topLeftFrameNumber;
+		p_activeTimer =  &topLeftAccumulatedMillis;
+		//Serial.println("Top Left");
+	}
+	else if (tr)	
+	{
+		p_activeCounter = &topRightFrameNumber;	
+		p_activeTimer = &topRightAccumulatedMillis;
+		//Serial.println("Top Right");
+	}
+	else if (bl)	
+	{
+		p_activeCounter = &bottomLeftFrameNumber;
+		p_activeTimer =  &bottomLeftAccumulatedMillis;
+		//Serial.println("Bottom Left");
+	}
+	else if (br)	
+	{
+		p_activeCounter = &bottomRightFrameNumber;	
+		p_activeTimer =  &bottomRightAccumulatedMillis;
+		//Serial.println("Bottom Right");
+	}
+}
+
 
 ///////////////////////
 //==== WriteToOutGoingArray
@@ -310,7 +348,7 @@ void front_LedStrip::BlinkLeds(int speed, CRGB color)
 {
 	const int FRAMELIMIT = 2;		// frames in this animation
 	
-	if (!CheckTimeForFrameDraw(speed)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
 		return;
 		
 	savedColor = CheckForRandomColor(color, savedColor, FRAMELIMIT, frameNumber, speed);  //manage random color use
@@ -321,92 +359,8 @@ void front_LedStrip::BlinkLeds(int speed, CRGB color)
 		for (int i = 0; i < NUMLEDS; i++)		// once for each LED
 			leds[i] = savedColor;
 		
-	FrameAdvance(speed, FRAMELIMIT);		// manage frame advancement
+	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);		// manage frame advancement
 };
-
-///////////////////////
-//==== TransColorsScrollingFrontLeds
-// 
-void front_LedStrip::TransColorsScrollingFrontLeds(int speed, CRGB *palette, int side)
-{
-	const int FRAMELIMIT = 8; 	// update this to programmatically determine based on array passed to function
-	bool nextFrame = 1; 		 	// flag to advance frame at end of function
-	float change; 						// to track amount of blending to apply to colors based on elapsed millis between frames
-	float changePerMilli = 255 / (float)speed;  //how much change is applied per millisecond
-	CRGB baseArray[10];  		  //creating array to hold basecolors and blended colors
-  CRGB outArray[10];  			//Array to hold colors ready to write out to LEDs
-		
-	if (changePerMilli < 0)  	// convert to positive change in case of negative speed
-		changePerMilli *= -1;
-	
-	if (!CheckTimeForFrameDraw(speed)) // manage frame write - if false, function progresses with between-frame blending
-		nextFrame = 0;									 // but will not advance frame
-		
-	//holding base colors in correct order with gaps between for blends
-  baseArray[0] = palette[0];  //blue  //red for testing
-  baseArray[2] = palette[1];  //pink  //green for testing
-  baseArray[4] = palette[2];  //white  //blue for testing
-  baseArray[6] = palette[1];  //pink  //green for testing
-  baseArray[8] = baseArray[0];  //line 8 will always duplicate line 0
-  //holding blends of base colors in correct order
-  baseArray[1] = blend( palette[0], palette[1], 128 );  //blue to pink  //red to green for testing
-  baseArray[3] = blend( palette[1], palette[2], 128 );  //pink to white  //green to blue for testing
-  baseArray[5] = blend( palette[1], palette[2], 128 );  //pink to white  //green to blue for testing
-  baseArray[7] = blend( palette[0], palette[1], 128 );  //blue to pink  //red to green for testing
-  baseArray[9] = baseArray[1]; //line 9 will always duplicate line 1
-	
-	change = accumulatedMilliseconds * changePerMilli;  //how much blending to apply based on elapsed milliseconds between frames
-	
-	 //for positive speed
-  if (speed >= 0)
-    for (int i = 0; i < 8; i++)
-      outArray[i] = blend( (baseArray[ (i + 8 + frameNumber) % 8 ]),(baseArray[ (i + 1 + 8 + frameNumber) % 8 ]),change);     
-  
-  //negative speed requires applying (10 - framenumber) instead of framenumber because I can't make the frames
-  //iterate backwards without rewriting the FrameAdvance function. And just doing the 10 - offset is so simple
-  //but I need to explain that here before I forget why it's there.
-  //The (10 -) inverts the number, making 1 into 9, or 9 into 1.
-  else if (speed < 0)  
-    for (int i = 0; i < 8; i++)
-      outArray[i] = blend( (baseArray[ ((i - (8 - frameNumber)) + 10) % 8 ]),(baseArray[ ((i - 1 - (8 - frameNumber)) + 10 ) % 8 ]),change);
-
-	
-	//left vs. right vs both is controlled by a parameter passed at invocation
-	//WriteToOutgoingArray(side, outArray);
-	if (side == 0 || side == 1)
-  {
-    //write left side  
-	  leds[19] = outArray[0];
-    leds[18] = outArray[1];
-    leds[17] = outArray[2];    
-    leds[16] = outArray[3];  
-    leds[15] = outArray[4];  
-    leds[14] = outArray[5];  
-    leds[13] = outArray[6];  
-    leds[12] = outArray[7];  
-    leds[11] = outArray[0];  
-    leds[10] = outArray[1];
-		
-  }
-  if (side == 0 || side == 2)
-  {
-    //write right side
-    leds[0] = outArray[0];
-    leds[1] = outArray[1];
-    leds[2] = outArray[2];
-    leds[3] = outArray[3];
-    leds[4] = outArray[4];
-    leds[5] = outArray[5];
-    leds[6] = outArray[6];
-    leds[7] = outArray[7];
-    leds[8] = outArray[0];
-    leds[9] = outArray[1];
-  }
-	
-	if (nextFrame)
-    FrameAdvance(speed, FRAMELIMIT);  //advance frame as appropriate
-	
-}
 
 ///////////////////////
 //==== ScrollColors
@@ -419,7 +373,7 @@ void front_LedStrip::TransColorsScrollingFrontLeds(int speed, CRGB *palette, int
 //	Calls WriteColorsToOutPutArray to write outArray to the calling object's LED array
 void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool tl, bool tr, bool bl, bool br)
 {
-	int lengthOfInputArray = (GetLengthOfBlackTerminatedCRGBArray(palette));; // the number of colors in the passed array
+	int lengthOfInputArray = (GetLengthOfBlackTerminatedCRGBArray(palette)); // the number of colors in the passed array
 	int lengthOfBaseArray = lengthOfInputArray * 2;		// the base array holds the input array plus blends	
 	int count = 1; 														// math for assigning blended colors to baseArray
 	const int FRAMELIMIT = lengthOfBaseArray; // how many frames until positions of input array colors repeat
@@ -428,15 +382,17 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 	bool nextFrame = 1; 		 								  // flag to advance frame at end of function
 	CRGB baseArray[lengthOfBaseArray];  		  //creating array to hold basecolors and blended colors
   CRGB outArray[vertRows];  						  	//Array to hold colors ready to write out to LEDs
-	CRGB blendColor; 												  // to temporarily hold color to write to outarray
+	CRGB blendColor; 		  									  // to temporarily hold color to write to outarray
+	
+	DetermineTimer(tl, tr, bl, br);  					//determine which of the object's frame counters and timers to run the effect on		
+	
+	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write - if false, function progresses with between-frame blending
+			nextFrame = 0;									 			// but will not advance frame	
 			
-	if (changePerMilli < 0)  	// convert to positive change in case of negative speed
-		changePerMilli *= -1;
+	if (changePerMilli < 0)  									// convert to positive change in case of negative speed
+		changePerMilli *= -1;	
 	
-	if (!CheckTimeForFrameDraw(speed)) // manage frame write - if false, function progresses with between-frame blending
-			nextFrame = 0;									 // but will not advance frame
-	
-	change = changePerMilli * accumulatedMilliseconds;  // how much change/blending to apply this function iteration
+	change = changePerMilli * *p_activeTimer;  // how much change/blending to apply this function iteration	
 					
 	// populating base array
 	for (int i = 0; i < lengthOfBaseArray; i++) // once for each color + each color blend
@@ -449,14 +405,18 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 			count++;			
 		}		
 	}
+	//Serial.print("Length of base array is: ");
+	//Serial.println(lengthOfBaseArray);
+	//if (lengthOfBaseArray == 12)
+		//PrintColorArray(baseArray, lengthOfBaseArray);
 
  // for positive speed
   if (speed >= 0)
     for (int i = 0; i < vertRows; i++)  //once for each hardware row
 		{							
       outArray[i] = blend(
-									 (baseArray[ (i + frameNumber) % lengthOfBaseArray ]),      // argument 1
-									 (baseArray[ (i + 1 + frameNumber) % lengthOfBaseArray ]),  // argument 2
+									 (baseArray[ (i + *p_activeCounter) % lengthOfBaseArray ]),      // argument 1
+									 (baseArray[ (i + 1 + *p_activeCounter) % lengthOfBaseArray ]),  // argument 2
 									 change);																						  			// argument 3
 		}     
 	// for negative speed
@@ -464,21 +424,14 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 			for (int i = 0; i < vertRows; i++)
 			{				
 				outArray[i] = blend(
-										 (baseArray [(i - (lengthOfBaseArray - frameNumber) + 10) % lengthOfBaseArray  ]),		  // argument 1
-										 (baseArray [(i - 1 - (lengthOfBaseArray - frameNumber) + 10) % lengthOfBaseArray ]),   // argument 2
+										 (baseArray [(i - (lengthOfBaseArray - *p_activeCounter) + 10) % lengthOfBaseArray  ]),		  // argument 1
+										 (baseArray [(i - 1 - (lengthOfBaseArray - *p_activeCounter) + 10) % lengthOfBaseArray ]),   // argument 2
 										  change);																										 													// argument 3		
 			}		
 	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);
 	
-	//debugging
-	Serial.print("Length of base array is: ");
-	Serial.println(lengthOfBaseArray);
-	Serial.print("Frame number: ");
-	Serial.println(frameNumber);
-	Serial.println();
-	
 	if (nextFrame)
-    FrameAdvance(speed, FRAMELIMIT);  //advance frame as appropriate	
+    *p_activeCounter = FrameAdvance(speed, FRAMELIMIT, *p_activeCounter);  //advance frame as appropriate		
 }
 
 ///////////////////////
@@ -499,16 +452,7 @@ void front_LedStrip::ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl
 //==== WriteColorsToOutputArray
 // 
 void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, bool bl, bool br, int vertRows)
-{
-	Serial.print("top left: ");
-	Serial.println(tl);
-	Serial.print("top right: ");
-	Serial.println(tr);
-	Serial.print("bottom left: ");
-	Serial.println(bl);
-	Serial.print("bottom right: ");
-	Serial.println(br);
-	
+{	
 	if (vertRows == 10)
 	{
 		if (tl)

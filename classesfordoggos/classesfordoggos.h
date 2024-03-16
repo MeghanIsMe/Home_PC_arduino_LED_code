@@ -31,8 +31,9 @@ class generic_LedDevice
 	
 	//mangement functions
 	void CheckInitialization(); 									// Check whether to initialize frame number
-	bool CheckTimeForFrameDraw(int speed);				// Check whether enough time has passed to update effect
-	void FrameAdvance(int speed, int FRAMELIMIT); // Advance frame number as appropriate
+	bool CheckTimeForFrameDraw(int speed, int *counter);				// Check whether enough time has passed to update effect
+	//void FrameAdvance(int speed, int FRAMELIMIT); // Advance frame number as appropriate
+	int FrameAdvance(int speed, int FRAMELIMIT, int counter); // Advance frame number as appropriate
 	//effects functions
 			
 };
@@ -107,15 +108,17 @@ class front_LedStrip : public generic_LedStrip
 {
 	public:	
 
-	// for tracking effects running on portions of the object
-	int topFrameNumber = 0;
-	int bottomFrameNumber = 0;
-	int leftFrameNumber = 0;
-	int rightFrameNumber = 0;
+	// for tracking effects running on portions of the object	
 	int topLeftFrameNumber = 0;
 	int topRightFrameNumber = 0;
 	int bottomLeftFrameNumber = 0;
 	int bottomRightFrameNumber = 0;
+	int topLeftAccumulatedMillis = 0;
+	int topRightAccumulatedMillis = 0;
+	int bottomLeftAccumulatedMillis = 0;
+	int bottomRightAccumulatedMillis = 0;
+	int* p_activeCounter; 
+	int* p_activeTimer;
 	
 	CRGB leds[20];										// holds CRGB values that will be written by an effects function, then written out to the display hardware at end of main loop
 	
@@ -127,6 +130,7 @@ class front_LedStrip : public generic_LedStrip
 	}
 	//utility functions
 	void WriteToOutgoingArray(int side, CRGB *outArray);
+	void DetermineTimer(bool tl, bool tr, bool bl, bool br);
 	
 	//effects functions
 	void BlankLeds();									// Set all LEDs to black

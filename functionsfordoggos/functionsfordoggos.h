@@ -15,7 +15,7 @@ extern unsigned long deltaMillis;   // milliseconds passed since last main loop 
 // UTILITY FUNCTION
 //void 
 int GetLengthOfBlackTerminatedCRGBArray(CRGB *arr); // overload this for more array types if necessary
-void PrintColorArray(int length, CRGB *arr);
+void PrintColorArray(CRGB *arr, int length);
 void SerialPrintColor(CRGB color);
 void SerialPrintVars(int, int, int, int, int);
 

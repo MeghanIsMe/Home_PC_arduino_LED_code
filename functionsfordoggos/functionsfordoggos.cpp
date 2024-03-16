@@ -33,7 +33,7 @@ void SerialPrintColor(CRGB color)
 ///////////////////////
 //==== PrintColorArray
 // Accepts a CRGB array and prints each color in it. Must manual hard-code the array length.
-void PrintColorArray(int length, CRGB *arr)
+void PrintColorArray(CRGB *arr, int length)
 {	
 	for (int i = 0; i < length; i++)
 	{
