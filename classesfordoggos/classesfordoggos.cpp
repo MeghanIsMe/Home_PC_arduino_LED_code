@@ -53,16 +53,47 @@ bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)
 		*counter = 0;						// reset running total of milliseconds to 0
 		return true;                            // if so, return true.
   }
-}
+};
+
+///////////////////////////////////
+// 				COLOR ADVANCE
+///////////////////////////////////
+void generic_LedDevice::ColorAdvance(int paletteLength, int FRAMELIMIT, int speed)
+{	      
+	int colorIndex = paletteColorIndex;
+	if (speed >= 0)
+	{
+		if (frameNumber == 0)
+		{
+			Serial.println();
+			Serial.println("CA: speed is positive");
+			Serial.print("CA: calculation is: ");
+			Serial.print(colorIndex);
+			Serial.print(" % ");
+			Serial.println(paletteLength);
+			colorIndex++;			
+			colorIndex = (colorIndex % paletteLength);
+			
+		}
+	}	
+	if (speed < 0)
+	{
+		if (frameNumber == FRAMELIMIT - 1)
+		{
+			paletteColorIndex--;
+			if (paletteColorIndex < 0)
+				paletteColorIndex += paletteLength;
+		}	
+	}
+	paletteColorIndex = colorIndex ;
+};
+	
+
 ///////////////////////////////////
 // 				FRAME ADVANCE
 ///////////////////////////////////
-// called by effects function to manage frame advancement
+// called by effects function to manage color advancement called with a palette/array
 // Counter: this is the number that will be evaluatede, updated, and returned as the new frame number
-//			most functions pass object member frameNumber to this function, but front strip functions may have 
-//			multiple timers and may pass something else
-//			counter is returned and does not need to be a pointer, unlike CheckTimeForFrameDraw in which it must be a counter becaue the
-//			function returns a boolean
 int generic_LedDevice::FrameAdvance(int speed, int FRAMELIMIT, int counter)
 {	
 	if (counter > FRAMELIMIT)				 // if another effect left the frame number too high, reset to 0
@@ -105,6 +136,54 @@ void generic_Fan::BlankFan()
 }  
 
 ///////////////////////////////////
+// 				FILL FAN
+///////////////////////////////////
+// Fill all LEDs with passed color
+void generic_Fan::FillFan(CRGB color)
+{
+	for (int i = 0; i < NUMLEDS; i++)
+		leds[i] = color;	
+}
+
+///////////////////////////////////
+// 				SPINCOLORWAVETEST
+///////////////////////////////////
+//Lights each LED around an Aspect fan sequentially, leaves them on, and repeats with a new color
+//non-selectable color: always random
+// what if we pass this an int for array length created by running GetLengthOf... on an array as an expression in the argument list?
+
+void generic_Fan::SpinColorWaveTest(int speed, CRGB *palette)
+{
+	const int FRAMELIMIT = NUMLEDS;
+	
+	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
+	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
+		return;
+	/*
+	Serial.print("SCWT: length of array is: ");
+	Serial.println(GetLengthOfBlackTerminatedCRGBArray(palette));
+	*/
+		
+	//Serial.print("SCWT: frame number before frame advance is: ");
+	//Serial.println(frameNumber);
+	//Serial.print("SCWT: palette color index before colorAdvance is: ");
+	//Serial.println(paletteColorIndex);
+		
+	savedColor = palette[paletteColorIndex];
+			
+	leds[frameNumber] = savedColor; //	lighting led corresponding to current frame number
+	
+	ColorAdvance( (GetLengthOfBlackTerminatedCRGBArray(palette) ), FRAMELIMIT, speed);	
+	
+	//Serial.print("SCWT: palette color index after frame advance is: ");
+	//Serial.println(paletteColorIndex);
+	
+	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);  //manage frame advancement
+	
+};
+
+
+///////////////////////////////////
 // 				SPINCOLORWAVE
 ///////////////////////////////////
 //Lights each LED around an Aspect fan sequentially, leaves them on, and repeats with a new color
@@ -121,6 +200,7 @@ void generic_Fan::SpinColorWave(int speed)
 	leds[frameNumber] = savedColor; //	lighting led corresponding to current frame number
 	
 	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);  //manage frame advancement
+	
 }
 
 ///////////////////////////////////
@@ -136,7 +216,7 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
 	// housekeeping portion
 	const int FRAMELIMIT = NUMLEDS;		 // number of frames in this effect
 	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
-	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
 		return;
 	
 	// Limiting fans with only 4 LEDS to having two colors
@@ -168,7 +248,7 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
   }  	
 		
 	// housekeeping portion
-	FrameAdvance(speed, FRAMELIMIT, frameNumber);   // manage frame advancement		
+	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);   // manage frame advancement		
 }
 
 ///////////////////////////////////
@@ -183,7 +263,7 @@ void generic_Fan::SpinOneLed(int speed, CRGB color)
 	const int FRAMELIMIT = NUMLEDS;    // number of frames in this effect
 	
 	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
-	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
 		return;
 		
 	// color management portion
@@ -210,7 +290,7 @@ void generic_Fan::MovingLine(int speed, CRGB color)
 {
 	const int FRAMELIMIT = NUMLEDS - 2;  // set number of frames in the effect
 		
-	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
 		return;
 	BlankFan();
 	
@@ -294,42 +374,6 @@ void front_LedStrip::DetermineTimer(bool tl, bool tr, bool bl, bool br)
 	}
 }
 
-
-///////////////////////
-//==== WriteToOutGoingArray
-// 
-void front_LedStrip::WriteToOutgoingArray(int side, CRGB *outArray)
-{
-	if (side == 0 || side == 1)
-  {
-    //write left side  
-    leds[19] = outArray[0];
-    leds[18] = outArray[1];
-    leds[17] = outArray[2];    
-    leds[16] = outArray[3];  
-    leds[15] = outArray[4];  
-    leds[14] = outArray[5];  
-    leds[13] = outArray[6];  
-    leds[12] = outArray[7];  
-    leds[11] = outArray[0];  
-    leds[10] = outArray[1];
-  }
-  if (side == 0 || side == 2)
-  {
-    //write right side
-    leds[0] = outArray[0];
-    leds[1] = outArray[1];
-    leds[2] = outArray[2];
-    leds[3] = outArray[3];
-    leds[4] = outArray[4];
-    leds[5] = outArray[5];
-    leds[6] = outArray[6];
-    leds[7] = outArray[7];
-    leds[8] = outArray[0];
-    leds[9] = outArray[1];
-  }
-}
-
 // EFFECTS FUNCTIONS
 
 ///////////////////////
@@ -348,7 +392,7 @@ void front_LedStrip::BlinkLeds(int speed, CRGB color)
 {
 	const int FRAMELIMIT = 2;		// frames in this animation
 	
-	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
 		return;
 		
 	savedColor = CheckForRandomColor(color, savedColor, FRAMELIMIT, frameNumber, speed);  //manage random color use
@@ -361,6 +405,16 @@ void front_LedStrip::BlinkLeds(int speed, CRGB color)
 		
 	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);		// manage frame advancement
 };
+
+///////////////////////
+//==== FillLeds
+// 
+//  Fill all LEDs with passed color
+void front_LedStrip::FillLeds(CRGB color)
+{
+	for (int i = 0; i < NUMLEDS; i++)
+		leds[i] = color;
+}
 
 ///////////////////////
 //==== ScrollColors
@@ -385,6 +439,7 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 	CRGB blendColor; 		  									  // to temporarily hold color to write to outarray
 	
 	DetermineTimer(tl, tr, bl, br);  					//determine which of the object's frame counters and timers to run the effect on		
+																						//this sets the pointers p_activeCounter and p_activeTimer
 	
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write - if false, function progresses with between-frame blending
 			nextFrame = 0;									 			// but will not advance frame	
@@ -527,6 +582,9 @@ void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, 
 	}
 };
 
+////////////////////////////
+// TESTING FUNCTIONS 
+////////////////////////////
 
 
 

@@ -85,7 +85,6 @@ void SerialPrintVars(int var0 = 0, int var1 = 0, int var2 = 0, int var3 = 0, int
 // COLOR MANIPULATION FUNCTIONS
 //*****************************
 
-
 ///////////////////////
 //====MakeRandomColor
 //Parameters: none

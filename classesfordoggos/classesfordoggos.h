@@ -22,6 +22,7 @@ class generic_LedDevice
 	int accumulatedMilliseconds; 		// running total of milliseconds passed since last time an effects function executed on this object
 	int frameNumber;								// which frame of the animation is currently being displayed on this object by an effects function
 	int NUMLEDS;										// how many LEDS are on this device. This should never change once set by a child class
+	int paletteColorIndex = 0; 			// for managing use of palette arrays passed to calling effects functions
 	bool initialized;   						// whether frameNumber has been set to a specific starting frame
 	CRGB savedColor;								// what color is currently being used to display the effects function on this object
 				
@@ -32,7 +33,7 @@ class generic_LedDevice
 	//mangement functions
 	void CheckInitialization(); 									// Check whether to initialize frame number
 	bool CheckTimeForFrameDraw(int speed, int *counter);				// Check whether enough time has passed to update effect
-	//void FrameAdvance(int speed, int FRAMELIMIT); // Advance frame number as appropriate
+	void ColorAdvance(int paletteLength, int FRAMELIMIT, int speed);
 	int FrameAdvance(int speed, int FRAMELIMIT, int counter); // Advance frame number as appropriate
 	//effects functions
 			
@@ -56,7 +57,9 @@ class generic_Fan : public generic_LedDevice
 	
 	//effects functions
 	void BlankFan();												 // Set all LEDs to black
+	void FillFan(CRGB color);	 // Fill all LEDs on fan with passed color
 	void SpinColorWave(int speed);					 // Waves of color rotate around fan
+	void SpinColorWaveTest(int speed, CRGB *palette);
 	void SpinLeds(int, CRGB, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black);  //Spin 1-3 LEDs around a fan
 	void SpinOneLed(int speed, CRGB color);  // One LED rotates around fan
 	void MovingLine(int speed, CRGB color);	 // Line of LEDs bounces back and forth across fan
@@ -135,6 +138,7 @@ class front_LedStrip : public generic_LedStrip
 	//effects functions
 	void BlankLeds();									// Set all LEDs to black
 	void BlinkLeds(int speed, CRGB color);  // Blinks all LEDs
+	void FillLeds(CRGB color);
 	void TransColorsScrollingFrontLeds(int speed, CRGB *palette, int side);
 	void ScrollColors(int speed, CRGB *palette,int vertRows, bool tr, bool tl, bool br, bool bl);	
 	void ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl, bool tr, bool bl, bool br);
