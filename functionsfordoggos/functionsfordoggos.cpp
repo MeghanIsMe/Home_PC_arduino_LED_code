@@ -46,7 +46,7 @@ void PrintColorArray(CRGB *arr, int length)
 
 ///////////////////////
 //==== GetLengthOfBlackTerminatedArray
-// Accepts a CRGB array and returns the number of elements in it as an int
+// Accepts a CRGB array and returns the number of elements prior to the first black in it as an int
 int GetLengthOfBlackTerminatedCRGBArray(CRGB *arr)
 {
 		int lengthCount = 0;
@@ -123,11 +123,11 @@ CRGB CheckForRandomColor(CRGB color, CRGB savedColor, int FRAMELIMIT, int frameN
     return color;
 	
   //First condition: positive speed, color is black, starting frame - returns new random color
-  if ( (speed >= 0) && (color == CRGB::Black) && (frameNumber == 0) ) //if this was called after FrameAdvance, this would be -1
+  if ( (speed >= 0) && (color == CRGB::Black) && (frameNumber == 0) ) //if this was called after AdvanceFrame, this would be -1
     return MakeRandomColor();  
  
   //Second condition: negative speed, color is black, starting frame - returns new random color
-  else if ( (speed < 0) && (color == CRGB::Black) && (frameNumber == FRAMELIMIT -1) ) //if this was called after FrameAdvance, this would be FRAMELIMIT
+  else if ( (speed < 0) && (color == CRGB::Black) && (frameNumber == FRAMELIMIT -1) ) //if this was called after AdvanceFrame, this would be FRAMELIMIT
     return MakeRandomColor();
    
   //Third condition: anything else - returns the color already in the state tracking array, which will have been put there by this function previously

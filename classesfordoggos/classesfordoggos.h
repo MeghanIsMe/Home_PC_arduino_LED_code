@@ -34,7 +34,7 @@ class generic_LedDevice
 	void CheckInitialization(); 									// Check whether to initialize frame number
 	bool CheckTimeForFrameDraw(int speed, int *counter);				// Check whether enough time has passed to update effect
 	void ColorAdvance(int paletteLength, int FRAMELIMIT, int speed);
-	int FrameAdvance(int speed, int FRAMELIMIT, int counter); // Advance frame number as appropriate
+	int AdvanceFrame(int speed, int FRAMELIMIT, int counter); // Advance frame number as appropriate
 	//effects functions
 			
 };

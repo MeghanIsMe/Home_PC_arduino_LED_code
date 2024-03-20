@@ -65,15 +65,8 @@ void generic_LedDevice::ColorAdvance(int paletteLength, int FRAMELIMIT, int spee
 	{
 		if (frameNumber == 0)
 		{
-			Serial.println();
-			Serial.println("CA: speed is positive");
-			Serial.print("CA: calculation is: ");
-			Serial.print(colorIndex);
-			Serial.print(" % ");
-			Serial.println(paletteLength);
 			colorIndex++;			
-			colorIndex = (colorIndex % paletteLength);
-			
+			colorIndex = (colorIndex % paletteLength);			
 		}
 	}	
 	if (speed < 0)
@@ -90,27 +83,27 @@ void generic_LedDevice::ColorAdvance(int paletteLength, int FRAMELIMIT, int spee
 	
 
 ///////////////////////////////////
-// 				FRAME ADVANCE
+// 				ADVANCE FRAME
 ///////////////////////////////////
 // called by effects function to manage color advancement called with a palette/array
 // Counter: this is the number that will be evaluatede, updated, and returned as the new frame number
-int generic_LedDevice::FrameAdvance(int speed, int FRAMELIMIT, int counter)
+int generic_LedDevice::AdvanceFrame(int speed, int FRAMELIMIT, int counter)
 {	
-	if (counter > FRAMELIMIT)				 // if another effect left the frame number too high, reset to 0
+	if (counter > FRAMELIMIT)				// if another effect left the frame number too high, reset to 0
 		counter = 0;
 		
-	if (speed >= 0)                     //with positive speed, frames increment from 0 to FRAMELIMIT
+	if (speed >= 0)                 // with positive speed, frames increment from 0 to FRAMELIMIT
 	{    
 	  counter += 1;
-	  if (counter == FRAMELIMIT)    //when frameNumber reaches FRAMELIMIT, it resets to 0 before next function iteration
+	  if (counter == FRAMELIMIT)    // when frameNumber reaches FRAMELIMIT, it resets to 0 before next function iteration
 		counter = 0;
 	}
 	else
 	{
-	  counter -= 1;                 //with negative speed, frames decrement from FRAMELIMIT -1 to -1
+	  counter -= 1;                 // with negative speed, frames decrement from FRAMELIMIT -1 to -1
 	  if (counter == -1)
-		counter = FRAMELIMIT -1;    //when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration
-	}		
+		counter = FRAMELIMIT -1;      // when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration		
+	}			
 	return counter;
 }
 
@@ -178,7 +171,7 @@ void generic_Fan::SpinColorWaveTest(int speed, CRGB *palette)
 	//Serial.print("SCWT: palette color index after frame advance is: ");
 	//Serial.println(paletteColorIndex);
 	
-	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);  //manage frame advancement
+	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);  //manage frame advancement
 	
 };
 
@@ -199,7 +192,7 @@ void generic_Fan::SpinColorWave(int speed)
 			//hard-coded to black to create a new random color each go-around
 	leds[frameNumber] = savedColor; //	lighting led corresponding to current frame number
 	
-	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);  //manage frame advancement
+	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);  //manage frame advancement
 	
 }
 
@@ -248,7 +241,7 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
   }  	
 		
 	// housekeeping portion
-	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);   // manage frame advancement		
+	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);   // manage frame advancement		
 }
 
 ///////////////////////////////////
@@ -276,7 +269,7 @@ void generic_Fan::SpinOneLed(int speed, CRGB color)
 	// WriteColorsToFan();              // write internal led array to external one for subsequent write to hardware at end of main loop
 	
 	// housekeeping portion
-	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);   // manage frame advancement
+	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);   // manage frame advancement
 }
 
 ///////////////////////////////////
@@ -323,7 +316,7 @@ void generic_Fan::MovingLine(int speed, CRGB color)
 			leds[0] = color;
 		}
 		
-		frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);
+		frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);
 };
 
 
@@ -403,7 +396,7 @@ void front_LedStrip::BlinkLeds(int speed, CRGB color)
 		for (int i = 0; i < NUMLEDS; i++)		// once for each LED
 			leds[i] = savedColor;
 		
-	frameNumber = FrameAdvance(speed, FRAMELIMIT, frameNumber);		// manage frame advancement
+	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);		// manage frame advancement
 };
 
 ///////////////////////
@@ -432,11 +425,11 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 	int count = 1; 														// math for assigning blended colors to baseArray
 	const int FRAMELIMIT = lengthOfBaseArray; // how many frames until positions of input array colors repeat
 	float change; 						// to track amount of blending to apply to colors based on elapsed millis between frames
-	float changePerMilli = 255 / (float)speed;  //how much change is applied per millisecond
+	float changePerMilli = 255 / (float)speed;// how much change is applied per millisecond
 	bool nextFrame = 1; 		 								  // flag to advance frame at end of function
-	CRGB baseArray[lengthOfBaseArray];  		  //creating array to hold basecolors and blended colors
-  CRGB outArray[vertRows];  						  	//Array to hold colors ready to write out to LEDs
-	CRGB blendColor; 		  									  // to temporarily hold color to write to outarray
+	CRGB baseArray[lengthOfBaseArray];  		  // creating array to hold basecolors and blended colors
+  CRGB outArray[vertRows];  						  	// Array to hold colors ready to write out to LEDs
+	CRGB blendColor; 		  									  // to temporarily hold color to write to outarray	
 	
 	DetermineTimer(tl, tr, bl, br);  					//determine which of the object's frame counters and timers to run the effect on		
 																						//this sets the pointers p_activeCounter and p_activeTimer
@@ -459,34 +452,32 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 			baseArray[i] = blend( palette[ (i - count) % lengthOfInputArray], palette[ (i - count + 1) % lengthOfInputArray], 128);
 			count++;			
 		}		
-	}
-	//Serial.print("Length of base array is: ");
-	//Serial.println(lengthOfBaseArray);
-	//if (lengthOfBaseArray == 12)
-		//PrintColorArray(baseArray, lengthOfBaseArray);
-
- // for positive speed
+	}	
+	
+	// Populate outArray with blends of the colors in the base array
+  // for positive speed
   if (speed >= 0)
     for (int i = 0; i < vertRows; i++)  //once for each hardware row
 		{							
       outArray[i] = blend(
 									 (baseArray[ (i + *p_activeCounter) % lengthOfBaseArray ]),      // argument 1
 									 (baseArray[ (i + 1 + *p_activeCounter) % lengthOfBaseArray ]),  // argument 2
-									 change);																						  			// argument 3
+									 change);																						  			     // argument 3
 		}     
 	// for negative speed
 	else if (speed < 0)  
-			for (int i = 0; i < vertRows; i++)
-			{				
-				outArray[i] = blend(
-										 (baseArray [(i - (lengthOfBaseArray - *p_activeCounter) + 10) % lengthOfBaseArray  ]),		  // argument 1
-										 (baseArray [(i - 1 - (lengthOfBaseArray - *p_activeCounter) + 10) % lengthOfBaseArray ]),   // argument 2
-										  change);																										 													// argument 3		
-			}		
-	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);
+		for (int i = 0; i < vertRows; i++)
+		{				
+			outArray[i] = blend(										 
+									 (baseArray [(*p_activeCounter + i) % lengthOfBaseArray ]),		           							  // argument 1
+									 (baseArray [ (*p_activeCounter - 1 + lengthOfBaseArray + i) % lengthOfBaseArray ] ),   // argument 2
+									  change);																								 								 							  // argument 3				
+		}		
+		
+	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);	  //populates outArray with the colors to be written to the hardware
 	
 	if (nextFrame)
-    *p_activeCounter = FrameAdvance(speed, FRAMELIMIT, *p_activeCounter);  //advance frame as appropriate		
+    *p_activeCounter = AdvanceFrame(speed, FRAMELIMIT, *p_activeCounter);  //advance frame as appropriate		
 }
 
 ///////////////////////

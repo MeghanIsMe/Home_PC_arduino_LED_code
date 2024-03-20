@@ -166,27 +166,44 @@ void loop() {
   testValue3 = ledStrip0.bottomRightFrameNumber;
 
   // ASPECT FAN EFFECT CALLS
+  //aspectFan2.SpinColorWaveTest(100, blackForRandom);  
 
-  
-  aspectFan2.SpinColorWaveTest(100, prideLesbian);
-
-  // CPU FAN EFFECT CALLS
-  cpuFan0.SpinColorWaveTest(50, prideRainbow);
+  // CPU FAN EFFECT CALLS  
 
   // FRONT STRIP EFFECT CALLS    
-  if (((currentMillis / 15000) % 2) == 0)    //run for 15 seconds
+  //ledStrip0.ScrollColorsOnFrontStrips(400, prideLesbian,0,1,0,1);
+  ledStrip0.ScrollColorsOnFrontStrips(-400, prideLesbian,1,0,1,0);
+
+  ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,0,1,0,1);
+  //ledStrip0.ScrollColorsOnFrontStrips(-400, prideTransgender,1,0,1,0);
+
+  /*
+  
+  if (((currentMillis / 15000) % 3) == 0)    //run for 15 seconds
   {
     ledStrip0.ScrollColorsOnFrontStrips(200, prideLesbian,1,1,1,1);
     aspectFan0.SpinLeds(100, prideLesbian[0],prideLesbian[4]);
     aspectFan1.SpinLeds(-100, prideLesbian[4], prideLesbian[0]);
+    aspectFan2.SpinColorWaveTest(100, prideLesbian);
+    cpuFan0.SpinColorWaveTest(150, prideLesbian);
   }
-  else
+  else if (((currentMillis / 15000) % 3) == 1)
   {
     ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,1,1,1,1);
     aspectFan0.SpinLeds(100, prideTransgender[0],prideTransgender[1]);
     aspectFan1.SpinLeds(-100, prideTransgender[1], prideTransgender[0]);
+    aspectFan2.SpinColorWaveTest(100, prideTransgender);
+    cpuFan0.SpinColorWaveTest(150, prideTransgender);
   }
-
+  else
+  {
+    ledStrip0.ScrollColorsOnFrontStrips(400, prideRainbow,1,1,1,1);
+    aspectFan0.SpinColorWaveTest(100, prideRainbow);
+    aspectFan1.SpinColorWaveTest(100, prideRainbow);
+    aspectFan2.SpinColorWaveTest(100, prideRainbow);
+    cpuFan0.SpinColorWaveTest(150, prideRainbow);
+  }
+*/
   
   //// DEBUG CODE - if any of the counters for the led strip have changed, print the values of all of them
   /*
@@ -220,7 +237,7 @@ void loop() {
   
   //write updated arrays to LEDs for display
   FastLED.show();
-  //delay(150); //uncomment this line to add a delay to make troubleshooting via output statements easier. Delay should not affect timing of 
+  //delay(1000); //uncomment this line to add a delay to make troubleshooting via output statements easier. Delay should not affect timing of 
   //properly written functions because they are comparing to millis passed.
   
 }
