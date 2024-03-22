@@ -81,12 +81,12 @@ void TestMovingLine(int speed, CRGB color)
   cpuFan0.MovingLine(speed, color);
 }
 
-void TestSpinColorWave(int speed)
+void TestSpinColorWave(int speed, CRGB* color)
 {
-  aspectFan0.SpinColorWave(speed);
-  aspectFan1.SpinColorWave(speed);
-  aspectFan2.SpinColorWave(speed);
-  cpuFan0.SpinColorWave(speed);
+  aspectFan0.SpinColorWave(speed,color);
+  aspectFan1.SpinColorWave(speed,color);
+  aspectFan2.SpinColorWave(speed,color);
+  cpuFan0.SpinColorWave(speed,color);
 }
 void TestSpinOneLed(int speed, CRGB color)
 {
@@ -143,7 +143,8 @@ void loop() {
   //TestMovingLine(variableSpeed, CRGB::Purple);
   //TestSpinLeds(variableSpeed, CRGB::Blue, CRGB::Purple);
   //TestSpinOneLed(variableSpeed, CRGB::Black);
-  //TestSpinColorWave(100);
+  //TestSpinColorWave(100,blackForRandom);
+  TestSpinColorWave(-100,prideTransgender);
 
   // to remember what the counter values of the led strip were before running the effects methods on them
   testValue0 = ledStrip0.topLeftFrameNumber;
@@ -152,15 +153,15 @@ void loop() {
   testValue3 = ledStrip0.bottomRightFrameNumber;
 
   // ASPECT FAN EFFECT CALLS
-  //aspectFan2.SpinColorWaveTest(100, blackForRandom);  
+  //aspectFan2.SpinColorWave(-100, blackForRandom);  
 
   // CPU FAN EFFECT CALLS  
 
   // FRONT STRIP EFFECT CALLS    
   //ledStrip0.ScrollColorsOnFrontStrips(400, prideLesbian,0,1,0,1);
-  ledStrip0.ScrollColorsOnFrontStrips(400, prideLesbian,1,0,1,0);
+  //ledStrip0.ScrollColorsOnFrontStrips(400, prideLesbian,1,0,1,0);
 
-  ledStrip0.ScrollColorsOnFrontStrips(-400, prideTransgender,0,1,0,1);
+  //ledStrip0.ScrollColorsOnFrontStrips(-400, prideTransgender,0,1,0,1);
   //ledStrip0.ScrollColorsOnFrontStrips(-400, prideTransgender,1,0,1,0);
 
   /*

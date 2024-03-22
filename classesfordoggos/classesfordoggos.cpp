@@ -58,27 +58,49 @@ bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)
 ///////////////////////////////////
 // 				ADVANCE COLOR
 ///////////////////////////////////
-void generic_LedDevice::AdvanceColor(int paletteLength, int FRAMELIMIT, int speed)
-{	      
-	int colorIndex = paletteColorIndex;
+void generic_LedDevice::AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed)
+{
+	Serial.print("AC: palette[0] is: ");
+	SerialPrintColor(palette[0]);
+	Serial.print("AC: *p_activeFrameCounter (the frame number) is: ");
+	Serial.println(*p_activeFrameCounter);
+	Serial.print("speed is: ");
+	Serial.println(speed);
+	
 	if (speed >= 0)
 	{
-		if (frameNumber == 0)
-		{
-			colorIndex++;			
-			colorIndex = (colorIndex % paletteLength);			
+		if (*p_activeFrameCounter == 0)
+		{			
+			if (palette[0] == CRGB::Black)
+			{
+				savedColor = MakeRandomColor();			
+			}
+			else
+			{
+				savedColor = palette[paletteColorIndex];
+				paletteColorIndex++;
+				if ( paletteColorIndex > GetLengthOfBlackTerminatedCRGBArray(palette) - 1)
+					paletteColorIndex = 0;
+			}
 		}
-	}	
-	if (speed < 0)
+	}		
+	else if (speed < 0)
 	{
-		if (frameNumber == FRAMELIMIT - 1)
-		{
-			paletteColorIndex--;
-			if (paletteColorIndex < 0)
-				paletteColorIndex += paletteLength;
-		}	
-	}
-	paletteColorIndex = colorIndex ;
+		if (*p_activeFrameCounter == FRAMELIMIT - 1)
+		{			
+			if (palette[0] == CRGB::Black)
+			{
+				savedColor = MakeRandomColor();			
+			}
+			else
+			{
+				savedColor = palette[paletteColorIndex];
+				paletteColorIndex++;
+				if ( paletteColorIndex > GetLengthOfBlackTerminatedCRGBArray(palette) - 1)
+					paletteColorIndex = 0;
+			}
+		}
+	}			
 };	
 
 ///////////////////////////////////
@@ -86,6 +108,29 @@ void generic_LedDevice::AdvanceColor(int paletteLength, int FRAMELIMIT, int spee
 ///////////////////////////////////
 // called by effects function to manage color advancement called with a palette/array
 // Counter: this is the number that will be evaluatede, updated, and returned as the new frame number
+generic_LedDevice::AdvanceFrame(int speed, int FRAMELIMIT)
+{	
+if (*p_activeFrameCounter > FRAMELIMIT)				// if another effect left the frame number too high, reset to 0
+		*p_activeFrameCounter = 0;
+		
+	if (speed >= 0)                 // with positive speed, frames increment from 0 to FRAMELIMIT
+	{    
+	  *p_activeFrameCounter += 1;
+	  if (*p_activeFrameCounter == FRAMELIMIT)    // when frameNumber reaches FRAMELIMIT, it resets to 0 before next function iteration
+		*p_activeFrameCounter = 0;
+	}
+	else
+	{
+	  *p_activeFrameCounter -= 1;                 // with negative speed, frames decrement from FRAMELIMIT -1 to -1
+	  if (*p_activeFrameCounter == -1)
+		*p_activeFrameCounter = FRAMELIMIT -1;      // when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration		
+	}		
+	/*
+	Serial.print("AF: Active Frame Counter is: ");
+	Serial.println(*p_activeFrameCounter);
+	*/
+}	
+/*
 int generic_LedDevice::AdvanceFrame(int speed, int FRAMELIMIT, int counter)
 {	
 	if (counter > FRAMELIMIT)				// if another effect left the frame number too high, reset to 0
@@ -104,7 +149,7 @@ int generic_LedDevice::AdvanceFrame(int speed, int FRAMELIMIT, int counter)
 		counter = FRAMELIMIT -1;      // when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration		
 	}			
 	return counter;
-}
+}*/
 
 //**********************************************************************************************************************
 //**********************************************************************************************************************
@@ -138,18 +183,17 @@ void generic_Fan::FillFan(CRGB color)
 }
 
 ///////////////////////////////////
-// 				SPINCOLORWAVETEST
+// 				SPINCOLORWAVE
 ///////////////////////////////////
 //Lights each LED around an Aspect fan sequentially, leaves them on, and repeats with a new color
 //non-selectable color: always random
 // what if we pass this an int for array length created by running GetLengthOf... on an array as an expression in the argument list?
-
-void generic_Fan::SpinColorWaveTest(int speed, CRGB *palette)
+void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 {
 	const int FRAMELIMIT = NUMLEDS;
 	
 	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
-	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
 		return;
 	/*
 	Serial.print("SCWT: length of array is: ");
@@ -161,39 +205,18 @@ void generic_Fan::SpinColorWaveTest(int speed, CRGB *palette)
 	//Serial.print("SCWT: palette color index before AdvanceColor is: ");
 	//Serial.println(paletteColorIndex);
 		
-	savedColor = palette[paletteColorIndex];
+	//savedColor = palette[paletteColorIndex];
 			
 	leds[frameNumber] = savedColor; //	lighting led corresponding to current frame number
 	
-	AdvanceColor( (GetLengthOfBlackTerminatedCRGBArray(palette) ), FRAMELIMIT, speed);	
+	AdvanceColor( palette, FRAMELIMIT, speed);	
 	
 	//Serial.print("SCWT: palette color index after frame advance is: ");
 	//Serial.println(paletteColorIndex);
 	
-	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);  //manage frame advancement
-	
+	AdvanceFrame(speed, FRAMELIMIT);  //manage frame advancement	
 };
 
-
-///////////////////////////////////
-// 				SPINCOLORWAVE
-///////////////////////////////////
-//Lights each LED around an Aspect fan sequentially, leaves them on, and repeats with a new color
-//non-selectable color: always random
-void generic_Fan::SpinColorWave(int speed)
-{
-	const int FRAMELIMIT = NUMLEDS;
-	
-	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
-	if (!CheckTimeForFrameDraw(speed, accumulatedMilliseconds)) // manage frame write timing
-		return;
-	savedColor = CheckForRandomColor(CRGB::Black, savedColor, FRAMELIMIT, frameNumber, speed);  // generates random color at start frame
-			//hard-coded to black to create a new random color each go-around
-	leds[frameNumber] = savedColor; //	lighting led corresponding to current frame number
-	
-	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);  //manage frame advancement
-	
-}
 
 ///////////////////////////////////
 // 				SPINLEDS
@@ -240,7 +263,7 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
   }  	
 		
 	// housekeeping portion
-	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);   // manage frame advancement		
+	frameNumber = AdvanceFrame(speed, FRAMELIMIT);   // manage frame advancement		
 }
 
 ///////////////////////////////////
@@ -268,7 +291,7 @@ void generic_Fan::SpinOneLed(int speed, CRGB color)
 	// WriteColorsToFan();              // write internal led array to external one for subsequent write to hardware at end of main loop
 	
 	// housekeeping portion
-	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);   // manage frame advancement
+	frameNumber = AdvanceFrame(speed, FRAMELIMIT);   // manage frame advancement
 }
 
 ///////////////////////////////////
@@ -315,7 +338,7 @@ void generic_Fan::MovingLine(int speed, CRGB color)
 			leds[0] = color;
 		}
 		
-		frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);
+		frameNumber = AdvanceFrame(speed, FRAMELIMIT);
 };
 
 
@@ -342,25 +365,25 @@ void front_LedStrip::DetermineTimer(bool tl, bool tr, bool bl, bool br)
 {	
 	if (tl)	
 	{
-		p_activeCounter = &topLeftFrameNumber;
+		p_activeFrameCounter = &topLeftFrameNumber;
 		p_activeTimer =  &topLeftAccumulatedMillis;
 		//Serial.println("Top Left");
 	}
 	else if (tr)	
 	{
-		p_activeCounter = &topRightFrameNumber;	
+		p_activeFrameCounter = &topRightFrameNumber;	
 		p_activeTimer = &topRightAccumulatedMillis;
 		//Serial.println("Top Right");
 	}
 	else if (bl)	
 	{
-		p_activeCounter = &bottomLeftFrameNumber;
+		p_activeFrameCounter = &bottomLeftFrameNumber;
 		p_activeTimer =  &bottomLeftAccumulatedMillis;
 		//Serial.println("Bottom Left");
 	}
 	else if (br)	
 	{
-		p_activeCounter = &bottomRightFrameNumber;	
+		p_activeFrameCounter = &bottomRightFrameNumber;	
 		p_activeTimer =  &bottomRightAccumulatedMillis;
 		//Serial.println("Bottom Right");
 	}
@@ -395,7 +418,7 @@ void front_LedStrip::BlinkLeds(int speed, CRGB color)
 		for (int i = 0; i < NUMLEDS; i++)		// once for each LED
 			leds[i] = savedColor;
 		
-	frameNumber = AdvanceFrame(speed, FRAMELIMIT, frameNumber);		// manage frame advancement
+	frameNumber = AdvanceFrame(speed, FRAMELIMIT);		// manage frame advancement
 };
 
 ///////////////////////
@@ -431,7 +454,7 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 	CRGB blendColor; 		  									  // to temporarily hold color to write to outarray	
 	
 	DetermineTimer(tl, tr, bl, br);  					//determine which of the object's frame counters and timers to run the effect on		
-																						//this sets the pointers p_activeCounter and p_activeTimer
+																						//this sets the pointers p_activeFrameCounter and p_activeTimer
 	
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write - if false, function progresses with between-frame blending
 			nextFrame = 0;									 			// but will not advance frame	
@@ -459,8 +482,8 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
     for (int i = 0; i < vertRows; i++)  //once for each hardware row
 		{							
       outArray[i] = blend(
-									 (baseArray[ (i + *p_activeCounter) % lengthOfBaseArray ]),      // argument 1
-									 (baseArray[ (i + 1 + *p_activeCounter) % lengthOfBaseArray ]),  // argument 2
+									 (baseArray[ (i + *p_activeFrameCounter) % lengthOfBaseArray ]),      // argument 1
+									 (baseArray[ (i + 1 + *p_activeFrameCounter) % lengthOfBaseArray ]),  // argument 2
 									 change);																						  			     // argument 3
 		}     
 	// for negative speed
@@ -468,15 +491,15 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 		for (int i = 0; i < vertRows; i++)
 		{				
 			outArray[i] = blend(										 
-									 (baseArray [(*p_activeCounter + i) % lengthOfBaseArray ]),		           							  // argument 1
-									 (baseArray [ (*p_activeCounter - 1 + lengthOfBaseArray + i) % lengthOfBaseArray ] ),   // argument 2
+									 (baseArray [(*p_activeFrameCounter + i) % lengthOfBaseArray ]),		           							  // argument 1
+									 (baseArray [ (*p_activeFrameCounter - 1 + lengthOfBaseArray + i) % lengthOfBaseArray ] ),   // argument 2
 									  change);																								 								 							// argument 3				
 		}		
 		
 	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);	  //populates outArray with the colors to be written to the hardware
 	
 	if (nextFrame)
-    *p_activeCounter = AdvanceFrame(speed, FRAMELIMIT, *p_activeCounter);  //advance frame as appropriate		
+    AdvanceFrame(speed, FRAMELIMIT);  //advance frame as appropriate		
 }
 
 ///////////////////////

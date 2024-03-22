@@ -25,6 +25,10 @@ class generic_LedDevice
 	int paletteColorIndex = 0; 			// for managing use of palette arrays passed to calling effects functions
 	bool initialized;   						// whether frameNumber has been set to a specific starting frame
 	CRGB savedColor;								// what color is currently being used to display the effects function on this object
+	
+	int* p_activeFrameCounter = &frameNumber;				// for effects that need multiple timers, these pointers allow the
+	int* p_activeTimer = &accumulatedMilliseconds;  // calling function to choose the appropriate frame and millisecond counters
+	
 				
 
 	generic_LedDevice()							// constructor function
@@ -33,8 +37,8 @@ class generic_LedDevice
 	//mangement functions
 	void CheckInitialization(); 									// Check whether to initialize frame number
 	bool CheckTimeForFrameDraw(int speed, int *counter);				// Check whether enough time has passed to update effect
-	void AdvanceColor(int paletteLength, int FRAMELIMIT, int speed);
-	int AdvanceFrame(int speed, int FRAMELIMIT, int counter); // Advance frame number as appropriate
+	void AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed);
+	int AdvanceFrame(int speed, int FRAMELIMIT); // Advance frame number as appropriate
 	//effects functions
 			
 };
@@ -58,8 +62,8 @@ class generic_Fan : public generic_LedDevice
 	//effects functions
 	void BlankFan();												 // Set all LEDs to black
 	void FillFan(CRGB color);	 // Fill all LEDs on fan with passed color
-	void SpinColorWave(int speed);					 // Waves of color rotate around fan
-	void SpinColorWaveTest(int speed, CRGB *palette);
+	void SpinColorWave(int speed, CRGB *palette);					 // Waves of color rotate around fan
+	//void SpinColorWaveTest(int speed, CRGB *palette);
 	void SpinLeds(int, CRGB, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black);  //Spin 1-3 LEDs around a fan
 	void SpinOneLed(int speed, CRGB color);  // One LED rotates around fan
 	void MovingLine(int speed, CRGB color);	 // Line of LEDs bounces back and forth across fan
@@ -120,9 +124,7 @@ class front_LedStrip : public generic_LedStrip
 	int topRightAccumulatedMillis = 0;
 	int bottomLeftAccumulatedMillis = 0;
 	int bottomRightAccumulatedMillis = 0;
-	int* p_activeCounter; 
-	int* p_activeTimer;
-	
+		
 	CRGB leds[20];										// holds CRGB values that will be written by an effects function, then written out to the display hardware at end of main loop
 	
 	
