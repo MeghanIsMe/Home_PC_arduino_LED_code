@@ -56,9 +56,9 @@ bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)
 };
 
 ///////////////////////////////////
-// 				COLOR ADVANCE
+// 				ADVANCE COLOR
 ///////////////////////////////////
-void generic_LedDevice::ColorAdvance(int paletteLength, int FRAMELIMIT, int speed)
+void generic_LedDevice::AdvanceColor(int paletteLength, int FRAMELIMIT, int speed)
 {	      
 	int colorIndex = paletteColorIndex;
 	if (speed >= 0)
@@ -79,8 +79,7 @@ void generic_LedDevice::ColorAdvance(int paletteLength, int FRAMELIMIT, int spee
 		}	
 	}
 	paletteColorIndex = colorIndex ;
-};
-	
+};	
 
 ///////////////////////////////////
 // 				ADVANCE FRAME
@@ -159,14 +158,14 @@ void generic_Fan::SpinColorWaveTest(int speed, CRGB *palette)
 		
 	//Serial.print("SCWT: frame number before frame advance is: ");
 	//Serial.println(frameNumber);
-	//Serial.print("SCWT: palette color index before colorAdvance is: ");
+	//Serial.print("SCWT: palette color index before AdvanceColor is: ");
 	//Serial.println(paletteColorIndex);
 		
 	savedColor = palette[paletteColorIndex];
 			
 	leds[frameNumber] = savedColor; //	lighting led corresponding to current frame number
 	
-	ColorAdvance( (GetLengthOfBlackTerminatedCRGBArray(palette) ), FRAMELIMIT, speed);	
+	AdvanceColor( (GetLengthOfBlackTerminatedCRGBArray(palette) ), FRAMELIMIT, speed);	
 	
 	//Serial.print("SCWT: palette color index after frame advance is: ");
 	//Serial.println(paletteColorIndex);
@@ -471,7 +470,7 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 			outArray[i] = blend(										 
 									 (baseArray [(*p_activeCounter + i) % lengthOfBaseArray ]),		           							  // argument 1
 									 (baseArray [ (*p_activeCounter - 1 + lengthOfBaseArray + i) % lengthOfBaseArray ] ),   // argument 2
-									  change);																								 								 							  // argument 3				
+									  change);																								 								 							// argument 3				
 		}		
 		
 	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);	  //populates outArray with the colors to be written to the hardware
