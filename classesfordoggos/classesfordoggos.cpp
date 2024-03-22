@@ -43,65 +43,40 @@ bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)
 {	
 	*counter += deltaMillis;	 // add elapsed milliseconds since last main loop to running total
 	
-	if (speed < 0)                            // convert negative speed to positive for internal comparison.
+	if (speed < 0)             // convert negative speed to positive for internal comparison.
 		speed *= -1;	
 		
 	if (*counter < speed)      // check whether enough time has passed to write the next frame.		
-		return false;                           // if not, return false	
+		return false;                   // if not, return false	
 	else    
 	{		
 		*counter = 0;						// reset running total of milliseconds to 0
-		return true;                            // if so, return true.
+		return true;                    // if so, return true.
   }
 };
 
 ///////////////////////////////////
 // 				ADVANCE COLOR
 ///////////////////////////////////
+// Advance Color runs prior to FrameAdvance. Once per cycle of frames, it updates the color used in the effect to the next color
+// in the passed array. If the passed array is black, this function creates random colors as appropriate to the frame number
 void generic_LedDevice::AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed)
-{
-	Serial.print("AC: palette[0] is: ");
-	SerialPrintColor(palette[0]);
-	Serial.print("AC: *p_activeFrameCounter (the frame number) is: ");
-	Serial.println(*p_activeFrameCounter);
-	Serial.print("speed is: ");
-	Serial.println(speed);
-	
-	if (speed >= 0)
+{	
+	if (palette[0] != CRGB::Black)  // when passing black for random, avoids resetting the saved color to black on every frame
+		savedColor = palette[paletteColorIndex]; 	// Set parent object's color to the correct color from passed array
+				// setting this prior to making any changes to paletteColorIndex ensure that the first palette color is not prematurely updated
+		
+	//for positive speed, trigger on frame 0. For negative speed, trigger on frame FRAMELIMIT - 1
+	if ( ( (speed >= 0) && (*p_activeFrameCounter == 0)) || ( (speed < 0) && (*p_activeFrameCounter == FRAMELIMIT - 1) ) )
 	{
-		if (*p_activeFrameCounter == 0)
-		{			
-			if (palette[0] == CRGB::Black)
-			{
-				savedColor = MakeRandomColor();			
-			}
-			else
-			{
-				savedColor = palette[paletteColorIndex];
-				paletteColorIndex++;
-				if ( paletteColorIndex > GetLengthOfBlackTerminatedCRGBArray(palette) - 1)
-					paletteColorIndex = 0;
-			}
-		}
+		if (palette[0] == CRGB::Black)		// creates a random color if passed array is black
+			savedColor = MakeRandomColor();					
+		else
+			paletteColorIndex++;						// otherwise move to next color in palette array 
 	}		
-	else if (speed < 0)
-	{
-		if (*p_activeFrameCounter == FRAMELIMIT - 1)
-		{			
-			if (palette[0] == CRGB::Black)
-			{
-				savedColor = MakeRandomColor();			
-			}
-			else
-			{
-				savedColor = palette[paletteColorIndex];
-				paletteColorIndex++;
-				if ( paletteColorIndex > GetLengthOfBlackTerminatedCRGBArray(palette) - 1)
-					paletteColorIndex = 0;
-			}
-		}
-	}			
-};	
+if ( paletteColorIndex > GetLengthOfBlackTerminatedCRGBArray(palette) - 1 ) // loops color array back to start
+	paletteColorIndex = 0;
+};
 
 ///////////////////////////////////
 // 				ADVANCE FRAME
@@ -113,43 +88,19 @@ generic_LedDevice::AdvanceFrame(int speed, int FRAMELIMIT)
 if (*p_activeFrameCounter > FRAMELIMIT)				// if another effect left the frame number too high, reset to 0
 		*p_activeFrameCounter = 0;
 		
-	if (speed >= 0)                 // with positive speed, frames increment from 0 to FRAMELIMIT
+	if (speed >= 0)               						  // with positive speed, frames increment from 0 to FRAMELIMIT
 	{    
 	  *p_activeFrameCounter += 1;
-	  if (*p_activeFrameCounter == FRAMELIMIT)    // when frameNumber reaches FRAMELIMIT, it resets to 0 before next function iteration
+	  if (*p_activeFrameCounter == FRAMELIMIT)  // when frameNumber reaches FRAMELIMIT, it resets to 0 before next function iteration
 		*p_activeFrameCounter = 0;
 	}
 	else
 	{
-	  *p_activeFrameCounter -= 1;                 // with negative speed, frames decrement from FRAMELIMIT -1 to -1
+	  *p_activeFrameCounter -= 1;               // with negative speed, frames decrement from FRAMELIMIT -1 to -1
 	  if (*p_activeFrameCounter == -1)
-		*p_activeFrameCounter = FRAMELIMIT -1;      // when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration		
+		*p_activeFrameCounter = FRAMELIMIT -1;    // when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration		
 	}		
-	/*
-	Serial.print("AF: Active Frame Counter is: ");
-	Serial.println(*p_activeFrameCounter);
-	*/
 }	
-/*
-int generic_LedDevice::AdvanceFrame(int speed, int FRAMELIMIT, int counter)
-{	
-	if (counter > FRAMELIMIT)				// if another effect left the frame number too high, reset to 0
-		counter = 0;
-		
-	if (speed >= 0)                 // with positive speed, frames increment from 0 to FRAMELIMIT
-	{    
-	  counter += 1;
-	  if (counter == FRAMELIMIT)    // when frameNumber reaches FRAMELIMIT, it resets to 0 before next function iteration
-		counter = 0;
-	}
-	else
-	{
-	  counter -= 1;                 // with negative speed, frames decrement from FRAMELIMIT -1 to -1
-	  if (counter == -1)
-		counter = FRAMELIMIT -1;      // when frameNumber reaches -1, reset to FRAMELIMIT -1 before next function iteration		
-	}			
-	return counter;
-}*/
 
 //**********************************************************************************************************************
 //**********************************************************************************************************************
@@ -194,27 +145,12 @@ void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 	
 	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
-		return;
-	/*
-	Serial.print("SCWT: length of array is: ");
-	Serial.println(GetLengthOfBlackTerminatedCRGBArray(palette));
-	*/
-		
-	//Serial.print("SCWT: frame number before frame advance is: ");
-	//Serial.println(frameNumber);
-	//Serial.print("SCWT: palette color index before AdvanceColor is: ");
-	//Serial.println(paletteColorIndex);
-		
-	//savedColor = palette[paletteColorIndex];
-			
-	leds[frameNumber] = savedColor; //	lighting led corresponding to current frame number
+		return;		
 	
-	AdvanceColor( palette, FRAMELIMIT, speed);	
+	leds[frameNumber] = savedColor; 									// lighting led corresponding to current frame number
 	
-	//Serial.print("SCWT: palette color index after frame advance is: ");
-	//Serial.println(paletteColorIndex);
-	
-	AdvanceFrame(speed, FRAMELIMIT);  //manage frame advancement	
+	AdvanceColor( palette, FRAMELIMIT, speed);				// manage color progression	
+	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement	
 };
 
 
@@ -484,16 +420,16 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
       outArray[i] = blend(
 									 (baseArray[ (i + *p_activeFrameCounter) % lengthOfBaseArray ]),      // argument 1
 									 (baseArray[ (i + 1 + *p_activeFrameCounter) % lengthOfBaseArray ]),  // argument 2
-									 change);																						  			     // argument 3
+									 change);																						  			          // argument 3
 		}     
 	// for negative speed
 	else if (speed < 0)  
 		for (int i = 0; i < vertRows; i++)
 		{				
 			outArray[i] = blend(										 
-									 (baseArray [(*p_activeFrameCounter + i) % lengthOfBaseArray ]),		           							  // argument 1
+									 (baseArray [(*p_activeFrameCounter + i) % lengthOfBaseArray ]),		           							 // argument 1
 									 (baseArray [ (*p_activeFrameCounter - 1 + lengthOfBaseArray + i) % lengthOfBaseArray ] ),   // argument 2
-									  change);																								 								 							// argument 3				
+									  change);																								 								 							     // argument 3				
 		}		
 		
 	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);	  //populates outArray with the colors to be written to the hardware

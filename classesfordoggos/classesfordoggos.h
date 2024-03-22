@@ -62,8 +62,7 @@ class generic_Fan : public generic_LedDevice
 	//effects functions
 	void BlankFan();												 // Set all LEDs to black
 	void FillFan(CRGB color);	 // Fill all LEDs on fan with passed color
-	void SpinColorWave(int speed, CRGB *palette);					 // Waves of color rotate around fan
-	//void SpinColorWaveTest(int speed, CRGB *palette);
+	void SpinColorWave(int speed, CRGB* palette);					 // Waves of color rotate around fan
 	void SpinLeds(int, CRGB, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black);  //Spin 1-3 LEDs around a fan
 	void SpinOneLed(int speed, CRGB color);  // One LED rotates around fan
 	void MovingLine(int speed, CRGB color);	 // Line of LEDs bounces back and forth across fan
@@ -134,7 +133,7 @@ class front_LedStrip : public generic_LedStrip
 		initialized = 0;
 	}
 	//utility functions
-	void WriteToOutgoingArray(int side, CRGB *outArray);
+	void WriteToOutgoingArray(int side, CRGB* outArray);
 	void DetermineTimer(bool tl, bool tr, bool bl, bool br);
 	
 	//effects functions
@@ -142,9 +141,9 @@ class front_LedStrip : public generic_LedStrip
 	void BlinkLeds(int speed, CRGB color);  // Blinks all LEDs
 	void FillLeds(CRGB color);
 	void TransColorsScrollingFrontLeds(int speed, CRGB *palette, int side);
-	void ScrollColors(int speed, CRGB *palette,int vertRows, bool tr, bool tl, bool br, bool bl);	
-	void ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl, bool tr, bool bl, bool br);
-	void WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, bool bl, bool br, int vertRows);
+	void ScrollColors(int speed, CRGB* palette,int vertRows, bool tr, bool tl, bool br, bool bl);	
+	void ScrollColorsOnFrontStrips(int speed, CRGB* palette, bool tl, bool tr, bool bl, bool br);
+	void WriteColorsToOutPutArray(CRGB* outArray, bool tl, bool tr, bool bl, bool br, int vertRows);
 };
 
 #endif

@@ -144,7 +144,7 @@ void loop() {
   //TestSpinLeds(variableSpeed, CRGB::Blue, CRGB::Purple);
   //TestSpinOneLed(variableSpeed, CRGB::Black);
   //TestSpinColorWave(100,blackForRandom);
-  TestSpinColorWave(-100,prideTransgender);
+  TestSpinColorWave(-100,prideLesbian);
 
   // to remember what the counter values of the led strip were before running the effects methods on them
   testValue0 = ledStrip0.topLeftFrameNumber;
@@ -153,7 +153,7 @@ void loop() {
   testValue3 = ledStrip0.bottomRightFrameNumber;
 
   // ASPECT FAN EFFECT CALLS
-  //aspectFan2.SpinColorWave(-100, blackForRandom);  
+  //aspectFan2.SpinColorWave(-100, prideRainbow);  
 
   // CPU FAN EFFECT CALLS  
 
