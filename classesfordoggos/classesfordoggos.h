@@ -39,7 +39,8 @@ class generic_LedDevice
 	void CheckInitialization(); 									// Check whether to initialize frame number
 	bool CheckTimeForFrameDraw(int speed, int *counter);				// Check whether enough time has passed to update effect
 	void AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed);  // acts on savedColor and paletteColorIndex to progress color
-	void AdvanceFrame(int speed, int FRAMELIMIT); // acts on p_activeFrameCounter to progress frame number
+	void AdvanceFrame(int speed, int FRAMELIMIT); // acts on p_activeFrameCounter to progress frame number	
+	
 	//effects functions
 			
 };
@@ -64,6 +65,7 @@ class generic_Fan : public generic_LedDevice
 	void BlankFan();												 // Set all LEDs to black
 	void FillFan(CRGB color);	 							 // Fill all LEDs on fan with passed color
 	void SpinColorWave(int speed, CRGB* palette);					 // Waves of color rotate around fan
+	void SpinColorWaveFade(int speed, CRGB* palette, float fadeAmount);
 	void SpinLeds(int, CRGB, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black);  //Spin 1-3 LEDs around a fan
 	void SpinOneLed(int speed, CRGB* palette);  // One LED rotates around fan
 	void MovingLine(int speed, CRGB* palette);	 // Line of LEDs bounces back and forth across fan
@@ -163,8 +165,8 @@ class front_LedStrip : public generic_LedStrip
 	//effects functions
 	void BlankLeds();									// Set all LEDs to black
 	void BlinkLeds(int speed, CRGB* palette);  // Blinks all LEDs
+	void ChaseWithFade(int speed, CRGB* palette, float fadeAmount, int lights = 1);
 	void FillLeds(CRGB color);
-	void TransColorsScrollingFrontLeds(int speed, CRGB *palette, int side);
 	void ScrollColors(int speed, CRGB* palette,int vertRows, bool tr, bool tl, bool br, bool bl);	
 	void ScrollColorsOnFrontStrips(int speed, CRGB* palette, bool tl, bool tr, bool bl, bool br);
 	void WriteColorsToOutPutArray(CRGB* outArray, bool tl, bool tr, bool bl, bool br, int vertRows);

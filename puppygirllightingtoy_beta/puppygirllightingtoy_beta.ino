@@ -20,6 +20,7 @@ CRGB blackForRandom[] = {CRGB::Black};
 
 // SINGLE COLOR ARRAYS
 CRGB singlePurple[] = {CRGB::Purple, CRGB::Black};
+CRGB singleGreen[] = {CRGB::Green, CRGB::Black};
 
 //  PRIDE COLOR ARRAYS/PALETTES
 CRGB prideBisexual[] = {CRGB(214,2,112), CRGB(155,79,150), CRGB(0,56, 168), CRGB::Black};
@@ -105,7 +106,7 @@ void TestSpinLeds(int speed, CRGB color1, CRGB color2 = CRGB:: Black, CRGB color
   aspectFan0.SpinLeds(speed, color1, color2, color3);
   aspectFan1.SpinLeds(-speed, color1, color2, color3);
   aspectFan2.SpinLeds(speed, color1, color2, color3);
-  cpuFan0.SpinLeds(speed, color1, color2, color3);
+  cpuFan0.SpinLeds(speed * 1.5, color1, color2, color3);
 }
 
 void setup() 
@@ -152,10 +153,11 @@ void loop() {
   
   //FAN TEST FUNCTIONS
   //TestMovingLine(200, prideLesbian);
-  TestSpinLeds(variableSpeed, CRGB::Blue, CRGB::Purple);
+  //TestSpinLeds(variableSpeed, CRGB::Blue, CRGB::Purple);
   //TestSpinOneLed(-80, prideLesbian);
   //TestSpinColorWave(100,blackForRandom);
   //TestSpinColorWave(-100,prideLesbian);
+  //aspectFan2.SpinColorWaveFade(100, singleGreen, 0.35);
 
   // to remember what the counter values of the led strip were before running the effects methods on them
   testValue0 = ledStrip0.topLeftFrameNumber;
@@ -170,39 +172,43 @@ void loop() {
 
   // FRONT STRIP EFFECT CALLS    
   //ledStrip0.BlinkLeds(1000,rgbTest);
-  ledStrip0.ScrollColorsOnFrontStrips(-400, prideLesbian,0,1,0,1);
+  //ledStrip0.ScrollColorsOnFrontStrips(-400, prideLesbian,0,1,0,1);
   //ledStrip0.ScrollColorsOnFrontStrips(-400, prideLesbian,1,0,1,0);
 
   //ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,0,1,0,1);
-  ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,1,0,1,0);
+  //ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,1,0,1,0);
 
-  /*
+  //ledStrip0.ChaseWithFade(40, prideLesbian, .8, 2);
+
+  int secondsPerPhase = (currentMillis / 20000) % 3;
   
-  if (((currentMillis / 15000) % 3) == 0)    //run for 15 seconds
+  if (secondsPerPhase == 0)    //run for 15 seconds
   {
-    ledStrip0.ScrollColorsOnFrontStrips(200, prideLesbian,1,1,1,1);
+    ledStrip0.ScrollColorsOnFrontStrips(200, prideLesbian,1,0,1,0);
+    ledStrip0.ScrollColorsOnFrontStrips(-200, prideLesbian,0,1,0,1);
     aspectFan0.SpinLeds(100, prideLesbian[0],prideLesbian[4]);
     aspectFan1.SpinLeds(-100, prideLesbian[4], prideLesbian[0]);
-    aspectFan2.SpinColorWaveTest(100, prideLesbian);
-    cpuFan0.SpinColorWaveTest(150, prideLesbian);
+    aspectFan2.SpinColorWave(100, prideLesbian);
+    cpuFan0.SpinColorWave(150, prideLesbian);
   }
-  else if (((currentMillis / 15000) % 3) == 1)
+  else if (secondsPerPhase == 1)
   {
-    ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,1,1,1,1);
-    aspectFan0.SpinLeds(100, prideTransgender[0],prideTransgender[1]);
-    aspectFan1.SpinLeds(-100, prideTransgender[1], prideTransgender[0]);
-    aspectFan2.SpinColorWaveTest(100, prideTransgender);
-    cpuFan0.SpinColorWaveTest(150, prideTransgender);
+    ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,0,1,0,1);
+    ledStrip0.ScrollColorsOnFrontStrips(-400, prideTransgender,1,0,1,0);
+    aspectFan0.SpinLeds(variableSpeed, prideTransgender[0],prideTransgender[1]);
+    aspectFan1.SpinLeds(variableSpeed * -1, prideTransgender[1], prideTransgender[0]);
+    aspectFan2.SpinColorWave(variableSpeed, prideTransgender);
+    cpuFan0.SpinColorWave(variableSpeed * 1.5, prideTransgender);
   }
   else
   {
-    ledStrip0.ScrollColorsOnFrontStrips(400, prideRainbow,1,1,1,1);
-    aspectFan0.SpinColorWaveTest(100, prideRainbow);
-    aspectFan1.SpinColorWaveTest(100, prideRainbow);
-    aspectFan2.SpinColorWaveTest(100, prideRainbow);
-    cpuFan0.SpinColorWaveTest(150, prideRainbow);
+    ledStrip0.ChaseWithFade(40, prideRainbow, .8, 2);
+    aspectFan0.SpinColorWave(100, prideRainbow);
+    aspectFan1.SpinColorWave(100, prideRainbow);
+    aspectFan2.SpinColorWave(100, prideRainbow);
+    cpuFan0.SpinColorWave(150, prideRainbow);
   }
-*/
+
   
   //// DEBUG CODE - if any of the counters for the led strip have changed, print the values of all of them
   /*

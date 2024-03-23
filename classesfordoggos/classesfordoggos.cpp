@@ -66,21 +66,20 @@ bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)
 // Advance Color runs prior to FrameAdvance. Once per cycle of frames, it updates the color used in the effect to the next color
 // in the passed array. If the passed array is black, this function creates random colors as appropriate to the frame number
 void generic_LedDevice::AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed)
-{	
-	if (palette[0] != CRGB::Black)  // when passing black for random, avoids resetting the saved color to black on every frame
-		savedColor = palette[paletteColorIndex]; 	// Set parent object's color to the correct color from passed array
-				// setting this prior to making any changes to paletteColorIndex ensures that the first palette color is not prematurely updated
-		
-	//for positive speed, trigger on frame 0. For negative speed, trigger on frame FRAMELIMIT - 1
-	if ( (speed >= 0) && (*p_activeFrameCounter == 0) || ( (speed < 0) && (*p_activeFrameCounter == FRAMELIMIT - 1) ) )
+{		
+	//for positive speed, trigger on frame FRAMELIMIT - 1. For negative speed, trigger on frame 0
+	if ( (speed >= 0) && (*p_activeFrameCounter == FRAMELIMIT - 1) || ( (speed < 0) && (*p_activeFrameCounter == 0) ) )	
 	{
-		if (palette[0] == CRGB::Black)		// creates a random color if passed array is black
-			savedColor = MakeRandomColor();					
+		if (palette[0] == CRGB::Black)		
+			savedColor = MakeRandomColor();	// creates a random color if passed array is black				
 		else
+		{
+			savedColor = palette[paletteColorIndex];
 			paletteColorIndex++;						// otherwise move to next color in palette array 
-	}		
-if ( paletteColorIndex > GetLengthOfBlackTerminatedCRGBArray(palette) - 1 ) // loops color array back to start
-	paletteColorIndex = 0;
+		}
+	}				
+	if ( paletteColorIndex > GetLengthOfBlackTerminatedCRGBArray(palette) - 1 ) // loops color array back to start
+		paletteColorIndex = 0;
 };
 
 ///////////////////////////////////
@@ -145,6 +144,7 @@ void generic_Fan::FillFan(CRGB color)
 //non-selectable color: always random
 // what if we pass this an int for array length created by running GetLengthOf... on an array as an expression in the argument list?
 void generic_Fan::SpinColorWave(int speed, CRGB* palette)
+//void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 {
 	const int FRAMELIMIT = NUMLEDS;
 	
@@ -158,7 +158,27 @@ void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement	
 };
 
-
+///////////////////////////////////
+// 				SPINCOLORWAVEFADE
+///////////////////////////////////
+void generic_Fan::SpinColorWaveFade(int speed, CRGB* palette, float fadeAmount)
+{
+	const int FRAMELIMIT = NUMLEDS;
+	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
+		return;		
+		
+	for (int i = 0; i < NUMLEDS; i++)
+	{
+		leds[i].red *= fadeAmount;
+		leds[i].green *= fadeAmount;
+		leds[i].blue *= fadeAmount;
+	}
+	leds[*p_activeFrameCounter] = savedColor;
+		
+	AdvanceColor(palette, FRAMELIMIT, speed);				// manage color progression	
+	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement
+};
+	
 ///////////////////////////////////
 // 				SPINLEDS
 ///////////////////////////////////
@@ -368,6 +388,35 @@ void front_LedStrip::FillLeds(CRGB color)
 	for (int i = 0; i < NUMLEDS; i++)
 		leds[i] = color;
 }
+
+///////////////////////////////////
+// 				CHASEWITHFADE
+///////////////////////////////////
+void front_LedStrip::ChaseWithFade(int speed, CRGB* palette, float fadeAmount, int lights = 1)
+{
+	const int FRAMELIMIT = NUMLEDS;
+	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
+		return;		
+		
+	for (int i = 0; i < NUMLEDS; i++)  // first, fade all the LEDs by selected amount
+	{
+		leds[i].red *= fadeAmount;
+		leds[i].green *= fadeAmount;
+		leds[i].blue *= fadeAmount;
+	}
+	leds[*p_activeFrameCounter] = savedColor;   //second, light LED by framenumber
+	Serial.println();
+	Serial.print("CWF: Frame number after lighting LED and before updating color is: ");
+	Serial.println(*p_activeFrameCounter);
+	//if there are 2 lights
+	if (lights == 2)
+	{
+		leds[(*p_activeFrameCounter + 10) % 20] = savedColor;
+	}
+		
+	AdvanceColor(palette, FRAMELIMIT, speed);				// manage color progression	
+	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement
+};
 
 ///////////////////////
 //==== ScrollColors
