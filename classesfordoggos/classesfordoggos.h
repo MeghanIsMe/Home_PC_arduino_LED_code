@@ -23,7 +23,8 @@ class generic_LedDevice
 	int frameNumber;								// which frame of the animation is currently being displayed on this object by an effects function
 	int NUMLEDS;										// how many LEDS are on this device. This should never change once set by a child class
 	int paletteColorIndex = 0; 			// for managing use of palette arrays passed to calling effects functions
-	bool initialized;   						// whether frameNumber has been set to a specific starting frame
+	bool initializedFrame;   				// whether frameNumber has been set to a specific starting frame
+	bool initializedColor; 					// whether paletterColorIndex has been set to a specific starting frame
 	CRGB savedColor;								// what color is currently being used to display the effects function on this object
 	
 	int* p_activeFrameCounter = &frameNumber;				// for effects that need multiple timers, these pointers allow the
@@ -37,8 +38,8 @@ class generic_LedDevice
 	//mangement functions
 	void CheckInitialization(); 									// Check whether to initialize frame number
 	bool CheckTimeForFrameDraw(int speed, int *counter);				// Check whether enough time has passed to update effect
-	void AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed);
-	int AdvanceFrame(int speed, int FRAMELIMIT); // Advance frame number as appropriate
+	void AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed);  // acts on savedColor and paletteColorIndex to progress color
+	void AdvanceFrame(int speed, int FRAMELIMIT); // acts on p_activeFrameCounter to progress frame number
 	//effects functions
 			
 };
@@ -61,11 +62,11 @@ class generic_Fan : public generic_LedDevice
 	
 	//effects functions
 	void BlankFan();												 // Set all LEDs to black
-	void FillFan(CRGB color);	 // Fill all LEDs on fan with passed color
+	void FillFan(CRGB color);	 							 // Fill all LEDs on fan with passed color
 	void SpinColorWave(int speed, CRGB* palette);					 // Waves of color rotate around fan
 	void SpinLeds(int, CRGB, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black);  //Spin 1-3 LEDs around a fan
-	void SpinOneLed(int speed, CRGB color);  // One LED rotates around fan
-	void MovingLine(int speed, CRGB color);	 // Line of LEDs bounces back and forth across fan
+	void SpinOneLed(int speed, CRGB* palette);  // One LED rotates around fan
+	void MovingLine(int speed, CRGB* palette);	 // Line of LEDs bounces back and forth across fan
 };
 
 /////////////////////
@@ -79,7 +80,8 @@ class cpu_Fan: public generic_Fan
   cpu_Fan()                                   // constructor function
   {
 		NUMLEDS = 4;															// number of LEDs on the device
-		initialized = 0;													// whether starting frame is initialized
+		initializedFrame = 0;											// whether starting frame is initialized
+		initializedColor = 0;											// whether starting color is initialized
 	};  
 };
 
@@ -94,14 +96,35 @@ class aspect_Fan: public generic_Fan
 	aspect_Fan()																// constructor function
 	{
 		NUMLEDS = 6;															// number of LEDs on the device
-		initialized = 0;													// whether starting frame is initialized
+		initializedFrame = 0;											// whether starting frame is initialized
+		initializedColor = 0;											// whether starting color is initialized
 	};
 };
 
+/////////////////////////////
+// DUAL FRONT ASPECT CLASS //
+/////////////////////////////
+
+class dual_FrontAspectFans: public generic_Fan
+{
+	public:
+	
+	dual_FrontAspectFans()
+	{
+		NUMLEDS = 12;
+		static int LEDSPERFAN = 6;
+		int topFrameNumber = 0;
+		int bottomFrameNumber = 0;
+		int topAccumulatedMillis = 0;
+		int bottomAccumulatedMillis = 0;
+		
+		CRGB leds[NUMLEDS];
+	}
+};
 ////////////////////////////////////////
 // FRONT LED STRIP CLASS and CHILDREN //  
 ////////////////////////////////////////
-class generic_LedStrip : public generic_LedDevice
+class generic_LedStrip: public generic_LedDevice
 {
 	public:
 	
@@ -130,7 +153,8 @@ class front_LedStrip : public generic_LedStrip
 	front_LedStrip()									// constructor function
 	{
 		NUMLEDS = 20;										// how many LEDS are on this device. This should never change
-		initialized = 0;
+		initializedFrame = 0;
+		initializedColor = 0;
 	}
 	//utility functions
 	void WriteToOutgoingArray(int side, CRGB* outArray);
@@ -138,7 +162,7 @@ class front_LedStrip : public generic_LedStrip
 	
 	//effects functions
 	void BlankLeds();									// Set all LEDs to black
-	void BlinkLeds(int speed, CRGB color);  // Blinks all LEDs
+	void BlinkLeds(int speed, CRGB* palette);  // Blinks all LEDs
 	void FillLeds(CRGB color);
 	void TransColorsScrollingFrontLeds(int speed, CRGB *palette, int side);
 	void ScrollColors(int speed, CRGB* palette,int vertRows, bool tr, bool tl, bool br, bool bl);	

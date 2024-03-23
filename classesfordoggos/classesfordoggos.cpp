@@ -29,11 +29,16 @@
 //could also be used to switch to a different frame number before or while running, possibly. Not implemented yet.
 void generic_LedDevice::CheckInitialization()
 {
-	if (!initialized)
+	if (!initializedFrame)
 	{
 	  frameNumber = 0;
-	  initialized = 1;
+	  initializedFrame = 1;
 	}
+	if (!initializedColor)
+	{
+		paletteColorIndex = 0;
+		initializedColor = 1;
+	}		
 }
 //////////////////////////////////////
 // 				CHECK TIME FOR FRAME DRAW
@@ -64,10 +69,10 @@ void generic_LedDevice::AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed)
 {	
 	if (palette[0] != CRGB::Black)  // when passing black for random, avoids resetting the saved color to black on every frame
 		savedColor = palette[paletteColorIndex]; 	// Set parent object's color to the correct color from passed array
-				// setting this prior to making any changes to paletteColorIndex ensure that the first palette color is not prematurely updated
+				// setting this prior to making any changes to paletteColorIndex ensures that the first palette color is not prematurely updated
 		
 	//for positive speed, trigger on frame 0. For negative speed, trigger on frame FRAMELIMIT - 1
-	if ( ( (speed >= 0) && (*p_activeFrameCounter == 0)) || ( (speed < 0) && (*p_activeFrameCounter == FRAMELIMIT - 1) ) )
+	if ( (speed >= 0) && (*p_activeFrameCounter == 0) || ( (speed < 0) && (*p_activeFrameCounter == FRAMELIMIT - 1) ) )
 	{
 		if (palette[0] == CRGB::Black)		// creates a random color if passed array is black
 			savedColor = MakeRandomColor();					
@@ -83,11 +88,11 @@ if ( paletteColorIndex > GetLengthOfBlackTerminatedCRGBArray(palette) - 1 ) // l
 ///////////////////////////////////
 // called by effects function to manage color advancement called with a palette/array
 // Counter: this is the number that will be evaluatede, updated, and returned as the new frame number
-generic_LedDevice::AdvanceFrame(int speed, int FRAMELIMIT)
+void generic_LedDevice::AdvanceFrame(int speed, int FRAMELIMIT)
 {	
 if (*p_activeFrameCounter > FRAMELIMIT)				// if another effect left the frame number too high, reset to 0
-		*p_activeFrameCounter = 0;
-		
+		*p_activeFrameCounter = 0;								// no fix needed for low end of range because all effects will start at frame 0
+																							// and will never go below -1 in correctly written functions
 	if (speed >= 0)               						  // with positive speed, frames increment from 0 to FRAMELIMIT
 	{    
 	  *p_activeFrameCounter += 1;
@@ -143,13 +148,13 @@ void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 {
 	const int FRAMELIMIT = NUMLEDS;
 	
-	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
+	CheckInitialization();             // check to see if function has been given a start frame at first run 
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
 		return;		
 	
 	leds[frameNumber] = savedColor; 									// lighting led corresponding to current frame number
 	
-	AdvanceColor( palette, FRAMELIMIT, speed);				// manage color progression	
+	AdvanceColor(palette, FRAMELIMIT, speed);				// manage color progression	
 	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement	
 };
 
@@ -199,7 +204,7 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
   }  	
 		
 	// housekeeping portion
-	frameNumber = AdvanceFrame(speed, FRAMELIMIT);   // manage frame advancement		
+	AdvanceFrame(speed, FRAMELIMIT);   // manage frame advancement		
 }
 
 ///////////////////////////////////
@@ -208,26 +213,22 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
 //make one led "spin" around the fan by lighting them sequentially
 //parameters: speed - milliseconds between frame advances | color: color to use when running the effect 
 //This kind of only exists to support random colors since SpinLeds does everything else this effect does
-void generic_Fan::SpinOneLed(int speed, CRGB color)  
+void generic_Fan::SpinOneLed(int speed, CRGB* palette)  
 {
 	//  housekeeping portion
 	const int FRAMELIMIT = NUMLEDS;    // number of frames in this effect
 	
 	CheckInitialization();             // check to see if function has been given a start frame at first run and give one if necessary
 	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
-		return;
-		
-	// color management portion
-	savedColor = CheckForRandomColor(color, savedColor, FRAMELIMIT, frameNumber, speed);
+		return;		
 		
 	// actual effects portion
 	BlankFan();                        // write black to all leds before writing frame data
 	leds[frameNumber] = savedColor;    // write color to led with same number as frame number    
 	
-	// WriteColorsToFan();              // write internal led array to external one for subsequent write to hardware at end of main loop
-	
 	// housekeeping portion
-	frameNumber = AdvanceFrame(speed, FRAMELIMIT);   // manage frame advancement
+	AdvanceColor(palette, FRAMELIMIT, speed);
+	AdvanceFrame(speed, FRAMELIMIT);   // manage frame advancement
 }
 
 ///////////////////////////////////
@@ -237,44 +238,46 @@ void generic_Fan::SpinOneLed(int speed, CRGB color)
 // on Aspect fans, uses top two LEDs, then middle two, then bottom two
 // on CPU fan, does top to bottom to top
 //TO TO - update to allow line to move left/right on cpu fan, or other ways on Aspect fan
-void generic_Fan::MovingLine(int speed, CRGB color)
+void generic_Fan::MovingLine(int speed, CRGB* palette)
 {
 	const int FRAMELIMIT = NUMLEDS - 2;  // set number of frames in the effect
 		
 	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
 		return;
+		
 	BlankFan();
 	
 	if (NUMLEDS == 4)
 		if (frameNumber == 0)
 		{
-			leds[frameNumber] = color;
-			leds[frameNumber + 1] = color;
+			leds[frameNumber] = savedColor;
+			leds[frameNumber + 1] = savedColor;
 		}
 		else if (frameNumber == 1)
 		{
-			leds[frameNumber + 1] = color;
-			leds[frameNumber + 2] = color;
+			leds[frameNumber + 1] = savedColor;
+			leds[frameNumber + 2] = savedColor;
 		}
 	
 	if (NUMLEDS == 6)
 		if (frameNumber == 0)
 		{
-			leds[3] = color;
-			leds[4] = color;
+			leds[3] = savedColor;
+			leds[4] = savedColor;
 		}
 		else if ((frameNumber == 1) || (frameNumber == 3))
 		{
-			leds[2] = color;
-			leds[5] = color;
+			leds[2] = savedColor;
+			leds[5] = savedColor;
 		}
 		else if (frameNumber == 2)
 		{
-			leds[1] = color;
-			leds[0] = color;
+			leds[1] = savedColor;
+			leds[0] = savedColor;
 		}
 		
-		frameNumber = AdvanceFrame(speed, FRAMELIMIT);
+		AdvanceColor(palette, FRAMELIMIT, speed);
+		AdvanceFrame(speed, FRAMELIMIT);
 };
 
 
@@ -339,22 +342,21 @@ void front_LedStrip::BlankLeds()
 ///////////////////////
 //==== BlinkLeds
 // 
-void front_LedStrip::BlinkLeds(int speed, CRGB color)
+void front_LedStrip::BlinkLeds(int speed, CRGB* palette)
 {
 	const int FRAMELIMIT = 2;		// frames in this animation
 	
 	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
-		return;
-		
-	savedColor = CheckForRandomColor(color, savedColor, FRAMELIMIT, frameNumber, speed);  //manage random color use
+		return;	
 	
 	BlankLeds();			// set all LEDs to black before writing frame
 	
 	if (frameNumber == 0)		// On frame 0, set all LEDs on with saved color
 		for (int i = 0; i < NUMLEDS; i++)		// once for each LED
 			leds[i] = savedColor;
-		
-	frameNumber = AdvanceFrame(speed, FRAMELIMIT);		// manage frame advancement
+	
+	AdvanceColor(palette, FRAMELIMIT, speed);  //manage color progression
+	AdvanceFrame(speed, FRAMELIMIT);		// manage frame advancement
 };
 
 ///////////////////////

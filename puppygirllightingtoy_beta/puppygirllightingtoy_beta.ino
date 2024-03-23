@@ -15,12 +15,11 @@ const CRGB TRANSBLUE = CRGB(91,206,250);
 const CRGB TRANSPINK = CRGB(245,169,184); 
 const CRGB TRANSWHITE = CRGB(128,128,128);
 
-//  TEST COLOR ARRAYS
-CRGB rgbTest[] = {CRGB::Red, CRGB::Lime, CRGB::Blue, CRGB::Black};
-CRGB redBlueTest[] = {CRGB::Red, CRGB::Blue, CRGB::Black};
-
 //  UTILITY COLOR ARRAYS
 CRGB blackForRandom[] = {CRGB::Black};
+
+// SINGLE COLOR ARRAYS
+CRGB singlePurple[] = {CRGB::Purple, CRGB::Black};
 
 //  PRIDE COLOR ARRAYS/PALETTES
 CRGB prideBisexual[] = {CRGB(214,2,112), CRGB(155,79,150), CRGB(0,56, 168), CRGB::Black};
@@ -31,6 +30,10 @@ CRGB prideTransgenderBreak[] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Linen, CR
 CRGB prideLesbian[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRGB(125,38,87),CRGB(125,5,82),CRGB::Black};
 CRGB prideLesbianBreak[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRGB(125,38,87),CRGB(125,5,82),CRGB(0,0,1),CRGB(0,0,1),CRGB::Black};
 
+//  TEST COLOR ARRAYS
+CRGB rgbTest[] = {CRGB::Red, CRGB::Lime, CRGB::Blue, CRGB::Black};
+CRGB redBlueTest[] = {CRGB::Red, CRGB::Blue, CRGB::Black};
+
 //constant data pin number declarations
 #define DATA_PIN2 2
 #define DATA_PIN4 4
@@ -38,29 +41,30 @@ CRGB prideLesbianBreak[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRG
 #define DATA_PIN8 8
 #define DATA_PIN9 9
 
-//var declarations for arrays of LEDs. These get written to each loop of the program, then at the end they all get written to the LEDs.
-//First, this array is for the two fans on the front of the case and the one on the back to make it easier to coordinate effects on them.
-//These three are Aspect fans with 6 LEDs each
+// var declarations for arrays of LEDs. These get written to each loop of the program, then at the end they all get written to the LEDs.
+// First, this array is for the two fans on the front of the case and the one on the back to make it easier to coordinate effects on them.
+// These three are Aspect fans with 6 LEDs each
 CRGB largeFans[3][LARGEFANLEDS];
-//Following are individual devices: details after each one
+// Following are individual devices: details after each one
 CRGB fan3[SMALLFANLEDS];  //CPU cooling fan, 4 LEDs
 CRGB ledStrip[20]; //Front panel LEDs: 20 at the moment. 
 
-//var declarations for timing.
-//pastMillis begins at 0. Each loop, pastMillis gets the value from current Millis, then currentMillis gets value from millis(),
-//then deltaMillis = currentMillis - pastMills. The result is the number of milliseconds that have passed since the last execution
-//of the loop. I pass deltaMillis to effect functions, where it is added to a running total. TimingDrawAddCheck is called at the beginning
-//of effects functions to see if the total is greater than the time between steps (also passed to them, called speed)
-//If so, the function executes a frame. Else, it is skipped (with an exception for functions that have subframes)
+// var declarations for timing.
+// pastMillis begins at 0. Each loop, pastMillis gets the value from current Millis, then currentMillis gets value from millis(),
+// then deltaMillis = currentMillis - pastMills. The result is the number of milliseconds that have passed since the last execution
+// of the loop. I pass deltaMillis to effect functions, where it is added to a running total. TimingDrawAddCheck is called at the beginning
+// of effects functions to see if the total is greater than the time between steps (also passed to them, called speed)
+// If so, the function executes a frame. Else, it is skipped (with an exception for functions that have subframes)
 unsigned long currentMillis = 0;  
 unsigned long pastMillis = 0;     
 unsigned long deltaMillis = 0;    
 
-//variable speeds to attach to functions
+// variable speeds to attach to functions
 int variableSpeed = 0; 
 int variableSpeed2 = 0;
+int speedDivider = 0;
 
-cpu_Fan cpuFan0;            // instanatiating an object for CPU fan
+cpu_Fan cpuFan0;            // instantiating an object for CPU fan
 aspect_Fan aspectFan0;      // instantiating an object for Aspect fan 0
 aspect_Fan aspectFan1;      // instantiating an object for Aspect fan 1
 aspect_Fan aspectFan2;      // instantiating an object for Aspect fan 2
@@ -73,7 +77,7 @@ int testValue2;
 int testValue3;
 
 // EFFECTS TEST FUNCTIONS: run one effect on all fans
-void TestMovingLine(int speed, CRGB color)
+void TestMovingLine(int speed, CRGB* color)
 {  
   aspectFan0.MovingLine(speed, color);
   aspectFan1.MovingLine(speed, color);
@@ -86,20 +90,20 @@ void TestSpinColorWave(int speed, CRGB* color)
   aspectFan0.SpinColorWave(speed,color);
   aspectFan1.SpinColorWave(speed,color);
   aspectFan2.SpinColorWave(speed,color);
-  cpuFan0.SpinColorWave(speed,color);
+  cpuFan0.SpinColorWave(speed * 1.5,color);
 }
-void TestSpinOneLed(int speed, CRGB color)
+void TestSpinOneLed(int speed, CRGB* palette)
 {
-  aspectFan0.SpinOneLed(speed, color);
-  aspectFan1.SpinOneLed(speed, color);
-  aspectFan2.SpinOneLed( (-1 * speed), color);
-  cpuFan0.SpinOneLed(speed, color);
+  aspectFan0.SpinOneLed(speed, palette);
+  aspectFan1.SpinOneLed(speed, palette);
+  aspectFan2.SpinOneLed( (-1 * speed), palette);
+  cpuFan0.SpinOneLed(speed, palette);
 }
 
 void TestSpinLeds(int speed, CRGB color1, CRGB color2 = CRGB:: Black, CRGB color3 = CRGB:: Black)
 {
   aspectFan0.SpinLeds(speed, color1, color2, color3);
-  aspectFan1.SpinLeds(speed, color1, color2, color3);
+  aspectFan1.SpinLeds(-speed, color1, color2, color3);
   aspectFan2.SpinLeds(speed, color1, color2, color3);
   cpuFan0.SpinLeds(speed, color1, color2, color3);
 }
@@ -130,21 +134,28 @@ void loop() {
 
   //stuff dealing with values for passing to functions as speed 
   //oscillation, sort of, of variable speed to pass to functions in lieu of a constant speed
-  if (variableSpeed < 500)
-    variableSpeed++;
+  if (variableSpeed < 400)
+  {
+    speedDivider++;
+    if (speedDivider == 7)
+    {
+      variableSpeed++;
+      speedDivider = 0;
+    }
+  }  
   else
-    variableSpeed = -500;
+    variableSpeed = -400;
 
-  variableSpeed2 = variableSpeed + 500;
-  if (variableSpeed2 > 500)
-    variableSpeed2 -= 1000;
+  variableSpeed2 = variableSpeed + 400;
+  if (variableSpeed2 > 400)
+    variableSpeed2 -= 800;
   
   //FAN TEST FUNCTIONS
-  //TestMovingLine(variableSpeed, CRGB::Purple);
-  //TestSpinLeds(variableSpeed, CRGB::Blue, CRGB::Purple);
-  //TestSpinOneLed(variableSpeed, CRGB::Black);
+  //TestMovingLine(200, prideLesbian);
+  TestSpinLeds(variableSpeed, CRGB::Blue, CRGB::Purple);
+  //TestSpinOneLed(-80, prideLesbian);
   //TestSpinColorWave(100,blackForRandom);
-  TestSpinColorWave(-100,prideLesbian);
+  //TestSpinColorWave(-100,prideLesbian);
 
   // to remember what the counter values of the led strip were before running the effects methods on them
   testValue0 = ledStrip0.topLeftFrameNumber;
@@ -158,11 +169,12 @@ void loop() {
   // CPU FAN EFFECT CALLS  
 
   // FRONT STRIP EFFECT CALLS    
-  //ledStrip0.ScrollColorsOnFrontStrips(400, prideLesbian,0,1,0,1);
-  //ledStrip0.ScrollColorsOnFrontStrips(400, prideLesbian,1,0,1,0);
+  //ledStrip0.BlinkLeds(1000,rgbTest);
+  ledStrip0.ScrollColorsOnFrontStrips(-400, prideLesbian,0,1,0,1);
+  //ledStrip0.ScrollColorsOnFrontStrips(-400, prideLesbian,1,0,1,0);
 
-  //ledStrip0.ScrollColorsOnFrontStrips(-400, prideTransgender,0,1,0,1);
-  //ledStrip0.ScrollColorsOnFrontStrips(-400, prideTransgender,1,0,1,0);
+  //ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,0,1,0,1);
+  ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,1,0,1,0);
 
   /*
   
