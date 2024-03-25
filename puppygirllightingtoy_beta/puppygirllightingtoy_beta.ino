@@ -1,6 +1,7 @@
 //#include <FastLED.h>
 #include <classesfordoggos.h>
 #include <functionsfordoggos.h>
+//#include <variablesfordoggos.h>
 
 //constant declarations reflecting hardware parameters
 const int LARGEFANLEDS = 6;  //Number of LEDs on the chassis fans
@@ -46,6 +47,7 @@ CRGB redBlueTest[] = {CRGB::Red, CRGB::Blue, CRGB::Black};
 // First, this array is for the two fans on the front of the case and the one on the back to make it easier to coordinate effects on them.
 // These three are Aspect fans with 6 LEDs each
 CRGB largeFans[3][LARGEFANLEDS];
+//CRGB* p_LargeFansArray = &largeFans;
 // Following are individual devices: details after each one
 CRGB fan3[SMALLFANLEDS];  //CPU cooling fan, 4 LEDs
 CRGB ledStrip[20]; //Front panel LEDs: 20 at the moment. 
@@ -109,6 +111,14 @@ void TestSpinLeds(int speed, CRGB color1, CRGB color2 = CRGB:: Black, CRGB color
   cpuFan0.SpinLeds(speed * 1.5, color1, color2, color3);
 }
 
+void TestFadeThroughColors(int speed, CRGB* palette)
+{
+  aspectFan0.FadeThroughColors(2000, prideLesbian); 
+  aspectFan1.FadeThroughColors(2000, prideLesbian); 
+  aspectFan2.FadeThroughColors(2000, prideLesbian); 
+  cpuFan0.FadeThroughColors(2000, prideLesbian);
+}
+
 void setup() 
 {
   srand(millis());
@@ -166,7 +176,7 @@ void loop() {
   testValue3 = ledStrip0.bottomRightFrameNumber;
 
   // ASPECT FAN EFFECT CALLS
-  //aspectFan2.SpinColorWave(-100, prideRainbow);  
+  //TestFadeThroughColors(2000, prideLesbian);
 
   // CPU FAN EFFECT CALLS  
 
@@ -180,34 +190,39 @@ void loop() {
 
   //ledStrip0.ChaseWithFade(40, prideLesbian, .8, 2);
 
-  int secondsPerPhase = (currentMillis / 20000) % 3;
+  // CURRENT EFFECTS SHOW
   
+  int secondsPerPhase = (currentMillis / 20000) % 3;
+    
   if (secondsPerPhase == 0)    //run for 15 seconds
   {
     ledStrip0.ScrollColorsOnFrontStrips(200, prideLesbian,1,0,1,0);
     ledStrip0.ScrollColorsOnFrontStrips(-200, prideLesbian,0,1,0,1);
     aspectFan0.SpinLeds(100, prideLesbian[0],prideLesbian[4]);
     aspectFan1.SpinLeds(-100, prideLesbian[4], prideLesbian[0]);
-    aspectFan2.SpinColorWave(100, prideLesbian);
-    cpuFan0.SpinColorWave(150, prideLesbian);
+    aspectFan2.FadeThroughColors(2000, prideLesbian);
+    cpuFan0.FadeThroughColors(2000, prideLesbian);
   }
   else if (secondsPerPhase == 1)
   {
     ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,0,1,0,1);
     ledStrip0.ScrollColorsOnFrontStrips(-400, prideTransgender,1,0,1,0);
     aspectFan0.SpinLeds(variableSpeed, prideTransgender[0],prideTransgender[1]);
-    aspectFan1.SpinLeds(variableSpeed * -1, prideTransgender[1], prideTransgender[0]);
+    aspectFan1.SpinLeds(variableSpeed2 * -1, prideTransgender[1], prideTransgender[0]);
     aspectFan2.SpinColorWave(variableSpeed, prideTransgender);
-    cpuFan0.SpinColorWave(variableSpeed * 1.5, prideTransgender);
+    //cpuFan0.SpinColorWave(variableSpeed * 1.5, prideTransgender);
+    cpuFan0.FadeThroughColors(2000, prideTransgender);
   }
   else
   {
     ledStrip0.ChaseWithFade(40, prideRainbow, .8, 2);
     aspectFan0.SpinColorWave(100, prideRainbow);
     aspectFan1.SpinColorWave(100, prideRainbow);
-    aspectFan2.SpinColorWave(100, prideRainbow);
-    cpuFan0.SpinColorWave(150, prideRainbow);
+    aspectFan2.FadeThroughColors(2000, prideRainbow);
+    cpuFan0.FadeThroughColors(2000, prideRainbow);
   }
+
+  //aspectFan2.BlinkLeds(25, singlePurple);
 
   
   //// DEBUG CODE - if any of the counters for the led strip have changed, print the values of all of them

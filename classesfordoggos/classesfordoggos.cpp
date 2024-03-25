@@ -128,6 +128,57 @@ void generic_Fan::BlankFan()
 }  
 
 ///////////////////////////////////
+// 				BLINK LEDS
+///////////////////////////////////
+// blink all LEDs the same color following passed palette
+void generic_Fan::BlinkLeds(int speed, CRGB* palette)
+{
+	const int FRAMELIMIT = 2;
+
+	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
+	return;	
+	
+	BlankFan();			// set all LEDs to black before writing frame
+	
+	if (frameNumber == 0)		// On frame 0, set all LEDs on with saved color
+		for (int i = 0; i < NUMLEDS; i++)		// once for each LED
+			leds[i] = savedColor;
+	
+	AdvanceColor(palette, FRAMELIMIT, speed);  //manage color progression
+	AdvanceFrame(speed, FRAMELIMIT);		// manage frame advancement	
+};
+
+///////////////////////////////////
+// 				FADE THROUGH COLORS
+///////////////////////////////////
+// fades all LEDs on fan from one color to the next through the passed CRGB palette array. Speed is number of milliseconds between colors.
+void generic_Fan::FadeThroughColors(int speed, CRGB* palette)
+{
+	const int FRAMELIMIT = GetLengthOfBlackTerminatedCRGBArray(palette);  // each color in the palette array gets one frame
+	
+	bool nextFrame = 1;
+	float change; 						// to track amount of blending to apply to colors based on elapsed millis between frames
+	float changePerMilli = 255 / (float)speed; // how much change is applied per millisecond
+	change = changePerMilli * *p_activeTimer;  // how much change/blending to apply this function iteration	
+	if (changePerMilli < 0)  								 	 // convert to positive change in case of negative speed
+	changePerMilli *= -1;	
+	
+	CheckInitialization();             // check to see if function has been given a start frame at first run 
+	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
+		nextFrame = 0;	
+	
+	// blends color matching current frame number into next color on the palette array
+	for (int i = 0; i < NUMLEDS; i++)  
+			leds[i] = blend(	 
+										 palette[*p_activeFrameCounter],     																											 // argument 1
+										 (palette[ (*p_activeFrameCounter + 1) % GetLengthOfBlackTerminatedCRGBArray(palette) ]),  // argument 2
+										 change);																								  					  			       			   // argument 3	
+	
+	if (nextFrame)
+    AdvanceFrame(speed, FRAMELIMIT);  //advance frame as appropriate		
+};
+
+///////////////////////////////////
 // 				FILL FAN
 ///////////////////////////////////
 // Fill all LEDs with passed color
@@ -141,8 +192,6 @@ void generic_Fan::FillFan(CRGB color)
 // 				SPINCOLORWAVE
 ///////////////////////////////////
 //Lights each LED around an Aspect fan sequentially, leaves them on, and repeats with a new color
-//non-selectable color: always random
-// what if we pass this an int for array length created by running GetLengthOf... on an array as an expression in the argument list?
 void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 //void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 {
@@ -161,21 +210,22 @@ void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 ///////////////////////////////////
 // 				SPINCOLORWAVEFADE
 ///////////////////////////////////
+// Rotates a light around a fan while leaving a trail that fades behind it
 void generic_Fan::SpinColorWaveFade(int speed, CRGB* palette, float fadeAmount)
 {
 	const int FRAMELIMIT = NUMLEDS;
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
 		return;		
 		
-	for (int i = 0; i < NUMLEDS; i++)
+	for (int i = 0; i < NUMLEDS; i++)  								// fade each LED by a percentage passed to function
 	{
 		leds[i].red *= fadeAmount;
 		leds[i].green *= fadeAmount;
 		leds[i].blue *= fadeAmount;
 	}
-	leds[*p_activeFrameCounter] = savedColor;
+	leds[*p_activeFrameCounter] = savedColor;					// light LED matching frame number
 		
-	AdvanceColor(palette, FRAMELIMIT, speed);				// manage color progression	
+	AdvanceColor(palette, FRAMELIMIT, speed);					// manage color progression	
 	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement
 };
 	
@@ -206,8 +256,7 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
     numberOfLights++;
 	
 	// actual effects portion
-	BlankFan();                        // write black to all leds before writing frame data
-	
+	BlankFan();                        // write black to all leds before writing frame data	
 	// For one/first light
 	leds[frameNumber] = color1;    		 // write color to led with same number as frame number 
   // for two lights only	
@@ -230,9 +279,9 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CR
 ///////////////////////////////////
 // 				SPIN ONE LED
 ///////////////////////////////////
-//make one led "spin" around the fan by lighting them sequentially
-//parameters: speed - milliseconds between frame advances | color: color to use when running the effect 
-//This kind of only exists to support random colors since SpinLeds does everything else this effect does
+// make one led "spin" around the fan by lighting them sequentially
+// parameters: speed - milliseconds between frame advances | color: color to use when running the effect 
+// This kind of only exists to support random colors since SpinLeds does everything else this effect does
 void generic_Fan::SpinOneLed(int speed, CRGB* palette)  
 {
 	//  housekeeping portion
@@ -260,9 +309,9 @@ void generic_Fan::SpinOneLed(int speed, CRGB* palette)
 //TO TO - update to allow line to move left/right on cpu fan, or other ways on Aspect fan
 void generic_Fan::MovingLine(int speed, CRGB* palette)
 {
-	const int FRAMELIMIT = NUMLEDS - 2;  // set number of frames in the effect
+	const int FRAMELIMIT = NUMLEDS - 2;  													// set number of frames in the effect
 		
-	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds))	// manage frame write timing
 		return;
 		
 	BlankFan();
@@ -309,6 +358,32 @@ void generic_Fan::MovingLine(int speed, CRGB* palette)
 
 //**********************************************************************************************************************
 //**********************************************************************************************************************
+//**************************************** DUAL FRONT ASPECT FANS CLASS*************************************************
+//**********************************************************************************************************************
+//**********************************************************************************************************************
+
+// EFFECTS FUNCTIONS
+
+///////////////////////
+//==== StackFill
+// lights drop in from the top of the two fans, landing at the bottom and stacking up to fill the visual space
+
+void dual_FrontAspectFans::StackFill(int speed, CRGB* palette)
+{
+	const int FRAMELIMIT = 42;
+	
+	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds))	// manage frame write timing
+		return;
+		
+	if ( (*p_activeFrameCounter > -1) && (*p_activeFrameCounter < 5) )
+	{
+	}
+		
+	AdvanceFrame(speed, FRAMELIMIT);
+}
+
+//**********************************************************************************************************************
+//**********************************************************************************************************************
 //**************************************** FRONT LED STRIP CLASS********************************************************
 //**********************************************************************************************************************
 //**********************************************************************************************************************
@@ -325,26 +400,22 @@ void front_LedStrip::DetermineTimer(bool tl, bool tr, bool bl, bool br)
 	if (tl)	
 	{
 		p_activeFrameCounter = &topLeftFrameNumber;
-		p_activeTimer =  &topLeftAccumulatedMillis;
-		//Serial.println("Top Left");
+		p_activeTimer =  &topLeftAccumulatedMillis;	
 	}
 	else if (tr)	
 	{
 		p_activeFrameCounter = &topRightFrameNumber;	
 		p_activeTimer = &topRightAccumulatedMillis;
-		//Serial.println("Top Right");
 	}
 	else if (bl)	
 	{
 		p_activeFrameCounter = &bottomLeftFrameNumber;
 		p_activeTimer =  &bottomLeftAccumulatedMillis;
-		//Serial.println("Bottom Left");
 	}
 	else if (br)	
 	{
 		p_activeFrameCounter = &bottomRightFrameNumber;	
 		p_activeTimer =  &bottomRightAccumulatedMillis;
-		//Serial.println("Bottom Right");
 	}
 }
 
@@ -369,19 +440,19 @@ void front_LedStrip::BlinkLeds(int speed, CRGB* palette)
 	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
 		return;	
 	
-	BlankLeds();			// set all LEDs to black before writing frame
+	BlankLeds();															// set all LEDs to black before writing frame
 	
-	if (frameNumber == 0)		// On frame 0, set all LEDs on with saved color
-		for (int i = 0; i < NUMLEDS; i++)		// once for each LED
+	if (frameNumber == 0)											// On frame 0, set all LEDs on with saved color
+		for (int i = 0; i < NUMLEDS; i++)				// once for each LED
 			leds[i] = savedColor;
 	
-	AdvanceColor(palette, FRAMELIMIT, speed);  //manage color progression
-	AdvanceFrame(speed, FRAMELIMIT);		// manage frame advancement
+	AdvanceColor(palette, FRAMELIMIT, speed);	//manage color progression
+	AdvanceFrame(speed, FRAMELIMIT);					// manage frame advancement
 };
 
-///////////////////////
-//==== FillLeds
-// 
+///////////////////////////////////
+// 		FILLLEDS
+///////////////////////////////////
 //  Fill all LEDs with passed color
 void front_LedStrip::FillLeds(CRGB color)
 {
@@ -398,31 +469,28 @@ void front_LedStrip::ChaseWithFade(int speed, CRGB* palette, float fadeAmount, i
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
 		return;		
 		
-	for (int i = 0; i < NUMLEDS; i++)  // first, fade all the LEDs by selected amount
+	// first, fade all the LEDs by selected amount
+	for (int i = 0; i < NUMLEDS; i++)  
 	{
 		leds[i].red *= fadeAmount;
 		leds[i].green *= fadeAmount;
 		leds[i].blue *= fadeAmount;
 	}
-	leds[*p_activeFrameCounter] = savedColor;   //second, light LED by framenumber
-	Serial.println();
-	Serial.print("CWF: Frame number after lighting LED and before updating color is: ");
-	Serial.println(*p_activeFrameCounter);
-	//if there are 2 lights
-	if (lights == 2)
-	{
-		leds[(*p_activeFrameCounter + 10) % 20] = savedColor;
-	}
+	// second, light LEDs by framenumber
+	leds[*p_activeFrameCounter] = savedColor;   // for one light	
+	if (lights == 2)														// for two lights	
+		leds[(*p_activeFrameCounter + 10) % 20] = savedColor;	
 		
-	AdvanceColor(palette, FRAMELIMIT, speed);				// manage color progression	
-	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement
+	AdvanceColor(palette, FRAMELIMIT, speed);		// manage color progression	
+	AdvanceFrame(speed, FRAMELIMIT);  				 	// manage frame advancement
 };
 
-///////////////////////
-//==== ScrollColors
+///////////////////////////////////
+// 				SCROLLCOLORS
+///////////////////////////////////
 //  Scrolls a set of colors passed in via an array on one or more quarters of the front LED strips
-//  This is called by ScrollColorsOnFrontStrips
-//			// SCOFS determines the number of vertical rows and passes the booleans determing which parts of the strips to run on
+//  This is called by ScrollColorsOnFrontStrips (SCOFS)
+//			SCOFS determines the number of vertical rows and passes the booleans determing which parts of the strips to run on
 //	Accepts an array of colors to use
 //	Creates an array of double that length (baseArray) which includes blends of colors between the ones on the input array
 //	Does math to write baseArray's values into outArray in the correct order based on frame number
@@ -483,14 +551,15 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
 									  change);																								 								 							     // argument 3				
 		}		
 		
-	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);	  //populates outArray with the colors to be written to the hardware
+	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);	  //populates object's array of LEDs with the colors to be written to the hardware
 	
 	if (nextFrame)
     AdvanceFrame(speed, FRAMELIMIT);  //advance frame as appropriate		
 }
 
-///////////////////////
-//==== ScrollColorsOnFrontStrips
+///////////////////////////////////
+// 	SCROLLCOLORSONFRONTSTRIPS
+///////////////////////////////////
 //  Calls ScrollColors and provides the booleans passed to this argument plus the number of vertical rows determined in this function
 void front_LedStrip::ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl, bool tr, bool bl, bool br)
 {
@@ -503,9 +572,10 @@ void front_LedStrip::ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl
 	front_LedStrip::ScrollColors(speed, palette, vertRows, tl, tr, bl, br);	
 }
 
-///////////////////////
-//==== WriteColorsToOutputArray
-// 
+///////////////////////////////////
+// 	  WRITECOLORSTOOUTPUTARRAY
+///////////////////////////////////
+//  copies values from outArray to the led array that will be written to hardware in the main loop
 void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, bool bl, bool br, int vertRows)
 {	
 	if (vertRows == 10)

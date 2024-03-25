@@ -62,13 +62,15 @@ class generic_Fan : public generic_LedDevice
 	{}	
 	
 	//effects functions
-	void BlankFan();												 // Set all LEDs to black
-	void FillFan(CRGB color);	 							 // Fill all LEDs on fan with passed color
-	void SpinColorWave(int speed, CRGB* palette);					 // Waves of color rotate around fan
+	void BlankFan();																	 // Set all LEDs to black
+	void BlinkLeds(int speed, CRGB* palette); 				 // blink all LEDs the same color following passed palette
+	void FadeThroughColors(int speed, CRGB* palette);  // fades one color into the next progressing through a palette
+	void FillFan(CRGB color);	 												 // Fill all LEDs on fan with passed color
+	void SpinColorWave(int speed, CRGB* palette);			 // Waves of color rotate around fan
 	void SpinColorWaveFade(int speed, CRGB* palette, float fadeAmount);
 	void SpinLeds(int, CRGB, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black);  //Spin 1-3 LEDs around a fan
-	void SpinOneLed(int speed, CRGB* palette);  // One LED rotates around fan
-	void MovingLine(int speed, CRGB* palette);	 // Line of LEDs bounces back and forth across fan
+	void SpinOneLed(int speed, CRGB* palette);  			 // One LED rotates around fan
+	void MovingLine(int speed, CRGB* palette);				 // Line of LEDs bounces back and forth across fan
 };
 
 /////////////////////
@@ -111,17 +113,20 @@ class dual_FrontAspectFans: public generic_Fan
 {
 	public:
 	
-	dual_FrontAspectFans()
+	dual_FrontAspectFans()								// constructor function
 	{
 		NUMLEDS = 12;
 		static int LEDSPERFAN = 6;
 		int topFrameNumber = 0;
 		int bottomFrameNumber = 0;
 		int topAccumulatedMillis = 0;
-		int bottomAccumulatedMillis = 0;
-		
-		CRGB leds[NUMLEDS];
+		int bottomAccumulatedMillis = 0;		
+		CRGB topFanLeds[LEDSPERFAN];
+		CRGB bottomFanLeds[LEDSPERFAN];		
 	}
+	
+	// effects function
+	void StackFill(int speed, CRGB* palette);		
 };
 ////////////////////////////////////////
 // FRONT LED STRIP CLASS and CHILDREN //  
