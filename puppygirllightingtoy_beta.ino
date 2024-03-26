@@ -12,19 +12,22 @@ const int NUM_DEVICES = 5;   //The number of separate LED devices being controll
 const int NUM_FANS = 4;
 
 //constant color declarations
+/*
 const CRGB NICEBLUE = CRGB(0, 120, 255);
 const CRGB TRANSBLUE = CRGB(91,206,250);
 const CRGB TRANSPINK = CRGB(245,169,184); 
 const CRGB TRANSWHITE = CRGB(128,128,128);
+*/
 
 //  UTILITY COLOR ARRAYS
-CRGB blackForRandom[] = {CRGB::Black};
+//CRGB blackForRandom[] = {CRGB::Black};
 
 // SINGLE COLOR ARRAYS
-CRGB singlePurple[] = {CRGB::Purple, CRGB::Black};
-CRGB singleGreen[] = {CRGB::Green, CRGB::Black};
+//CRGB singlePurple[] = {CRGB::Purple, CRGB::Black};
+//CRGB singleGreen[] = {CRGB::Green, CRGB::Black};
 
 //  PRIDE COLOR ARRAYS/PALETTES
+/*
 CRGB prideBisexual[] = {CRGB(214,2,112), CRGB(155,79,150), CRGB(0,56, 168), CRGB::Black};
 CRGB prideBisexualBreak[] = {CRGB(214,2,112), CRGB(155,79,150), CRGB(0,56, 168), CRGB(0,0,1), CRGB::Black};
 CRGB prideRainbow[] = {CRGB(228,3,3),CRGB(255,140,0),CRGB(255,237,0),CRGB(0,128,38),CRGB(26,64,142),CRGB(115,41,130),CRGB::Black};
@@ -32,10 +35,11 @@ CRGB prideTransgender[] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Linen, CRGB::D
 CRGB prideTransgenderBreak[] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Linen, CRGB::DeepPink, CRGB::Turquoise, CRGB(0,0,1), CRGB::Black};
 CRGB prideLesbian[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRGB(125,38,87),CRGB(125,5,82),CRGB::Black};
 CRGB prideLesbianBreak[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRGB(125,38,87),CRGB(125,5,82),CRGB(0,0,1),CRGB(0,0,1),CRGB::Black};
+*/
 
 //  TEST COLOR ARRAYS
-CRGB rgbTest[] = {CRGB::Red, CRGB::Lime, CRGB::Blue, CRGB::Black};
-CRGB redBlueTest[] = {CRGB::Red, CRGB::Blue, CRGB::Black};
+//CRGB rgbTest[] = {CRGB::Red, CRGB::Lime, CRGB::Blue, CRGB::Black};
+//CRGB redBlueTest[] = {CRGB::Red, CRGB::Blue, CRGB::Black};
 
 //constant data pin number declarations
 #define DATA_PIN2 2
@@ -47,7 +51,7 @@ CRGB redBlueTest[] = {CRGB::Red, CRGB::Blue, CRGB::Black};
 // var declarations for arrays of LEDs. These get written to each loop of the program, then at the end they all get written to the LEDs.
 // First, this array is for the two fans on the front of the case and the one on the back to make it easier to coordinate effects on them.
 // These three are Aspect fans with 6 LEDs each
-CRGB largeFans[3][LARGEFANLEDS];
+CRGB largeFans[3][LARGEFANLEDS]; //  -  Now declared/defined in globalsfordoggos.h
 //CRGB* p_LargeFansArray = &largeFans;
 // Following are individual devices: details after each one
 CRGB fan3[SMALLFANLEDS];  //CPU cooling fan, 4 LEDs
@@ -137,8 +141,9 @@ void setup()
 }    
 
 void loop() {
-  //Serial.println();
+  Serial.println();
   //Serial.println("Main loop beginning");
+  Serial.print(NUMASPECTFANS);
   //variables for function timing
   pastMillis = currentMillis;
   currentMillis = millis();

@@ -3,8 +3,9 @@
   relies on FastLED library and classesfordoggos library
 */
 
-#include "Arduino.h"
-#include "FastLED.h"
+//#include "Arduino.h"
+//#include "FastLED.h"
+#include "globalsfordoggos.h"
 #include "classesfordoggos.h"
 
 //******************
@@ -45,7 +46,7 @@ void PrintColorArray(CRGB *arr, int length)
 ///////////////////////
 //==== GetLengthOfBlackTerminatedArray
 // Accepts a CRGB array and returns the number of elements prior to the first black in it as an int
-int GetLengthOfBlackTerminatedCRGBArray(CRGB *arr)
+int GetLengthOfBlackTerminatedCRGBArray(const CRGB* arr)
 {
 		int lengthCount = 0;
 		CRGB color = CRGB::Blue; //doesn't matter what color as long as it's not black
