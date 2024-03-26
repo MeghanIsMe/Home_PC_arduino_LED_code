@@ -68,7 +68,7 @@ bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)
 void generic_LedDevice::AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed)
 {		
 	//for positive speed, trigger on frame FRAMELIMIT - 1. For negative speed, trigger on frame 0
-	if ( (speed >= 0) && (*p_activeFrameCounter == FRAMELIMIT - 1) || ( (speed < 0) && (*p_activeFrameCounter == 0) ) )	
+	if ( ( (speed >= 0) && (*p_activeFrameCounter == FRAMELIMIT - 1) )  || ( (speed < 0) && (*p_activeFrameCounter == 0) ) )	
 	{
 		if (palette[0] == CRGB::Black)		
 			savedColor = MakeRandomColor();	// creates a random color if passed array is black				
@@ -235,7 +235,8 @@ void generic_Fan::SpinColorWaveFade(int speed, CRGB* palette, float fadeAmount)
 // make up to three leds spin around the fan by lighting them sequentially
 // parameters: speed - milliseconds between frame advances | color: color to use when running the effect 
 // this effect does not support random colors
-void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black)
+//void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black)
+void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 , CRGB color3)
 {
 	int numberOfLights = 1;
 	
@@ -317,6 +318,7 @@ void generic_Fan::MovingLine(int speed, CRGB* palette)
 	BlankFan();
 	
 	if (NUMLEDS == 4)
+	{
 		if (frameNumber == 0)
 		{
 			leds[frameNumber] = savedColor;
@@ -327,8 +329,10 @@ void generic_Fan::MovingLine(int speed, CRGB* palette)
 			leds[frameNumber + 1] = savedColor;
 			leds[frameNumber + 2] = savedColor;
 		}
+	}
 	
 	if (NUMLEDS == 6)
+	{
 		if (frameNumber == 0)
 		{
 			leds[3] = savedColor;
@@ -344,6 +348,7 @@ void generic_Fan::MovingLine(int speed, CRGB* palette)
 			leds[1] = savedColor;
 			leds[0] = savedColor;
 		}
+	}
 		
 		AdvanceColor(palette, FRAMELIMIT, speed);
 		AdvanceFrame(speed, FRAMELIMIT);
@@ -367,7 +372,7 @@ void generic_Fan::MovingLine(int speed, CRGB* palette)
 ///////////////////////
 //==== StackFill
 // lights drop in from the top of the two fans, landing at the bottom and stacking up to fill the visual space
-
+/*
 void dual_FrontAspectFans::StackFill(int speed, CRGB* palette)
 {
 	const int FRAMELIMIT = 42;
@@ -381,6 +386,7 @@ void dual_FrontAspectFans::StackFill(int speed, CRGB* palette)
 		
 	AdvanceFrame(speed, FRAMELIMIT);
 }
+*/
 
 //**********************************************************************************************************************
 //**********************************************************************************************************************
@@ -463,7 +469,7 @@ void front_LedStrip::FillLeds(CRGB color)
 ///////////////////////////////////
 // 				CHASEWITHFADE
 ///////////////////////////////////
-void front_LedStrip::ChaseWithFade(int speed, CRGB* palette, float fadeAmount, int lights = 1)
+void front_LedStrip::ChaseWithFade(int speed, CRGB* palette, float fadeAmount, int lights)
 {
 	const int FRAMELIMIT = NUMLEDS;
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
@@ -655,9 +661,3 @@ void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, 
 ////////////////////////////
 // TESTING FUNCTIONS 
 ////////////////////////////
-
-
-
-
-
- 

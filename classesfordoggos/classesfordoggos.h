@@ -2,8 +2,8 @@
   classesfordoggos.h - library for classes related to LED control for Arduino
   relies on FastLED library
 */
-#ifndef classesfordoggos.h
-#define classesfordoggos.h
+#ifndef classesfordoggos_h
+#define classesfordoggos_h
 
 #include "Arduino.h"
 #include "FastLED.h"
@@ -68,7 +68,8 @@ class generic_Fan : public generic_LedDevice
 	void FillFan(CRGB color);	 												 // Fill all LEDs on fan with passed color
 	void SpinColorWave(int speed, CRGB* palette);			 // Waves of color rotate around fan
 	void SpinColorWaveFade(int speed, CRGB* palette, float fadeAmount);
-	void SpinLeds(int, CRGB, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black);  //Spin 1-3 LEDs around a fan
+	//void SpinLeds(int, CRGB, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black);  //Spin 1-3 LEDs around a fan
+	void SpinLeds(int, CRGB, CRGB = CRGB::Black, CRGB = CRGB::Black);  //Spin 1-3 LEDs around a fan
 	void SpinOneLed(int speed, CRGB* palette);  			 // One LED rotates around fan
 	void MovingLine(int speed, CRGB* palette);				 // Line of LEDs bounces back and forth across fan
 };
@@ -109,6 +110,7 @@ class aspect_Fan: public generic_Fan
 // DUAL FRONT ASPECT CLASS //
 /////////////////////////////
 
+/*
 class dual_FrontAspectFans: public generic_Fan
 {
 	public:
@@ -127,7 +129,7 @@ class dual_FrontAspectFans: public generic_Fan
 	
 	// effects function
 	void StackFill(int speed, CRGB* palette);		
-};
+}; */
 ////////////////////////////////////////
 // FRONT LED STRIP CLASS and CHILDREN //  
 ////////////////////////////////////////
@@ -170,7 +172,7 @@ class front_LedStrip : public generic_LedStrip
 	//effects functions
 	void BlankLeds();									// Set all LEDs to black
 	void BlinkLeds(int speed, CRGB* palette);  // Blinks all LEDs
-	void ChaseWithFade(int speed, CRGB* palette, float fadeAmount, int lights = 1);
+	void ChaseWithFade(int, CRGB*, float, int = 1);
 	void FillLeds(CRGB color);
 	void ScrollColors(int speed, CRGB* palette,int vertRows, bool tr, bool tl, bool br, bool bl);	
 	void ScrollColorsOnFrontStrips(int speed, CRGB* palette, bool tl, bool tr, bool bl, bool br);

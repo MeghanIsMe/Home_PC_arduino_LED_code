@@ -2,8 +2,8 @@
   classesfordoggos.h - library for classes related to LED control for Arduino
   relies on FastLED library
 */
-#ifndef functionsfordoggos.h
-#define functionsfordoggos.h
+#ifndef functionsfordoggos_h
+#define functionsfordoggos_h
 
 #include "Arduino.h"
 #include "FastLED.h"

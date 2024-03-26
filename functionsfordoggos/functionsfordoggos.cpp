@@ -2,8 +2,6 @@
   functionsfordoggos.h - library for functions related to LED control for Arduino
   relies on FastLED library and classesfordoggos library
 */
-#ifndef functionsfordoggos.h
-#define functionsfordoggos.h
 
 #include "Arduino.h"
 #include "FastLED.h"
@@ -141,7 +139,3 @@ CRGB CheckForRandomColor(CRGB color, CRGB savedColor, int FRAMELIMIT, int frameN
     return savedColor;  
 	
 }
-
-
-
-#endif
