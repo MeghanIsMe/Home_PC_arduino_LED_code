@@ -15,13 +15,16 @@
 //extern const int LARGEFANLEDS;
 
 
-// UTILITY FUNCTION
+// UTILITY FUNCTIONS
 //void 
 int GetLengthOfBlackTerminatedCRGBArray(const CRGB*); // overload this for more array types if necessary
 void PrintColorArray(CRGB *arr, int length);
 void SerialPrintColor(CRGB color);
 void SerialPrintVars(int, int, int, int, int);
-void WriteAspectFanToHardware(int deviceNumber, CRGB* effectsArray);
+//void WriteAspectFanToHardware(int deviceNumber, CRGB* effectsArray);
+
+// TIMING FUNCTIONS
+void UpdateSystemTimer();
 
 
 // COLOR FUNCTIONS

@@ -12,9 +12,9 @@
 extern unsigned long deltaMillis;   // milliseconds passed since last main loop execution
 																		//extern tag required to let functions and methods in this file see individual global variables
 
-////////////////////////////////
-// GENERIC LED DEVICE CLASS ////  
-////////////////////////////////
+// ░█▀▀░█▀▀░█▀█░█▀▀░█▀▄░▀█▀░█▀▀░░░█░░░█▀▀░█▀▄░░░█▀▄░█▀▀░█░█░▀█▀░█▀▀░█▀▀░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
+// ░█░█░█▀▀░█░█░█▀▀░█▀▄░░█░░█░░░░░█░░░█▀▀░█░█░░░█░█░█▀▀░▀▄▀░░█░░█░░░█▀▀░░░█░░░█░░░█▀█░▀▀█░▀▀█
+// ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀░░░░▀▀░░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
 class generic_LedDevice
 {
 	public:
@@ -38,7 +38,7 @@ class generic_LedDevice
 	//mangement functions
 	void CheckInitialization(); 									// Check whether to initialize frame number
 	bool CheckTimeForFrameDraw(int speed, int *counter);				// Check whether enough time has passed to update effect
-	void AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed);  // acts on savedColor and paletteColorIndex to progress color
+	void AdvanceColor(const CRGB*, int, int);  // acts on savedColor and paletteColorIndex to progress color
 	void AdvanceFrame(int speed, int FRAMELIMIT); // acts on p_activeFrameCounter to progress frame number	
 	
 	//effects functions
@@ -46,9 +46,9 @@ class generic_LedDevice
 };
 
 
-///////////////////////
-// GENERIC FAN CLASS //  
-///////////////////////
+// ░█▀▀░█▀▀░█▀█░█▀▀░█▀▄░▀█▀░█▀▀░░░█▀▀░█▀█░█▀█░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
+// ░█░█░█▀▀░█░█░█▀▀░█▀▄░░█░░█░░░░░█▀▀░█▀█░█░█░░░█░░░█░░░█▀█░▀▀█░▀▀█
+// ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░░░▀░░░▀░▀░▀░▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
 // parent class for all specific hardware fans (2 at this time: Aspect with 6 LEDs and a CPU fan with 4 LEDs)
 
 //generic_Fan CLASS DECLARATION
@@ -64,19 +64,18 @@ class generic_Fan : public generic_LedDevice
 	//effects functions
 	void BlankFan();																	 // Set all LEDs to black
 	void BlinkLeds(int speed, CRGB* palette); 				 // blink all LEDs the same color following passed palette
-	void FadeThroughColors(int speed, CRGB* palette);  // fades one color into the next progressing through a palette
+	void FadeThroughColors(int,const CRGB*);  				 // fades one color into the next progressing through a palette
 	void FillFan(CRGB color);	 												 // Fill all LEDs on fan with passed color
-	void SpinColorWave(int speed, CRGB* palette);			 // Waves of color rotate around fan
-	void SpinColorWaveFade(int speed, CRGB* palette, float fadeAmount);
-	//void SpinLeds(int, CRGB, CRGB color2 = CRGB::Black, CRGB color3 = CRGB::Black);  //Spin 1-3 LEDs around a fan
+	void SpinColorWave(int, const CRGB*);			 				 // Waves of color rotate around fan
+	void SpinColorWaveFade(int, const CRGB*, float);	
 	void SpinLeds(int, CRGB, CRGB = CRGB::Black, CRGB = CRGB::Black);  //Spin 1-3 LEDs around a fan
 	void SpinOneLed(int speed, CRGB* palette);  			 // One LED rotates around fan
 	void MovingLine(int speed, CRGB* palette);				 // Line of LEDs bounces back and forth across fan
 };
 
-/////////////////////
-// CPU FAN CLASS ////
-/////////////////////
+// ░█▀▀░█▀█░█░█░░░█▀▀░█▀█░█▀█░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
+// ░█░░░█▀▀░█░█░░░█▀▀░█▀█░█░█░░░█░░░█░░░█▀█░▀▀█░▀▀█
+// ░▀▀▀░▀░░░▀▀▀░░░▀░░░▀░▀░▀░▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
 // the fan on the CPU cooler
 class cpu_Fan: public generic_Fan							
 {
@@ -90,9 +89,9 @@ class cpu_Fan: public generic_Fan
 	};  
 };
 
-//////////////////////
-// ASPECT FAN CLASS //
-//////////////////////
+// ░█▀█░█▀▀░█▀█░█▀▀░█▀▀░▀█▀░░░█▀▀░█▀█░█▀█░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
+// ░█▀█░▀▀█░█▀▀░█▀▀░█░░░░█░░░░█▀▀░█▀█░█░█░░░█░░░█░░░█▀█░▀▀█░▀▀█
+// ░▀░▀░▀▀▀░▀░░░▀▀▀░▀▀▀░░▀░░░░▀░░░▀░▀░▀░▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
 // the fans in the computer case on the front and back
 class aspect_Fan: public generic_Fan					
 {
@@ -106,33 +105,47 @@ class aspect_Fan: public generic_Fan
 	};
 };
 
-/////////////////////////////
-// DUAL FRONT ASPECT CLASS //
-/////////////////////////////
+// ░█▀▄░█░█░█▀█░█░░░░░█▀▀░█▀▄░█▀█░█▀█░▀█▀░░░█▀█░█▀▀░█▀█░█▀▀░█▀▀░▀█▀░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
+// ░█░█░█░█░█▀█░█░░░░░█▀▀░█▀▄░█░█░█░█░░█░░░░█▀█░▀▀█░█▀▀░█▀▀░█░░░░█░░░░█░░░█░░░█▀█░▀▀█░▀▀█
+// ░▀▀░░▀▀▀░▀░▀░▀▀▀░░░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀░▀░▀▀▀░▀░░░▀▀▀░▀▀▀░░▀░░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
 
-/*
+
 class dual_FrontAspectFans: public generic_Fan
 {
-	public:
+	public:	
+	
+	int topFrameNumber = 0;
+	int bottomFrameNumber = 0;
+	int topAccumulatedMillis = 0;
+	int bottomAccumulatedMillis = 0;		
+	int ledOrder[2][ASPECTFANLEDS];
+	CRGB dualFans[2][ASPECTFANLEDS];
+	CRGB leds[12]; 
+	
+	int leftCount = 0; 			// for tracking progress of StackFill
+	int leftSubCount = 0; 	// for tracking progress of StackFill
+	int rightCount = 0;   	// for tracking progress of StackFill
+	int rightSubCount = 0;	// for tracking progress of StackFill
+	bool activeSide = 0;  	// for tracking progress of StackFill
 	
 	dual_FrontAspectFans()								// constructor function
 	{
-		NUMLEDS = 12;
-		static int LEDSPERFAN = 6;
-		int topFrameNumber = 0;
-		int bottomFrameNumber = 0;
-		int topAccumulatedMillis = 0;
-		int bottomAccumulatedMillis = 0;		
-		CRGB topFanLeds[LEDSPERFAN];
-		CRGB bottomFanLeds[LEDSPERFAN];		
+		NUMLEDS = ASPECTFANLEDS * 2;		
 	}
 	
+	// utility functions
+	int FindHighestLitLed(bool);
+	void TranslateLedsToOutPutArray();
+	
 	// effects function
-	void StackFill(int speed, CRGB* palette);		
-}; */
-////////////////////////////////////////
-// FRONT LED STRIP CLASS and CHILDREN //  
-////////////////////////////////////////
+	void StackFill(int, const CRGB*);		
+	void StackLeft();
+	void StackRight();
+}; 
+
+// ░█▀▀░█▀▄░█▀█░█▀█░▀█▀░░░█░░░█▀▀░█▀▄░░░█▀▀░▀█▀░█▀▄░▀█▀░█▀█░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
+// ░█▀▀░█▀▄░█░█░█░█░░█░░░░█░░░█▀▀░█░█░░░▀▀█░░█░░█▀▄░░█░░█▀▀░░░█░░░█░░░█▀█░▀▀█░▀▀█
+// ░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀░░░░▀▀▀░░▀░░▀░▀░▀▀▀░▀░░░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
 class generic_LedStrip: public generic_LedDevice
 {
 	public:
@@ -172,10 +185,10 @@ class front_LedStrip : public generic_LedStrip
 	//effects functions
 	void BlankLeds();									// Set all LEDs to black
 	void BlinkLeds(int speed, CRGB* palette);  // Blinks all LEDs
-	void ChaseWithFade(int, CRGB*, float, int = 1);
+	void ChaseWithFade(int, const CRGB*, float, int = 1);
 	void FillLeds(CRGB color);
-	void ScrollColors(int speed, CRGB* palette,int vertRows, bool tr, bool tl, bool br, bool bl);	
-	void ScrollColorsOnFrontStrips(int speed, CRGB* palette, bool tl, bool tr, bool bl, bool br);
+	void ScrollColors(int, const CRGB*, int, bool, bool, bool, bool);	
+	void ScrollColorsOnFrontStrips(int, const CRGB*, bool, bool, bool, bool);
 	void WriteColorsToOutPutArray(CRGB* outArray, bool tl, bool tr, bool bl, bool br, int vertRows);
 };
 

@@ -11,36 +11,6 @@ const int GREATESTLEDS = 6;  //Highest number of LEDs on a single device
 const int NUM_DEVICES = 5;   //The number of separate LED devices being controlled.
 const int NUM_FANS = 4;
 
-//constant color declarations
-/*
-const CRGB NICEBLUE = CRGB(0, 120, 255);
-const CRGB TRANSBLUE = CRGB(91,206,250);
-const CRGB TRANSPINK = CRGB(245,169,184); 
-const CRGB TRANSWHITE = CRGB(128,128,128);
-*/
-
-//  UTILITY COLOR ARRAYS
-//CRGB blackForRandom[] = {CRGB::Black};
-
-// SINGLE COLOR ARRAYS
-//CRGB singlePurple[] = {CRGB::Purple, CRGB::Black};
-//CRGB singleGreen[] = {CRGB::Green, CRGB::Black};
-
-//  PRIDE COLOR ARRAYS/PALETTES
-/*
-CRGB prideBisexual[] = {CRGB(214,2,112), CRGB(155,79,150), CRGB(0,56, 168), CRGB::Black};
-CRGB prideBisexualBreak[] = {CRGB(214,2,112), CRGB(155,79,150), CRGB(0,56, 168), CRGB(0,0,1), CRGB::Black};
-CRGB prideRainbow[] = {CRGB(228,3,3),CRGB(255,140,0),CRGB(255,237,0),CRGB(0,128,38),CRGB(26,64,142),CRGB(115,41,130),CRGB::Black};
-CRGB prideTransgender[] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Linen, CRGB::DeepPink, CRGB::Black};
-CRGB prideTransgenderBreak[] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Linen, CRGB::DeepPink, CRGB::Turquoise, CRGB(0,0,1), CRGB::Black};
-CRGB prideLesbian[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRGB(125,38,87),CRGB(125,5,82),CRGB::Black};
-CRGB prideLesbianBreak[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRGB(125,38,87),CRGB(125,5,82),CRGB(0,0,1),CRGB(0,0,1),CRGB::Black};
-*/
-
-//  TEST COLOR ARRAYS
-//CRGB rgbTest[] = {CRGB::Red, CRGB::Lime, CRGB::Blue, CRGB::Black};
-//CRGB redBlueTest[] = {CRGB::Red, CRGB::Blue, CRGB::Black};
-
 //constant data pin number declarations
 #define DATA_PIN2 2
 #define DATA_PIN4 4
@@ -51,23 +21,15 @@ CRGB prideLesbianBreak[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRG
 // var declarations for arrays of LEDs. These get written to each loop of the program, then at the end they all get written to the LEDs.
 // First, this array is for the two fans on the front of the case and the one on the back to make it easier to coordinate effects on them.
 // These three are Aspect fans with 6 LEDs each
-CRGB largeFans[3][LARGEFANLEDS]; //  -  Now declared/defined in globalsfordoggos.h
+//CRGB largeFans[3][LARGEFANLEDS]; //  -  Now declared/defined in globalsfordoggos.h
 //CRGB* p_LargeFansArray = &largeFans;
 // Following are individual devices: details after each one
 CRGB fan3[SMALLFANLEDS];  //CPU cooling fan, 4 LEDs
 CRGB ledStrip[20]; //Front panel LEDs: 20 at the moment. 
 
-// var declarations for timing.
-// pastMillis begins at 0. Each loop, pastMillis gets the value from current Millis, then currentMillis gets value from millis(),
-// then deltaMillis = currentMillis - pastMills. The result is the number of milliseconds that have passed since the last execution
-// of the loop. I pass deltaMillis to effect functions, where it is added to a running total. TimingDrawAddCheck is called at the beginning
-// of effects functions to see if the total is greater than the time between steps (also passed to them, called speed)
-// If so, the function executes a frame. Else, it is skipped (with an exception for functions that have subframes)
-unsigned long currentMillis = 0;  
-unsigned long pastMillis = 0;     
-unsigned long deltaMillis = 0;    
-
 // variable speeds to attach to functions
+// TO-DO
+// move these into globals, write some functions to create values for them in functionsfordoggos
 int variableSpeed = 0; 
 int variableSpeed2 = 0;
 int speedDivider = 0;
@@ -77,6 +39,7 @@ aspect_Fan aspectFan0;      // instantiating an object for Aspect fan 0
 aspect_Fan aspectFan1;      // instantiating an object for Aspect fan 1
 aspect_Fan aspectFan2;      // instantiating an object for Aspect fan 2
 front_LedStrip ledStrip0;   // instantiating an object for front LED strip
+dual_FrontAspectFans frontFans; // // instantiating an object for dual front fans
 
 // FOR DEBUGGING
 int testValue0;
@@ -141,13 +104,10 @@ void setup()
 }    
 
 void loop() {
-  Serial.println();
+  //Serial.println();
   //Serial.println("Main loop beginning");
-  Serial.print(NUMASPECTFANS);
-  //variables for function timing
-  pastMillis = currentMillis;
-  currentMillis = millis();
-  deltaMillis = currentMillis - pastMillis;  
+
+  UpdateSystemTimer();  // update deltaMillis based on passing of time since last main loop
 
   //stuff dealing with values for passing to functions as speed 
   //oscillation, sort of, of variable speed to pass to functions in lieu of a constant speed
@@ -199,7 +159,7 @@ void loop() {
   // CURRENT EFFECTS SHOW
   
   int secondsPerPhase = (currentMillis / 20000) % 3;
-    
+  
   if (secondsPerPhase == 0)    //run for 15 seconds
   {
     ledStrip0.ScrollColorsOnFrontStrips(200, prideLesbian,1,0,1,0);
@@ -227,6 +187,8 @@ void loop() {
     aspectFan2.FadeThroughColors(2000, prideRainbow);
     cpuFan0.FadeThroughColors(2000, prideRainbow);
   }
+  
+
 
   //aspectFan2.BlinkLeds(25, singlePurple);
 
@@ -245,7 +207,10 @@ void loop() {
     Serial.print("SC: bottomRightFrameNumber is: ");	
     Serial.println(ledStrip0.bottomRightFrameNumber);	
   }
-  */ 
+  */
+
+  //frontFans.StackFill(50, prideTransgender);
+  //frontFans.TranslateLedsToOutPutArray();
 
   // Write finished colors out to hardware arrays
   for (int i = 0; i < 6; i++)             //Aspect Fans
@@ -253,6 +218,12 @@ void loop() {
     largeFans[0][i] = aspectFan0.leds[i];   
     largeFans[1][i] = aspectFan1.leds[i];    
     largeFans[2][i] = aspectFan2.leds[i];       
+
+    // for dual front fan object
+    /*
+    largeFans[0][i] = frontFans.dualFans[0][i];
+    largeFans[1][i] = frontFans.dualFans[1][i];
+    */
   } 
   for (int i = 0; i < 4; i++)             //CPU fan
     fan3[i] = cpuFan0.leds[i];   

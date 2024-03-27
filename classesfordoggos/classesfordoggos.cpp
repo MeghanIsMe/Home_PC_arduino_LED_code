@@ -1,29 +1,48 @@
 /*
-  
+----classesfordoggos.cpp
+classesfordoggos contains classes used for 
+Contains definitions for declarations in classesfordoggos.h
+
+
+  	ASCII fonts for large comments: 
+		https://www.asciiart.eu/text-to-ascii-art - ANSI Shadow - large header
+		https://www.asciiart.eu/text-to-ascii-art - pagga - medium header (function names)
+		https://www.asciiart.eu/text-to-ascii-art - stforek - medium header (section names) 
 */
 
 // include LED control library
 #include "FastLED.h"
+#include "globalsfordoggos.h"
 #include "functionsfordoggos.h"
 
 // include this library's description file
-#include "classesfordoggos.h"
+//#include "classesfordoggos.h"
 
-//**********************************************************************************************************************
-//**********************************************************************************************************************
-//**************************************** GENERIC LED DEVICE CLASS************************************************************
-//**********************************************************************************************************************
-//**********************************************************************************************************************
+// ░██████╗░███████╗███╗░░██╗███████╗██████╗░██╗░█████╗░  ██╗░░░░░███████╗██████╗░
+// ██╔════╝░██╔════╝████╗░██║██╔════╝██╔══██╗██║██╔══██╗  ██║░░░░░██╔════╝██╔══██╗
+// ██║░░██╗░█████╗░░██╔██╗██║█████╗░░██████╔╝██║██║░░╚═╝  ██║░░░░░█████╗░░██║░░██║
+// ██║░░╚██╗██╔══╝░░██║╚████║██╔══╝░░██╔══██╗██║██║░░██╗  ██║░░░░░██╔══╝░░██║░░██║
+// ╚██████╔╝███████╗██║░╚███║███████╗██║░░██║██║╚█████╔╝  ███████╗███████╗██████╔╝
+// ░╚═════╝░╚══════╝╚═╝░░╚══╝╚══════╝╚═╝░░╚═╝╚═╝░╚════╝░  ╚══════╝╚══════╝╚═════╝░
+
+// ██████╗░███████╗██╗░░░██╗██╗░█████╗░███████╗  ░█████╗░██╗░░░░░░█████╗░░██████╗░██████╗
+// ██╔══██╗██╔════╝██║░░░██║██║██╔══██╗██╔════╝  ██╔══██╗██║░░░░░██╔══██╗██╔════╝██╔════╝
+// ██║░░██║█████╗░░╚██╗░██╔╝██║██║░░╚═╝█████╗░░  ██║░░╚═╝██║░░░░░███████║╚█████╗░╚█████╗░
+// ██║░░██║██╔══╝░░░╚████╔╝░██║██║░░██╗██╔══╝░░  ██║░░██╗██║░░░░░██╔══██║░╚═══██╗░╚═══██╗
+// ██████╔╝███████╗░░╚██╔╝░░██║╚█████╔╝███████╗  ╚█████╔╝███████╗██║░░██║██████╔╝██████╔╝
+// ╚═════╝░╚══════╝░░░╚═╝░░░╚═╝░╚════╝░╚══════╝  ░╚════╝░╚══════╝╚═╝░░╚═╝╚═════╝░╚═════╝░
+
+//CRGB testColorArray[NUMASPECTFANS][ASPECTFANLEDS];
+
+//  __ __  __  __  _  __   __ ___ __ __ ___ __  _ _____   ___ _  _ __  _  ________ _  __  __  _   __ 
+// |  V  |/  \|  \| |/  \ / _] __|  V  | __|  \| |_   _| | __| || |  \| |/ _/_   _| |/__\|  \| |/' _/
+// | \_/ | /\ | | ' | /\ | [/\ _|| \_/ | _|| | ' | | |   | _|| \/ | | ' | \__ | | | | \/ | | ' |`._`.
+// |_| |_|_||_|_|\__|_||_|\__/___|_| |_|___|_|\__| |_|   |_|  \__/|_|\__|\__/ |_| |_|\__/|_|\__||___/
 
 
-//********************
-//MANAGEMENT FUNCTIONS
-//********************
-
-
-///////////////////////////////////
-// 				CHECKINITIALIZATION
-///////////////////////////////////
+// ░█▀▀░█░█░█▀▀░█▀▀░█░█░▀█▀░█▀█░▀█▀░▀█▀░▀█▀░█▀█░█░░░▀█▀░▀▀█░█▀█░▀█▀░▀█▀░█▀█░█▀█
+// ░█░░░█▀█░█▀▀░█░░░█▀▄░░█░░█░█░░█░░░█░░░█░░█▀█░█░░░░█░░▄▀░░█▀█░░█░░░█░░█░█░█░█
+// ░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀▀▀░▀░▀
 //called by effects function to see if the frame number is initialized and initialize it if necessary.
 //new fan objects have a non-intialized frame number, so this sets it to 0.
 //could also be used to switch to a different frame number before or while running, possibly. Not implemented yet.
@@ -40,9 +59,9 @@ void generic_LedDevice::CheckInitialization()
 		initializedColor = 1;
 	}		
 }
-//////////////////////////////////////
-// 				CHECK TIME FOR FRAME DRAW
-//////////////////////////////////////
+// ░█▀▀░█░█░█▀▀░█▀▀░█░█░▀█▀░▀█▀░█▄█░█▀▀░█▀▀░█▀█░█▀▄░█▀▀░█▀▄░█▀█░█▄█░█▀▀░█▀▄░█▀▄░█▀█░█░█
+// ░█░░░█▀█░█▀▀░█░░░█▀▄░░█░░░█░░█░█░█▀▀░█▀▀░█░█░█▀▄░█▀▀░█▀▄░█▀█░█░█░█▀▀░█░█░█▀▄░█▀█░█▄█
+// ░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀░▀▀▀░▀░░░▀▀▀░▀░▀░▀░░░▀░▀░▀░▀░▀░▀░▀▀▀░▀▀░░▀░▀░▀░▀░▀░▀
 //checks to see whether enough time has passed to advance to the next frame of the effects animation
 bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)  
 {	
@@ -60,12 +79,13 @@ bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)
   }
 };
 
-///////////////////////////////////
-// 				ADVANCE COLOR
-///////////////////////////////////
+// ░█▀█░█▀▄░█░█░█▀█░█▀█░█▀▀░█▀▀░█▀▀░█▀█░█░░░█▀█░█▀▄
+// ░█▀█░█░█░▀▄▀░█▀█░█░█░█░░░█▀▀░█░░░█░█░█░░░█░█░█▀▄
+// ░▀░▀░▀▀░░░▀░░▀░▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀
 // Advance Color runs prior to FrameAdvance. Once per cycle of frames, it updates the color used in the effect to the next color
 // in the passed array. If the passed array is black, this function creates random colors as appropriate to the frame number
-void generic_LedDevice::AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed)
+//void generic_LedDevice::AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed)
+void generic_LedDevice::AdvanceColor(const CRGB* palette, int FRAMELIMIT, int speed)
 {		
 	//for positive speed, trigger on frame FRAMELIMIT - 1. For negative speed, trigger on frame 0
 	if ( ( (speed >= 0) && (*p_activeFrameCounter == FRAMELIMIT - 1) )  || ( (speed < 0) && (*p_activeFrameCounter == 0) ) )	
@@ -82,9 +102,9 @@ void generic_LedDevice::AdvanceColor(CRGB* palette, int FRAMELIMIT, int speed)
 		paletteColorIndex = 0;
 };
 
-///////////////////////////////////
-// 				ADVANCE FRAME
-///////////////////////////////////
+// ░█▀█░█▀▄░█░█░█▀█░█▀█░█▀▀░█▀▀░█▀▀░█▀▄░█▀█░█▄█░█▀▀
+// ░█▀█░█░█░▀▄▀░█▀█░█░█░█░░░█▀▀░█▀▀░█▀▄░█▀█░█░█░█▀▀
+// ░▀░▀░▀▀░░░▀░░▀░▀░▀░▀░▀▀▀░▀▀▀░▀░░░▀░▀░▀░▀░▀░▀░▀▀▀
 // called by effects function to manage color advancement called with a palette/array
 // Counter: this is the number that will be evaluatede, updated, and returned as the new frame number
 void generic_LedDevice::AdvanceFrame(int speed, int FRAMELIMIT)
@@ -106,19 +126,27 @@ if (*p_activeFrameCounter > FRAMELIMIT)				// if another effect left the frame n
 	}		
 }	
 
-//**********************************************************************************************************************
-//**********************************************************************************************************************
-//**************************************** GENERIC FAN CLASS************************************************************
-//**********************************************************************************************************************
-//**********************************************************************************************************************
+// ░██████╗░███████╗███╗░░██╗███████╗██████╗░██╗░█████╗░  ███████╗░█████╗░███╗░░██╗
+// ██╔════╝░██╔════╝████╗░██║██╔════╝██╔══██╗██║██╔══██╗  ██╔════╝██╔══██╗████╗░██║
+// ██║░░██╗░█████╗░░██╔██╗██║█████╗░░██████╔╝██║██║░░╚═╝  █████╗░░███████║██╔██╗██║
+// ██║░░╚██╗██╔══╝░░██║╚████║██╔══╝░░██╔══██╗██║██║░░██╗  ██╔══╝░░██╔══██║██║╚████║
+// ╚██████╔╝███████╗██║░╚███║███████╗██║░░██║██║╚█████╔╝  ██║░░░░░██║░░██║██║░╚███║
+// ░╚═════╝░╚══════╝╚═╝░░╚══╝╚══════╝╚═╝░░╚═╝╚═╝░╚════╝░  ╚═╝░░░░░╚═╝░░╚═╝╚═╝░░╚══╝
+
+// ░█████╗░██╗░░░░░░█████╗░░██████╗░██████╗
+// ██╔══██╗██║░░░░░██╔══██╗██╔════╝██╔════╝
+// ██║░░╚═╝██║░░░░░███████║╚█████╗░╚█████╗░
+// ██║░░██╗██║░░░░░██╔══██║░╚═══██╗░╚═══██╗
+// ╚█████╔╝███████╗██║░░██║██████╔╝██████╔╝
+// ░╚════╝░╚══════╝╚═╝░░╚═╝╚═════╝░╚═════╝░
 
 //******************
 // EFFECTS FUNCTIONS
 //******************
 
-///////////////////////////////////
-// 				BLANK FAN
-///////////////////////////////////
+// ░█▀▄░█░░░█▀█░█▀█░█░█░░░█▀▀░█▀█░█▀█
+// ░█▀▄░█░░░█▀█░█░█░█▀▄░░░█▀▀░█▀█░█░█
+// ░▀▀░░▀▀▀░▀░▀░▀░▀░▀░▀░░░▀░░░▀░▀░▀░▀
 //write black (off) to all LEDs on the fan
 //typically called prior to code that writes the current frame to the output array
 void generic_Fan::BlankFan()
@@ -127,9 +155,9 @@ void generic_Fan::BlankFan()
 	  leds[i] = CRGB::Black;
 }  
 
-///////////////////////////////////
-// 				BLINK LEDS
-///////////////////////////////////
+// ░█▀▄░█░░░▀█▀░█▀█░█░█░░░█░░░█▀▀░█▀▄░█▀▀
+// ░█▀▄░█░░░░█░░█░█░█▀▄░░░█░░░█▀▀░█░█░▀▀█
+// ░▀▀░░▀▀▀░▀▀▀░▀░▀░▀░▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀
 // blink all LEDs the same color following passed palette
 void generic_Fan::BlinkLeds(int speed, CRGB* palette)
 {
@@ -148,11 +176,11 @@ void generic_Fan::BlinkLeds(int speed, CRGB* palette)
 	AdvanceFrame(speed, FRAMELIMIT);		// manage frame advancement	
 };
 
-///////////////////////////////////
-// 				FADE THROUGH COLORS
-///////////////////////////////////
+// ░█▀▀░█▀█░█▀▄░█▀▀░▀█▀░█░█░█▀▄░█▀█░█░█░█▀▀░█░█░█▀▀░█▀█░█░░░█▀█░█▀▄░█▀▀
+// ░█▀▀░█▀█░█░█░█▀▀░░█░░█▀█░█▀▄░█░█░█░█░█░█░█▀█░█░░░█░█░█░░░█░█░█▀▄░▀▀█
+// ░▀░░░▀░▀░▀▀░░▀▀▀░░▀░░▀░▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀▀▀
 // fades all LEDs on fan from one color to the next through the passed CRGB palette array. Speed is number of milliseconds between colors.
-void generic_Fan::FadeThroughColors(int speed, CRGB* palette)
+void generic_Fan::FadeThroughColors(int speed, const CRGB* palette)
 {
 	const int FRAMELIMIT = GetLengthOfBlackTerminatedCRGBArray(palette);  // each color in the palette array gets one frame
 	
@@ -178,9 +206,9 @@ void generic_Fan::FadeThroughColors(int speed, CRGB* palette)
     AdvanceFrame(speed, FRAMELIMIT);  //advance frame as appropriate		
 };
 
-///////////////////////////////////
-// 				FILL FAN
-///////////////////////////////////
+// ░█▀▀░▀█▀░█░░░█░░░░░█▀▀░█▀█░█▀█
+// ░█▀▀░░█░░█░░░█░░░░░█▀▀░█▀█░█░█
+// ░▀░░░▀▀▀░▀▀▀░▀▀▀░░░▀░░░▀░▀░▀░▀
 // Fill all LEDs with passed color
 void generic_Fan::FillFan(CRGB color)
 {
@@ -188,11 +216,11 @@ void generic_Fan::FillFan(CRGB color)
 		leds[i] = color;	
 }
 
-///////////////////////////////////
-// 				SPINCOLORWAVE
-///////////////////////////////////
+// ░█▀▀░█▀█░▀█▀░█▀█░█▀▀░█▀█░█░░░█▀█░█▀▄░█░█░█▀█░█░█░█▀▀
+// ░▀▀█░█▀▀░░█░░█░█░█░░░█░█░█░░░█░█░█▀▄░█▄█░█▀█░▀▄▀░█▀▀
+// ░▀▀▀░▀░░░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀░▀░▀░▀░░▀░░▀▀▀
 //Lights each LED around an Aspect fan sequentially, leaves them on, and repeats with a new color
-void generic_Fan::SpinColorWave(int speed, CRGB* palette)
+void generic_Fan::SpinColorWave(int speed, const CRGB* palette)
 //void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 {
 	const int FRAMELIMIT = NUMLEDS;
@@ -207,11 +235,11 @@ void generic_Fan::SpinColorWave(int speed, CRGB* palette)
 	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement	
 };
 
-///////////////////////////////////
-// 				SPINCOLORWAVEFADE
-///////////////////////////////////
+// ░█▀▀░█▀█░▀█▀░█▀█░█▀▀░█▀█░█░░░█▀█░█▀▄░█░█░█▀█░█░█░█▀▀░█▀▀░█▀█░█▀▄░█▀▀
+// ░▀▀█░█▀▀░░█░░█░█░█░░░█░█░█░░░█░█░█▀▄░█▄█░█▀█░▀▄▀░█▀▀░█▀▀░█▀█░█░█░█▀▀
+// ░▀▀▀░▀░░░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀░▀░▀░▀░░▀░░▀▀▀░▀░░░▀░▀░▀▀░░▀▀▀
 // Rotates a light around a fan while leaving a trail that fades behind it
-void generic_Fan::SpinColorWaveFade(int speed, CRGB* palette, float fadeAmount)
+void generic_Fan::SpinColorWaveFade(int speed, const CRGB* palette, float fadeAmount)
 {
 	const int FRAMELIMIT = NUMLEDS;
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
@@ -229,9 +257,9 @@ void generic_Fan::SpinColorWaveFade(int speed, CRGB* palette, float fadeAmount)
 	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement
 };
 	
-///////////////////////////////////
-// 				SPINLEDS
-///////////////////////////////////
+// ░█▀▀░█▀█░▀█▀░█▀█░█░░░█▀▀░█▀▄░█▀▀
+// ░▀▀█░█▀▀░░█░░█░█░█░░░█▀▀░█░█░▀▀█
+// ░▀▀▀░▀░░░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀░░▀▀▀
 // make up to three leds spin around the fan by lighting them sequentially
 // parameters: speed - milliseconds between frame advances | color: color to use when running the effect 
 // this effect does not support random colors
@@ -277,9 +305,9 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 , CRGB color3)
 	AdvanceFrame(speed, FRAMELIMIT);   // manage frame advancement		
 }
 
-///////////////////////////////////
-// 				SPIN ONE LED
-///////////////////////////////////
+// ░█▀▀░█▀█░▀█▀░█▀█░░░█▀█░█▀█░█▀▀░░░█░░░█▀▀░█▀▄
+// ░▀▀█░█▀▀░░█░░█░█░░░█░█░█░█░█▀▀░░░█░░░█▀▀░█░█
+// ░▀▀▀░▀░░░▀▀▀░▀░▀░░░▀▀▀░▀░▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀░
 // make one led "spin" around the fan by lighting them sequentially
 // parameters: speed - milliseconds between frame advances | color: color to use when running the effect 
 // This kind of only exists to support random colors since SpinLeds does everything else this effect does
@@ -301,9 +329,9 @@ void generic_Fan::SpinOneLed(int speed, CRGB* palette)
 	AdvanceFrame(speed, FRAMELIMIT);   // manage frame advancement
 }
 
-///////////////////////////////////
-// 				MOVING LINE
-///////////////////////////////////
+// ░█▄█░█▀█░█░█░▀█▀░█▀█░█▀▀░░░█░░░▀█▀░█▀█░█▀▀
+// ░█░█░█░█░▀▄▀░░█░░█░█░█░█░░░█░░░░█░░█░█░█▀▀
+// ░▀░▀░▀▀▀░░▀░░▀▀▀░▀░▀░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀
 //Causes a color to move across the fan from top to bottom (reversible)
 // on Aspect fans, uses top two LEDs, then middle two, then bottom two
 // on CPU fan, does top to bottom to top
@@ -361,44 +389,200 @@ void generic_Fan::MovingLine(int speed, CRGB* palette)
 //**********************************************************************************************************************
 //**********************************************************************************************************************
 
-//**********************************************************************************************************************
-//**********************************************************************************************************************
-//**************************************** DUAL FRONT ASPECT FANS CLASS*************************************************
-//**********************************************************************************************************************
-//**********************************************************************************************************************
+// ██████╗ ██╗   ██╗ █████╗ ██╗         ███████╗██████╗  ██████╗ ███╗   ██╗████████╗            
+// ██╔══██╗██║   ██║██╔══██╗██║         ██╔════╝██╔══██╗██╔═══██╗████╗  ██║╚══██╔══╝            
+// ██║  ██║██║   ██║███████║██║         █████╗  ██████╔╝██║   ██║██╔██╗ ██║   ██║               
+// ██║  ██║██║   ██║██╔══██║██║         ██╔══╝  ██╔══██╗██║   ██║██║╚██╗██║   ██║               
+// ██████╔╝╚██████╔╝██║  ██║███████╗    ██║     ██║  ██║╚██████╔╝██║ ╚████║   ██║               
+// ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝               
+//                                                                                              
+//  █████╗ ███████╗██████╗ ███████╗ ██████╗████████╗     ██████╗██╗      █████╗ ███████╗███████╗
+// ██╔══██╗██╔════╝██╔══██╗██╔════╝██╔════╝╚══██╔══╝    ██╔════╝██║     ██╔══██╗██╔════╝██╔════╝
+// ███████║███████╗██████╔╝█████╗  ██║        ██║       ██║     ██║     ███████║███████╗███████╗
+// ██╔══██║╚════██║██╔═══╝ ██╔══╝  ██║        ██║       ██║     ██║     ██╔══██║╚════██║╚════██║
+// ██║  ██║███████║██║     ███████╗╚██████╗   ██║       ╚██████╗███████╗██║  ██║███████║███████║
+// ╚═╝  ╚═╝╚══════╝╚═╝     ╚══════╝ ╚═════╝   ╚═╝        ╚═════╝╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝
 
-// EFFECTS FUNCTIONS
+//  _  _ _____ _ _   _ _______   __   ___ _  _ __  _  ________ _  __  __  _   __ 
+// | || |_   _| | | | |_   _\ `v' /  | __| || |  \| |/ _/_   _| |/__\|  \| |/' _/
+// | \/ | | | | | |_| | | |  `. .'   | _|| \/ | | ' | \__ | | | | \/ | | ' |`._`.
+//  \__/  |_| |_|___|_| |_|   !_!    |_|  \__/|_|\__|\__/ |_| |_|\__/|_|\__||___/
 
-///////////////////////
-//==== StackFill
-// lights drop in from the top of the two fans, landing at the bottom and stacking up to fill the visual space
-/*
-void dual_FrontAspectFans::StackFill(int speed, CRGB* palette)
+// ░▀█▀░█▀▄░█▀█░█▀█░█▀▀░█░░░█▀█░▀█▀░█▀▀░░░█░░░█▀▀░█▀▄░█▀▀░░░▀█▀░█▀█░░░█▀█░█░█░▀█▀░█▀█░█░█░▀█▀░░░█▀█░█▀▄░█▀▄░█▀█░█░█
+// ░░█░░█▀▄░█▀█░█░█░▀▀█░█░░░█▀█░░█░░█▀▀░░░█░░░█▀▀░█░█░▀▀█░░░░█░░█░█░░░█░█░█░█░░█░░█▀▀░█░█░░█░░░░█▀█░█▀▄░█▀▄░█▀█░░█░
+// ░░▀░░▀░▀░▀░▀░▀░▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀░░░░▀░░▀▀▀░░░▀▀▀░▀▀▀░░▀░░▀░░░▀▀▀░░▀░░░░▀░▀░▀░▀░▀░▀░▀░▀░░▀░
+// Copies the colors stored in the objects 1 dimenaional leds array to the 
+// appropriate elements of the 2 dimensional dualFans array in preparation 
+// for the dualFans array being written to the output array in the main loop
+void dual_FrontAspectFans::TranslateLedsToOutPutArray()
 {
-	const int FRAMELIMIT = 42;
+	dualFans[0][3] = leds [0];
+	dualFans[0][2] = leds [1];
+	dualFans[0][1] = leds [2];
+	dualFans[1][3] = leds [3];
+	dualFans[1][2] = leds [4];
+	dualFans[1][1] = leds [5];
+	dualFans[0][4] = leds [6];
+	dualFans[0][5] = leds [7];
+	dualFans[0][0] = leds [8];
+	dualFans[1][4] = leds [9];
+	dualFans[1][5] = leds [10];
+	dualFans[1][0] = leds [11];	
+};
+// order of leds array on the fans as defined above is:
+// LEFT  | RIGHT
+//  5        11
+//  4				 10
+//  3					9
+//  2					8
+//  1					7
+//  0					6
+
+// ░█▀▀░▀█▀░█▀█░█▀▄░░░█░█░▀█▀░█▀▀░█░█░█▀▀░█▀▀░▀█▀░░░█░░░▀█▀░▀█▀░░░█░░░█▀▀░█▀▄
+// ░█▀▀░░█░░█░█░█░█░░░█▀█░░█░░█░█░█▀█░█▀▀░▀▀█░░█░░░░█░░░░█░░░█░░░░█░░░█▀▀░█░█
+// ░▀░░░▀▀▀░▀░▀░▀▀░░░░▀░▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░░▀░░░░▀▀▀░▀▀▀░░▀░░░░▀▀▀░▀▀▀░▀▀░
+// checks one side of the front fans to find the highest up LED that is not set to black
+// boolean side deterines which side of the front fans to check
+int dual_FrontAspectFans::FindHighestLitLed(bool side)
+{	
+	if (side == 0) // left side
+	{
+		if (leds[5] != CRGB::Black)
+			return 5;
+		else if (leds[4] != CRGB::Black)
+			return 4;
+		else if (leds[3] != CRGB::Black)
+			return 3;
+		else if (leds[2] != CRGB::Black)
+			return 2;
+		else if (leds[1] != CRGB::Black)
+			return 1;
+		else if (leds[0] != CRGB::Black)
+			return 0;
+	}
+	else if (side == 1) // right side
+	{
+		if (leds[11] != CRGB::Black)
+			return 11;
+		else if (leds[10] != CRGB::Black)
+			return 10;
+		else if (leds[9] != CRGB::Black)
+			return 9;
+		else if (leds[8] != CRGB::Black)
+			return 8;
+		else if (leds[7] != CRGB::Black)
+			return 7;
+		else if (leds[6] != CRGB::Black)
+			return 6;
+	}
+}
+
+//  ___ ___ ___ ___ ________  __   ___ _  _ __  _  ________ _  __  __  _   __ 
+// | __| __| __| __/ _/_   _/' _/ | __| || |  \| |/ _/_   _| |/__\|  \| |/' _/
+// | _|| _|| _|| _| \__ | | `._`. | _|| \/ | | ' | \__ | | | | \/ | | ' |`._`.
+// |___|_| |_| |___\__/ |_| |___/ |_|  \__/|_|\__|\__/ |_| |_|\__/|_|\__||___/
+
+// ░█▀▀░▀█▀░█▀█░█▀▀░█░█░░░█▀▀░▀█▀░█░░░█░░
+// ░▀▀█░░█░░█▀█░█░░░█▀▄░░░█▀▀░░█░░█░░░█░░
+// ░▀▀▀░░▀░░▀░▀░▀▀▀░▀░▀░░░▀░░░▀▀▀░▀▀▀░▀▀▀
+// LEDs fill up from bottom to top of the two front fans, progressing through colors in the palette
+// currently not reversible
+void dual_FrontAspectFans::StackFill(int speed, const CRGB* palette)
+{
+	const int FRAMELIMIT = 12;
 	
+
 	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds))	// manage frame write timing
 		return;
+	
+	if (activeSide == 0)
+		StackLeft();
+	else
+		StackRight();	
+	
+	activeSide = !activeSide;
 		
-	if ( (*p_activeFrameCounter > -1) && (*p_activeFrameCounter < 5) )
-	{
-	}
-		
+	AdvanceColor(palette, FRAMELIMIT, speed);
 	AdvanceFrame(speed, FRAMELIMIT);
-}
+};
+
+void dual_FrontAspectFans::StackLeft()
+{
+	leds[leftCount] = savedColor;
+	leftCount++;
+	if (leftCount > 5)
+		leftCount = 0;
+};
+
+void dual_FrontAspectFans::StackRight()
+{
+	if (rightCount == 0)
+		rightCount = 6;
+	
+	leds[rightCount] = savedColor;
+	rightCount++;
+	if (rightCount > 11)
+		leftCount = 6;
+};
+
+// STACKLEFT - SUB-FUNCTION FOR STACKFILL
+/*
+void dual_FrontAspectFans::StackLeft()
+{
+	int ledOrder[] = {3,2,1};
+	if (leftCount <  3)
+	{		
+		dualFans[0][ ledOrder[leftCount] ] = savedColor;
+	}		
+	else
+	{		
+		dualFans[1][ ledOrder[leftCount % 3] ] = savedColor;
+	}
+	
+	leftCount++;
+	if (leftCount > 5)
+		leftCount = 0;
+};
 */
 
-//**********************************************************************************************************************
-//**********************************************************************************************************************
-//**************************************** FRONT LED STRIP CLASS********************************************************
-//**********************************************************************************************************************
-//**********************************************************************************************************************
+// STACKRIGHT - SUB-FUNCTION FOR STACKFILL
+/*
+void dual_FrontAspectFans::StackRight()
+{
+	int ledOrder[] = {4,5,0};
+	if (rightCount < 3)
+		dualFans[0][ ledOrder[rightCount] ] = savedColor;
+	else
+		dualFans[1][ ledOrder[rightCount % 3] ] = savedColor;
+	
+	rightCount++;
+	if (rightCount > 5)
+		rightCount = 0;
+};
+*/
 
+// ███████╗██████╗░░█████╗░███╗░░██╗████████╗  ██╗░░░░░███████╗██████╗░  ░██████╗████████╗██████╗░██╗██████╗░
+// ██╔════╝██╔══██╗██╔══██╗████╗░██║╚══██╔══╝  ██║░░░░░██╔════╝██╔══██╗  ██╔════╝╚══██╔══╝██╔══██╗██║██╔══██╗
+// █████╗░░██████╔╝██║░░██║██╔██╗██║░░░██║░░░  ██║░░░░░█████╗░░██║░░██║  ╚█████╗░░░░██║░░░██████╔╝██║██████╔╝
+// ██╔══╝░░██╔══██╗██║░░██║██║╚████║░░░██║░░░  ██║░░░░░██╔══╝░░██║░░██║  ░╚═══██╗░░░██║░░░██╔══██╗██║██╔═══╝░
+// ██║░░░░░██║░░██║╚█████╔╝██║░╚███║░░░██║░░░  ███████╗███████╗██████╔╝  ██████╔╝░░░██║░░░██║░░██║██║██║░░░░░
+// ╚═╝░░░░░╚═╝░░╚═╝░╚════╝░╚═╝░░╚══╝░░░╚═╝░░░  ╚══════╝╚══════╝╚═════╝░  ╚═════╝░░░░╚═╝░░░╚═╝░░╚═╝╚═╝╚═╝░░░░░
 
-// UTILITY FUNCTIONS
+// ░█████╗░██╗░░░░░░█████╗░░██████╗░██████╗
+// ██╔══██╗██║░░░░░██╔══██╗██╔════╝██╔════╝
+// ██║░░╚═╝██║░░░░░███████║╚█████╗░╚█████╗░
+// ██║░░██╗██║░░░░░██╔══██║░╚═══██╗░╚═══██╗
+// ╚█████╔╝███████╗██║░░██║██████╔╝██████╔╝
+// ░╚════╝░╚══════╝╚═╝░░╚═╝╚═════╝░╚═════╝░
 
-///////////////////////
-//==== DetermineTimer
+//  _  _ _____ _ _   _ _______   __   ___ _  _ __  _  ________ _  __  __  _   __ 
+// | || |_   _| | | | |_   _\ `v' /  | __| || |  \| |/ _/_   _| |/__\|  \| |/' _/
+// | \/ | | | | | |_| | | |  `. .'   | _|| \/ | | ' | \__ | | | | \/ | | ' |`._`.
+//  \__/  |_| |_|___|_| |_|   !_!    |_|  \__/|_|\__|\__/ |_| |_|\__/|_|\__||___/
+
+// ░█▀▄░█▀▀░▀█▀░█▀▀░█▀▄░█▄█░▀█▀░█▀█░█▀▀░░░▀█▀░▀█▀░█▄█░█▀▀░█▀▄
+// ░█░█░█▀▀░░█░░█▀▀░█▀▄░█░█░░█░░█░█░█▀▀░░░░█░░░█░░█░█░█▀▀░█▀▄
+// ░▀▀░░▀▀▀░░▀░░▀▀▀░▀░▀░▀░▀░▀▀▀░▀░▀░▀▀▀░░░░▀░░▀▀▀░▀░▀░▀▀▀░▀░▀
 // Determines which frame counting member to use for function timing based on which quarters of the strip are engaged
 // In order of priority, assigns the first timer that matches a booleans: tl, tr, bl, br
 void front_LedStrip::DetermineTimer(bool tl, bool tr, bool bl, bool br)
@@ -424,21 +608,23 @@ void front_LedStrip::DetermineTimer(bool tl, bool tr, bool bl, bool br)
 		p_activeTimer =  &bottomRightAccumulatedMillis;
 	}
 }
+//  ___ ___ ___ ___ ________  __   ___ _  _ __  _  ________ _  __  __  _   __ 
+// | __| __| __| __/ _/_   _/' _/ | __| || |  \| |/ _/_   _| |/__\|  \| |/' _/
+// | _|| _|| _|| _| \__ | | `._`. | _|| \/ | | ' | \__ | | | | \/ | | ' |`._`.
+// |___|_| |_| |___\__/ |_| |___/ |_|  \__/|_|\__|\__/ |_| |_|\__/|_|\__||___/
 
-// EFFECTS FUNCTIONS
-
-///////////////////////
-//==== BlankLeds
-// 
+// ░█▀▄░█░░░█▀█░█▀█░█░█░░░█░░░█▀▀░█▀▄░█▀▀
+// ░█▀▄░█░░░█▀█░█░█░█▀▄░░░█░░░█▀▀░█░█░▀▀█
+// ░▀▀░░▀▀▀░▀░▀░▀░▀░▀░▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀
 void front_LedStrip::BlankLeds()
 {
 	for (int i = 0; i < NUMLEDS; i++)
 		leds[i] = CRGB::Black;
 };
 	
-///////////////////////
-//==== BlinkLeds
-// 
+// ░█▀▄░█░░░▀█▀░█▀█░█░█░░░█░░░█▀▀░█▀▄░█▀▀
+// ░█▀▄░█░░░░█░░█░█░█▀▄░░░█░░░█▀▀░█░█░▀▀█
+// ░▀▀░░▀▀▀░▀▀▀░▀░▀░▀░▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀
 void front_LedStrip::BlinkLeds(int speed, CRGB* palette)
 {
 	const int FRAMELIMIT = 2;		// frames in this animation
@@ -456,9 +642,9 @@ void front_LedStrip::BlinkLeds(int speed, CRGB* palette)
 	AdvanceFrame(speed, FRAMELIMIT);					// manage frame advancement
 };
 
-///////////////////////////////////
-// 		FILLLEDS
-///////////////////////////////////
+// ░█▀▀░▀█▀░█░░░█░░░░░█░░░█▀▀░█▀▄░█▀▀
+// ░█▀▀░░█░░█░░░█░░░░░█░░░█▀▀░█░█░▀▀█
+// ░▀░░░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀
 //  Fill all LEDs with passed color
 void front_LedStrip::FillLeds(CRGB color)
 {
@@ -466,10 +652,10 @@ void front_LedStrip::FillLeds(CRGB color)
 		leds[i] = color;
 }
 
-///////////////////////////////////
-// 				CHASEWITHFADE
-///////////////////////////////////
-void front_LedStrip::ChaseWithFade(int speed, CRGB* palette, float fadeAmount, int lights)
+// ░█▀▀░█░█░█▀█░█▀▀░█▀▀░░░█░█░▀█▀░▀█▀░█░█░░░█▀▀░█▀█░█▀▄░█▀▀
+// ░█░░░█▀█░█▀█░▀▀█░█▀▀░░░█▄█░░█░░░█░░█▀█░░░█▀▀░█▀█░█░█░█▀▀
+// ░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀░░░▀░▀░▀▀▀░░▀░░▀░▀░░░▀░░░▀░▀░▀▀░░▀▀▀
+void front_LedStrip::ChaseWithFade(int speed, const CRGB* palette, float fadeAmount, int lights)
 {
 	const int FRAMELIMIT = NUMLEDS;
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
@@ -491,9 +677,9 @@ void front_LedStrip::ChaseWithFade(int speed, CRGB* palette, float fadeAmount, i
 	AdvanceFrame(speed, FRAMELIMIT);  				 	// manage frame advancement
 };
 
-///////////////////////////////////
-// 				SCROLLCOLORS
-///////////////////////////////////
+// ░█▀▀░█▀▀░█▀▄░█▀█░█░░░█░░░░░█▀▀░█▀█░█░░░█▀█░█▀▄░█▀▀
+// ░▀▀█░█░░░█▀▄░█░█░█░░░█░░░░░█░░░█░█░█░░░█░█░█▀▄░▀▀█
+// ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀▀▀
 //  Scrolls a set of colors passed in via an array on one or more quarters of the front LED strips
 //  This is called by ScrollColorsOnFrontStrips (SCOFS)
 //			SCOFS determines the number of vertical rows and passes the booleans determing which parts of the strips to run on
@@ -501,7 +687,7 @@ void front_LedStrip::ChaseWithFade(int speed, CRGB* palette, float fadeAmount, i
 //	Creates an array of double that length (baseArray) which includes blends of colors between the ones on the input array
 //	Does math to write baseArray's values into outArray in the correct order based on frame number
 //	Calls WriteColorsToOutPutArray to write outArray to the calling object's LED array
-void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool tl, bool tr, bool bl, bool br)
+void front_LedStrip::ScrollColors(int speed, const CRGB* palette, int vertRows, bool tl, bool tr, bool bl, bool br)
 {
 	int lengthOfInputArray = (GetLengthOfBlackTerminatedCRGBArray(palette)); // the number of colors in the passed array
 	int lengthOfBaseArray = lengthOfInputArray * 2;		// the base array holds the input array plus blends	
@@ -563,11 +749,11 @@ void front_LedStrip::ScrollColors(int speed, CRGB *palette, int vertRows, bool t
     AdvanceFrame(speed, FRAMELIMIT);  //advance frame as appropriate		
 }
 
-///////////////////////////////////
-// 	SCROLLCOLORSONFRONTSTRIPS
-///////////////////////////////////
+// ░█▀▀░█▀▀░█▀▄░█▀█░█░░░█░░░░░█▀▀░█▀█░█░░░█▀█░█▀▄░█▀▀░░░█▀█░█▀█░░░█▀▀░█▀▄░█▀█░█▀█░▀█▀░░░█▀▀░▀█▀░█▀▄░▀█▀░█▀█░█▀▀
+// ░▀▀█░█░░░█▀▄░█░█░█░░░█░░░░░█░░░█░█░█░░░█░█░█▀▄░▀▀█░░░█░█░█░█░░░█▀▀░█▀▄░█░█░█░█░░█░░░░▀▀█░░█░░█▀▄░░█░░█▀▀░▀▀█
+// ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░░░▀▀▀░▀░▀░░░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░░▀░░▀░▀░▀▀▀░▀░░░▀▀▀
 //  Calls ScrollColors and provides the booleans passed to this argument plus the number of vertical rows determined in this function
-void front_LedStrip::ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl, bool tr, bool bl, bool br)
+void front_LedStrip::ScrollColorsOnFrontStrips(int speed, const CRGB* palette, bool tl, bool tr, bool bl, bool br)
 {
 	int vertRows;	
 	if ( ( (tl) || (tr) ) && ( (bl) || (br) ) )  // if at least one upper and one lower strip are engaged, 10 rows. Else, 5.
@@ -578,9 +764,9 @@ void front_LedStrip::ScrollColorsOnFrontStrips(int speed, CRGB *palette, bool tl
 	front_LedStrip::ScrollColors(speed, palette, vertRows, tl, tr, bl, br);	
 }
 
-///////////////////////////////////
-// 	  WRITECOLORSTOOUTPUTARRAY
-///////////////////////////////////
+// ░█░█░█▀▄░▀█▀░▀█▀░█▀▀░░░█▀▀░█▀█░█░░░█▀█░█▀▄░█▀▀░░░▀█▀░█▀█░░░█▀█░█░█░▀█▀░█▀█░█░█░▀█▀░░░█▀█░█▀▄░█▀▄░█▀█░█░█
+// ░█▄█░█▀▄░░█░░░█░░█▀▀░░░█░░░█░█░█░░░█░█░█▀▄░▀▀█░░░░█░░█░█░░░█░█░█░█░░█░░█▀▀░█░█░░█░░░░█▀█░█▀▄░█▀▄░█▀█░░█░
+// ░▀░▀░▀░▀░▀▀▀░░▀░░▀▀▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░░░░▀░░▀▀▀░░░▀▀▀░▀▀▀░░▀░░▀░░░▀▀▀░░▀░░░░▀░▀░▀░▀░▀░▀░▀░▀░░▀░
 //  copies values from outArray to the led array that will be written to hardware in the main loop
 void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, bool bl, bool br, int vertRows)
 {	
@@ -658,6 +844,7 @@ void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, 
 	}
 };
 
-////////////////////////////
-// TESTING FUNCTIONS 
-////////////////////////////
+//  _____ ___  __ _____ _ __  _  __   ___ _  _ __  _  ________ _  __  __  _   __ 
+// |_   _| __/' _/_   _| |  \| |/ _] | __| || |  \| |/ _/_   _| |/__\|  \| |/' _/
+//   | | | _|`._`. | | | | | ' | [/\ | _|| \/ | | ' | \__ | | | | \/ | | ' |`._`.
+//   |_| |___|___/ |_| |_|_|\__|\__/ |_|  \__/|_|\__|\__/ |_| |_|\__/|_|\__||___/

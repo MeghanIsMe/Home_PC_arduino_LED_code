@@ -5,15 +5,18 @@
 
 //#include "Arduino.h"
 //#include "FastLED.h"
+#include "functionsfordoggos.h"
 #include "globalsfordoggos.h"
 #include "classesfordoggos.h"
 
-//******************
-// UTILITY FUNCTIONS
-//******************
+//  _  _ _____ _ _   _ _______   __   ___ _  _ __  _  ________ _  __  __  _   __ 
+// | || |_   _| | | | |_   _\ `v' /  | __| || |  \| |/ _/_   _| |/__\|  \| |/' _/
+// | \/ | | | | | |_| | | |  `. .'   | _|| \/ | | ' | \__ | | | | \/ | | ' |`._`.
+//  \__/  |_| |_|___|_| |_|   !_!    |_|  \__/|_|\__|\__/ |_| |_|\__/|_|\__||___/
 
-///////////////////////
-//==== SerialPrintColor
+// ░█▀▀░█▀▀░█▀▄░▀█▀░█▀█░█░░░░░█▀█░█▀▄░▀█▀░█▀█░▀█▀░░░█▀▀░█▀█░█░░░█▀█░█▀▄
+// ░▀▀█░█▀▀░█▀▄░░█░░█▀█░█░░░░░█▀▀░█▀▄░░█░░█░█░░█░░░░█░░░█░█░█░░░█░█░█▀▄
+// ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░░░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀
 // Accepts a CRGB variable and prints its red, green, and blue values in a formatted way, then prints a newline
 void SerialPrintColor(CRGB color)
 {
@@ -29,8 +32,9 @@ void SerialPrintColor(CRGB color)
   Serial.println(b);
 }
 
-///////////////////////
-//==== PrintColorArray
+// ░█▀█░█▀▄░▀█▀░█▀█░▀█▀░░░█▀▀░█▀█░█░░░█▀█░█▀▄░░░█▀█░█▀▄░█▀▄░█▀█░█░█
+// ░█▀▀░█▀▄░░█░░█░█░░█░░░░█░░░█░█░█░░░█░█░█▀▄░░░█▀█░█▀▄░█▀▄░█▀█░░█░
+// ░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░░▀░▀░▀░▀░▀░▀░▀░▀░░▀░
 // Accepts a CRGB array and prints each color in it. Must manual hard-code the array length.
 void PrintColorArray(CRGB *arr, int length)
 {	
@@ -43,8 +47,9 @@ void PrintColorArray(CRGB *arr, int length)
 	}
 }
 
-///////////////////////
-//==== GetLengthOfBlackTerminatedArray
+// ░█▀▀░█▀▀░▀█▀░█░░░█▀▀░█▀█░█▀▀░▀█▀░█░█░█▀█░█▀▀░█▀▄░█░░░█▀█░█▀▀░█░█░▀█▀░█▀▀░█▀▄░█▄█░▀█▀░█▀█░█▀█░▀█▀░█▀▀░█▀▄░█▀█░█▀▄░█▀▄░█▀█░█░█
+// ░█░█░█▀▀░░█░░█░░░█▀▀░█░█░█░█░░█░░█▀█░█░█░█▀▀░█▀▄░█░░░█▀█░█░░░█▀▄░░█░░█▀▀░█▀▄░█░█░░█░░█░█░█▀█░░█░░█▀▀░█░█░█▀█░█▀▄░█▀▄░█▀█░░█░
+// ░▀▀▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀░▀▀▀░░▀░░▀░▀░▀▀▀░▀░░░▀▀░░▀▀▀░▀░▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀░▀░▀░▀▀▀░▀░▀░▀░▀░░▀░░▀▀▀░▀▀░░▀░▀░▀░▀░▀░▀░▀░▀░░▀░
 // Accepts a CRGB array and returns the number of elements prior to the first black in it as an int
 int GetLengthOfBlackTerminatedCRGBArray(const CRGB* arr)
 {
@@ -60,8 +65,9 @@ int GetLengthOfBlackTerminatedCRGBArray(const CRGB* arr)
 		return lengthCount;	
 }
 
-///////////////////////
-//==== SerialPrintVars
+// ░█▀▀░█▀▀░█▀▄░▀█▀░█▀█░█░░░░░█▀█░█▀▄░▀█▀░█▀█░▀█▀░░░█░█░█▀█░█▀▄░█▀▀
+// ░▀▀█░█▀▀░█▀▄░░█░░█▀█░█░░░░░█▀▀░█▀▄░░█░░█░█░░█░░░░▀▄▀░█▀█░█▀▄░▀▀█
+// ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░░░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░░▀░░▀░▀░▀░▀░▀▀▀
 // makes debugging via serial.print suck a bit less ass
 // accepts up to 5 int vars, prints them on one line with | in between them, then prints a new line
 void SerialPrintVars(int var0 = 0, int var1 = 0, int var2 = 0, int var3 = 0, int var4 = 0)
@@ -80,18 +86,36 @@ void SerialPrintVars(int var0 = 0, int var1 = 0, int var2 = 0, int var3 = 0, int
   Serial.println();
 }
 
+/*
 void WriteAspectFanToHardware(int deviceNumber, CRGB* effectsArray)
 {
 	for (int i = 0; i < 6; i++);
 		//largeFans[deviceNumber][i] = effectsArray[i];		
+}*/
+
+//  _____ _ __ __ _ __  _  __   ___ _  _ __  _  ________ _  __  __  _   __ 
+// |_   _| |  V  | |  \| |/ _] | __| || |  \| |/ _/_   _| |/__\|  \| |/' _/
+//   | | | | \_/ | | | ' | [/\ | _|| \/ | | ' | \__ | | | | \/ | | ' |`._`.
+//   |_| |_|_| |_|_|_|\__|\__/ |_|  \__/|_|\__|\__/ |_| |_|\__/|_|\__||___/
+
+// ░█░█░█▀█░█▀▄░█▀█░▀█▀░█▀▀░░░█▀▀░█░█░█▀▀░▀█▀░█▀▀░█▄█░░░▀█▀░▀█▀░█▄█░█▀▀░█▀▄
+// ░█░█░█▀▀░█░█░█▀█░░█░░█▀▀░░░▀▀█░░█░░▀▀█░░█░░█▀▀░█░█░░░░█░░░█░░█░█░█▀▀░█▀▄
+// ░▀▀▀░▀░░░▀▀░░▀░▀░░▀░░▀▀▀░░░▀▀▀░░▀░░▀▀▀░░▀░░▀▀▀░▀░▀░░░░▀░░▀▀▀░▀░▀░▀▀▀░▀░▀
+void UpdateSystemTimer()
+{
+	pastMillis = currentMillis;
+  currentMillis = millis();
+  deltaMillis = currentMillis - pastMillis;  
 }
 
-//*****************************
-// COLOR MANIPULATION FUNCTIONS
-//*****************************
+//   ___ __  _   __  ___   __ __  __  __  _ _ ___ _  _ _    __ _____ _  __  __  _   ___ _  _ __  _  ________ _  __  __  _   __ 
+//  / _//__\| | /__\| _ \ |  V  |/  \|  \| | | _,\ || | |  /  \_   _| |/__\|  \| | | __| || |  \| |/ _/_   _| |/__\|  \| |/' _/
+// | \_| \/ | || \/ | v / | \_/ | /\ | | ' | | v_/ \/ | |_| /\ || | | | \/ | | ' | | _|| \/ | | ' | \__ | | | | \/ | | ' |`._`.
+//  \__/\__/|___\__/|_|_\ |_| |_|_||_|_|\__|_|_|  \__/|___|_||_||_| |_|\__/|_|\__| |_|  \__/|_|\__|\__/ |_| |_|\__/|_|\__||___/
 
-///////////////////////
-//====MakeRandomColor
+// ░█▄█░█▀█░█░█░█▀▀░░░█▀▄░█▀█░█▀█░█▀▄░█▀█░█▄█░░░█▀▀░█▀█░█░░░█▀█░█▀▄
+// ░█░█░█▀█░█▀▄░█▀▀░░░█▀▄░█▀█░█░█░█░█░█░█░█░█░░░█░░░█░█░█░░░█░█░█▀▄
+// ░▀░▀░▀░▀░▀░▀░▀▀▀░░░▀░▀░▀░▀░▀░▀░▀▀░░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀
 //Parameters: none
 //returns a random CRGB color
 CRGB MakeRandomColor()
@@ -102,8 +126,9 @@ CRGB MakeRandomColor()
   return CRGB(rval,gval,bval);
 }
 
-///////////////////////
-//====CheckForRandomColor
+// ░█▀▀░█░█░█▀▀░█▀▀░█░█░░░█▀▀░█▀█░█▀▄░░░█▀▄░█▀█░█▀█░█▀▄░█▀█░█▄█░░░█▀▀░█▀█░█░░░█▀█░█▀▄
+// ░█░░░█▀█░█▀▀░█░░░█▀▄░░░█▀▀░█░█░█▀▄░░░█▀▄░█▀█░█░█░█░█░█░█░█░█░░░█░░░█░█░█░░░█░█░█▀▄
+// ░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀░▀░░░▀░░░▀▀▀░▀░▀░░░▀░▀░▀░▀░▀░▀░▀▀░░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀
 //FUNCTIONS CALLED - MakeRandomColor - no parameters
 //PARAMETERS:
 //  FROM ORIGINAL CALL TO EFFECTS FUNCTION IN MAIN LOOP
