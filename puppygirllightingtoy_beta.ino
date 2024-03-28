@@ -25,6 +25,7 @@ const int NUM_FANS = 4;
 //CRGB* p_LargeFansArray = &largeFans;
 // Following are individual devices: details after each one
 CRGB fan3[SMALLFANLEDS];  //CPU cooling fan, 4 LEDs
+//CRGB fan3[4];  //CPU cooling fan, 4 LEDs
 CRGB ledStrip[20]; //Front panel LEDs: 20 at the moment. 
 
 // variable speeds to attach to functions
@@ -33,6 +34,8 @@ CRGB ledStrip[20]; //Front panel LEDs: 20 at the moment.
 int variableSpeed = 0; 
 int variableSpeed2 = 0;
 int speedDivider = 0;
+
+full_SystemLeds ledHardwareObject0; // instantiating an object for the systems LEDs
 
 cpu_Fan cpuFan0;            // instantiating an object for CPU fan
 aspect_Fan aspectFan0;      // instantiating an object for Aspect fan 0
@@ -89,14 +92,16 @@ void TestFadeThroughColors(int speed, CRGB* palette)
 
 void setup() 
 {
-  srand(millis());
-  //Adding RGB LEDs
+  srand(millis());  // setting up random seed
+
+  // The below statements associate specific CRGB arrays with the FastLED backend
+  // processes, allowing these arrays to be written to the LED hardware
   FastLED.addLeds<NEOPIXEL, DATA_PIN2>(largeFans[0], LARGEFANLEDS);  // GRB ordering is assumed
   FastLED.addLeds<NEOPIXEL, DATA_PIN4>(largeFans[1], LARGEFANLEDS);  // GRB ordering is assumed
   FastLED.addLeds<NEOPIXEL, DATA_PIN7>(largeFans[2], LARGEFANLEDS);  // GRB ordering is assumed
   FastLED.addLeds<NEOPIXEL, DATA_PIN8>(fan3, SMALLFANLEDS);          // GRB ordering is assumed
   FastLED.addLeds<NEOPIXEL, DATA_PIN9>(ledStrip, 20);                // GRB ordering is assumed
-  FastLED.setBrightness(255);                                        //Set overall brightness on scale of 255
+  FastLED.setBrightness(255);                           //Set overall brightness on scale of 255
 
   //Power-on delay
   delay(2000);

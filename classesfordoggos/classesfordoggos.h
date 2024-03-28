@@ -9,9 +9,40 @@
 #include "FastLED.h"
 #include "functionsfordoggos.h"
 
-extern unsigned long deltaMillis;   // milliseconds passed since last main loop execution
+//extern unsigned long deltaMillis;   // milliseconds passed since last main loop execution
 																		//extern tag required to let functions and methods in this file see individual global variables
 
+// ░█▀▀░█░█░█░░░█░░░░░█▀▀░█░█░█▀▀░▀█▀░█▀▀░█▄█░░░█░░░█▀▀░█▀▄░█▀▀░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
+// ░█▀▀░█░█░█░░░█░░░░░▀▀█░░█░░▀▀█░░█░░█▀▀░█░█░░░█░░░█▀▀░█░█░▀▀█░░░█░░░█░░░█▀█░▀▀█░▀▀█
+// ░▀░░░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░░▀░░▀▀▀░░▀░░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
+class full_SystemLeds
+{
+	public:
+	
+	CRGB aspectFansLeds[NUMASPECTFANS][ASPECTFANLEDS];      // array to hold colors for all Aspect fans in the system
+	CRGB cpuFanLeds[NUMCPUFANS][CPUFANLEDS];								  // array to hold colors for all cpu fans (one of them)
+	CRGB linearStripLeds[NUMLINEARSTRIPS][LINEARSTRIPLEDS];  // array to hold colors for all linear strip LEDs
+																												// might need to rework if I add more strips with different numbers of LEDs
+  CRGB combined2AspectFans[ASPECTFANLEDS * 2];
+	
+	full_SystemLeds()																				// constructor function
+	{
+		for (int i = 0; i < NUMASPECTFANS; i++)
+			for (int j = 0; j < ASPECTFANLEDS; j++)
+				aspectFansLeds[i][j] = CRGB::Black;
+		for (int i = 0; i < NUMCPUFANS; i++)
+			for (int j = 0; j < CPUFANLEDS; j++)
+				cpuFanLeds[i][j] = CRGB::Black;
+		for (int i = 0; i < NUMLINEARSTRIPS; i++)
+			for (int j = 0; j < LINEARSTRIPLEDS; j++)
+				linearStripLeds[i][j] = CRGB::Black;
+	}
+	
+	void TranslateCombinedAspectsToIndividualFans(int,int);  //translates a populated combined2AspectFans array into 2 separate 1-dimension elements of aspectFansLeds
+	void CopyAspectFanToExternalArray(int, CRGB*);
+};
+	
+	
 // ░█▀▀░█▀▀░█▀█░█▀▀░█▀▄░▀█▀░█▀▀░░░█░░░█▀▀░█▀▄░░░█▀▄░█▀▀░█░█░▀█▀░█▀▀░█▀▀░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
 // ░█░█░█▀▀░█░█░█▀▀░█▀▄░░█░░█░░░░░█░░░█▀▀░█░█░░░█░█░█▀▀░▀▄▀░░█░░█░░░█▀▀░░░█░░░█░░░█▀█░▀▀█░▀▀█
 // ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀░░░░▀▀░░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
