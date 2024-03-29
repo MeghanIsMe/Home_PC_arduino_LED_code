@@ -1,3 +1,10 @@
+/*
+NOTES:
+maybe make the led arrays that are members of various fan and strip classes into objects? That
+might allow declaration of a more abstracted copy to array function in that object class instead of 
+creating ones for different kinds of hardware
+*/
+
 //#include <FastLED.h>
 #include "globalsfordoggos.h"
 #include "classesfordoggos.h"
@@ -35,14 +42,18 @@ int variableSpeed = 0;
 int variableSpeed2 = 0;
 int speedDivider = 0;
 
-full_SystemLeds ledHardwareObject0; // instantiating an object for the systems LEDs
 
+// ░▀█▀░█▀█░█▀▀░▀█▀░█▀█░█▀█░▀█▀░▀█▀░█▀█░▀█▀░▀█▀░█▀█░█▀▀░░░█▀█░█▀▄░▀▀█░█▀▀░█▀▀░▀█▀░█▀▀
+// ░░█░░█░█░▀▀█░░█░░█▀█░█░█░░█░░░█░░█▀█░░█░░░█░░█░█░█░█░░░█░█░█▀▄░░░█░█▀▀░█░░░░█░░▀▀█
+// ░▀▀▀░▀░▀░▀▀▀░░▀░░▀░▀░▀░▀░░▀░░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀░▀▀▀░░░▀▀▀░▀▀░░▀▀░░▀▀▀░▀▀▀░░▀░░▀▀▀
+/*
 cpu_Fan cpuFan0;            // instantiating an object for CPU fan
 aspect_Fan aspectFan0;      // instantiating an object for Aspect fan 0
 aspect_Fan aspectFan1;      // instantiating an object for Aspect fan 1
 aspect_Fan aspectFan2;      // instantiating an object for Aspect fan 2
 front_LedStrip ledStrip0;   // instantiating an object for front LED strip
 dual_FrontAspectFans frontFans; // // instantiating an object for dual front fans
+*/
 
 // FOR DEBUGGING
 int testValue0;
@@ -50,45 +61,50 @@ int testValue1;
 int testValue2;
 int testValue3;
 
+// ░▀█▀░█▀▀░█▀▀░▀█▀░░░█▀▀░█░█░█▀█░█▀▀░▀█▀░▀█▀░█▀█░█▀█░█▀▀
+// ░░█░░█▀▀░▀▀█░░█░░░░█▀▀░█░█░█░█░█░░░░█░░░█░░█░█░█░█░▀▀█
+// ░░▀░░▀▀▀░▀▀▀░░▀░░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀░▀▀▀
 // EFFECTS TEST FUNCTIONS: run one effect on all fans
 void TestMovingLine(int speed, CRGB* color)
-{  
-  aspectFan0.MovingLine(speed, color);
-  aspectFan1.MovingLine(speed, color);
-  aspectFan2.MovingLine(speed, color);
-  cpuFan0.MovingLine(speed, color);
+{ 
+  systemLeds.virtualAspectFan[0].MovingLine(speed, color);
+  systemLeds.virtualAspectFan[1].MovingLine(speed, color);
+  systemLeds.virtualAspectFan[2].MovingLine(speed, color);
+  systemLeds.virtualCPUFan[0].MovingLine(speed, color);
 }
-
 void TestSpinColorWave(int speed, CRGB* color)
 {
-  aspectFan0.SpinColorWave(speed,color);
-  aspectFan1.SpinColorWave(speed,color);
-  aspectFan2.SpinColorWave(speed,color);
-  cpuFan0.SpinColorWave(speed * 1.5,color);
+  systemLeds.virtualAspectFan[0].SpinColorWave(speed,color);
+  systemLeds.virtualAspectFan[1].SpinColorWave(speed,color);
+  systemLeds.virtualAspectFan[2].SpinColorWave(speed,color);
+  systemLeds.virtualCPUFan[0].SpinColorWave(speed,color);
 }
 void TestSpinOneLed(int speed, CRGB* palette)
 {
-  aspectFan0.SpinOneLed(speed, palette);
-  aspectFan1.SpinOneLed(speed, palette);
-  aspectFan2.SpinOneLed( (-1 * speed), palette);
-  cpuFan0.SpinOneLed(speed, palette);
+  systemLeds.virtualAspectFan[0].SpinOneLed(speed, palette);
+  systemLeds.virtualAspectFan[1].SpinOneLed(speed, palette);
+  systemLeds.virtualAspectFan[2].SpinOneLed(speed, palette);
+  systemLeds.virtualCPUFan[0].SpinOneLed(speed, palette);
 }
-
 void TestSpinLeds(int speed, CRGB color1, CRGB color2 = CRGB:: Black, CRGB color3 = CRGB:: Black)
 {
-  aspectFan0.SpinLeds(speed, color1, color2, color3);
-  aspectFan1.SpinLeds(-speed, color1, color2, color3);
-  aspectFan2.SpinLeds(speed, color1, color2, color3);
-  cpuFan0.SpinLeds(speed * 1.5, color1, color2, color3);
+  systemLeds.virtualAspectFan[0].SpinLeds(speed, color1, color2, color3);
+  systemLeds.virtualAspectFan[1].SpinLeds(speed, color1, color2, color3);
+  systemLeds.virtualAspectFan[2].SpinLeds(speed, color1, color2, color3); 
+  systemLeds.virtualCPUFan[0].SpinLeds(speed, color1, color2, color3);
 }
-
 void TestFadeThroughColors(int speed, CRGB* palette)
 {
-  aspectFan0.FadeThroughColors(speed, palette); 
-  aspectFan1.FadeThroughColors(speed, palette); 
-  aspectFan2.FadeThroughColors(speed, palette); 
-  cpuFan0.FadeThroughColors(speed, palette);
+    systemLeds.virtualAspectFan[0].FadeThroughColors(speed, palette); 
+    systemLeds.virtualAspectFan[1].FadeThroughColors(speed, palette); 
+    systemLeds.virtualAspectFan[2].FadeThroughColors(speed, palette); 
+    systemLeds.virtualCPUFan[0].FadeThroughColors(200, prideLesbian); 
 }
+
+
+// ░█▀▄░█▀▀░█▀▀░▀█▀░█▀█░░░█▀▀░█▀▀░▀█▀░█░█░█▀█
+// ░█▀▄░█▀▀░█░█░░█░░█░█░░░▀▀█░█▀▀░░█░░█░█░█▀▀
+// ░▀▀░░▀▀▀░▀▀▀░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░░▀░░▀▀▀░▀░░
 
 void setup() 
 {
@@ -108,9 +124,13 @@ void setup()
   //Open serial port for debugging  Serial.begin(9600); 
 }    
 
+// ░█▀▄░█▀▀░█▀▀░▀█▀░█▀█░░░█░░░█▀█░█▀█░█▀█
+// ░█▀▄░█▀▀░█░█░░█░░█░█░░░█░░░█░█░█░█░█▀▀
+// ░▀▀░░▀▀▀░▀▀▀░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀▀░▀░░
+
 void loop() {
   //Serial.println();
-  //Serial.println("Main loop beginning");
+  Serial.println("Main loop beginning");
 
   UpdateSystemTimer();  // update deltaMillis based on passing of time since last main loop
 
@@ -141,10 +161,12 @@ void loop() {
   //aspectFan2.SpinColorWaveFade(100, singleGreen, 0.35);
 
   // to remember what the counter values of the led strip were before running the effects methods on them
+  /*
   testValue0 = ledStrip0.topLeftFrameNumber;
   testValue1 = ledStrip0.topRightFrameNumber;
   testValue2 = ledStrip0.bottomLeftFrameNumber;
   testValue3 = ledStrip0.bottomRightFrameNumber;
+  */
 
   // ASPECT FAN EFFECT CALLS
   //TestFadeThroughColors(2000, prideLesbian);
@@ -159,41 +181,64 @@ void loop() {
   //ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,0,1,0,1);
   //ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,1,0,1,0);
 
-  //ledStrip0.ChaseWithFade(40, prideLesbian, .8, 2);
+  //ledStrip0.ChaseWithFade(40, prideLesbian, .8, 2);  
 
   // CURRENT EFFECTS SHOW
   
   int secondsPerPhase = (currentMillis / 20000) % 3;
   
   if (secondsPerPhase == 0)    //run for 15 seconds
-  {
-    ledStrip0.ScrollColorsOnFrontStrips(200, prideLesbian,1,0,1,0);
-    ledStrip0.ScrollColorsOnFrontStrips(-200, prideLesbian,0,1,0,1);
-    aspectFan0.SpinLeds(100, prideLesbian[0],prideLesbian[4]);
-    aspectFan1.SpinLeds(-100, prideLesbian[4], prideLesbian[0]);
-    aspectFan2.FadeThroughColors(2000, prideLesbian);
-    cpuFan0.FadeThroughColors(2000, prideLesbian);
+  {    
+    systemLeds.virtualLedStrip[0].ScrollColorsOnFrontStrips(200, prideLesbian,1,0,1,0);
+    systemLeds.virtualLedStrip[0].ScrollColorsOnFrontStrips(-200, prideLesbian,0,1,0,1);  
+    systemLeds.virtualAspectFan[0].SpinLeds(100, prideLesbian[0],prideLesbian[4]);
+    systemLeds.virtualAspectFan[1].SpinLeds(-100, prideLesbian[4], prideLesbian[0]);
+    systemLeds.virtualAspectFan[2].FadeThroughColors(2000, prideLesbian);
+    systemLeds.virtualCPUFan[0].FadeThroughColors(2000, prideLesbian); 
   }
+  
   else if (secondsPerPhase == 1)
   {
-    ledStrip0.ScrollColorsOnFrontStrips(400, prideTransgender,0,1,0,1);
-    ledStrip0.ScrollColorsOnFrontStrips(-400, prideTransgender,1,0,1,0);
-    aspectFan0.SpinLeds(variableSpeed, prideTransgender[0],prideTransgender[1]);
-    aspectFan1.SpinLeds(variableSpeed2 * -1, prideTransgender[1], prideTransgender[0]);
-    aspectFan2.SpinColorWave(variableSpeed, prideTransgender);
-    //cpuFan0.SpinColorWave(variableSpeed * 1.5, prideTransgender);
-    cpuFan0.FadeThroughColors(2000, prideTransgender);
+    systemLeds.virtualLedStrip[0].ScrollColorsOnFrontStrips(400, prideTransgender,0,1,0,1);
+    systemLeds.virtualLedStrip[0].ScrollColorsOnFrontStrips(-400, prideTransgender,1,0,1,0);
+   
+    systemLeds.virtualAspectFan[0].SpinLeds(variableSpeed, prideTransgender[0], prideTransgender[1]);
+    systemLeds.virtualAspectFan[1].SpinLeds(variableSpeed2 * -1, prideTransgender[1], prideTransgender[0]);
+    systemLeds.virtualAspectFan[2].SpinColorWave(variableSpeed, prideTransgender);
+    systemLeds.virtualCPUFan[0].SpinColorWave(200, prideTransgender); 
   }
   else
   {
-    ledStrip0.ChaseWithFade(40, prideRainbow, .8, 2);
-    aspectFan0.SpinColorWave(100, prideRainbow);
-    aspectFan1.SpinColorWave(100, prideRainbow);
-    aspectFan2.FadeThroughColors(2000, prideRainbow);
-    cpuFan0.FadeThroughColors(2000, prideRainbow);
+    systemLeds.virtualLedStrip[0].ChaseWithFade(40, prideRainbow, .8, 2);    
+    systemLeds.virtualAspectFan[0].SpinColorWave(100, prideRainbow);
+    systemLeds.virtualAspectFan[1].SpinColorWave(100, prideRainbow);
+    systemLeds.virtualAspectFan[2].FadeThroughColors(2000, prideRainbow);
+    systemLeds.virtualCPUFan[0].FadeThroughColors(2000, prideRainbow);  
   }
-  
 
+  //WRITING LEDS INFROM FROM SYSTEMLEDS OBJECT MEMBERS TO THE ARRAYS THAT FASTLED
+  //HAS CONNECTECD TO THE HARDWARE
+  systemLeds.virtualAspectFan[0].CopyToExternalArray(largeFans[0]);
+  systemLeds.virtualAspectFan[1].CopyToExternalArray(largeFans[1]);
+  systemLeds.virtualAspectFan[2].CopyToExternalArray(largeFans[2]);
+  systemLeds.virtualCPUFan[0].CopyToExternalArray(fan3);
+  systemLeds.virtualLedStrip[0].CopyToExternalArray(ledStrip);
+  
+  // testing out code to have these functions run on objects that are members of
+  // systemLeds instead of on independant instances of aspectFan objects
+  //systemLeds.virtualAspectFan[2].SpinLeds(200, CRGB::Lime, CRGB::Purple);
+  //Serial.println("from Main");
+  //SerialPrintColor(systemLeds.virtualAspectFan[2].leds[0]);
+  //systemLeds.CopyAspectFanToExternalArray(2, largeFans[2]);
+
+/*
+  Serial.print("largeFans[0] LED 0: ");
+  SerialPrintColor(largeFans[0][0]);
+  Serial.print("largeFans[1] LED 0: ");
+  SerialPrintColor(largeFans[1][0]);
+  Serial.print("largeFans[2] LED 0: ");
+  SerialPrintColor(largeFans[2][0]);
+*/
 
   //aspectFan2.BlinkLeds(25, singlePurple);
 
@@ -220,9 +265,9 @@ void loop() {
   // Write finished colors out to hardware arrays
   for (int i = 0; i < 6; i++)             //Aspect Fans
   {
-    largeFans[0][i] = aspectFan0.leds[i];   
-    largeFans[1][i] = aspectFan1.leds[i];    
-    largeFans[2][i] = aspectFan2.leds[i];       
+    //largeFans[0][i] = aspectFan0.leds[i];   
+    //largeFans[1][i] = aspectFan1.leds[i];    
+    //largeFans[2][i] = aspectFan2.leds[i];       
 
     // for dual front fan object
     /*
@@ -230,13 +275,17 @@ void loop() {
     largeFans[1][i] = frontFans.dualFans[1][i];
     */
   } 
-  for (int i = 0; i < 4; i++)             //CPU fan
-    fan3[i] = cpuFan0.leds[i];   
+  /*for (int i = 0; i < 4; i++)             //CPU fan
+    fan3[i] = cpuFan0.leds[i];   */
+  /*
   for (int i = 0; i < 20; i++)            //Front LED strip
     ledStrip[i] = ledStrip0.leds[i];      //assigning member variables from strip object to array that is written out to hardware at end of main loop
+  */
   
   //write updated arrays to LEDs for display
   FastLED.show();
+  //Serial.println("Printing systemLeds.virtualAspectFan[0].leds[0]");
+  //SerialPrintColor(systemLeds.virtualAspectFan[0].leds[0]);
   //delay(1000); //uncomment this line to add a delay to make troubleshooting via output statements easier. Delay should not affect timing of 
   //properly written functions because they are comparing to millis passed.  
 }

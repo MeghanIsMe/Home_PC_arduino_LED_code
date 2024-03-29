@@ -5,6 +5,7 @@
 
 #include "globalsfordoggos.h"
 #include "FastLED.h" // required for CRGB datatype
+//#include "classesfordoggos.h"
 
 // ░█▀▀░█░░░█▀█░█▀▄░█▀█░█░░░░░█░█░█▀█░█▀▄░▀█▀░█▀█░█▀▄░█░░░█▀▀░█▀▀
 // ░█░█░█░░░█░█░█▀▄░█▀█░█░░░░░▀▄▀░█▀█░█▀▄░░█░░█▀█░█▀▄░█░░░█▀▀░▀▀█

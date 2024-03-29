@@ -12,37 +12,6 @@
 //extern unsigned long deltaMillis;   // milliseconds passed since last main loop execution
 																		//extern tag required to let functions and methods in this file see individual global variables
 
-// ░█▀▀░█░█░█░░░█░░░░░█▀▀░█░█░█▀▀░▀█▀░█▀▀░█▄█░░░█░░░█▀▀░█▀▄░█▀▀░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
-// ░█▀▀░█░█░█░░░█░░░░░▀▀█░░█░░▀▀█░░█░░█▀▀░█░█░░░█░░░█▀▀░█░█░▀▀█░░░█░░░█░░░█▀█░▀▀█░▀▀█
-// ░▀░░░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░░▀░░▀▀▀░░▀░░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
-class full_SystemLeds
-{
-	public:
-	
-	CRGB aspectFansLeds[NUMASPECTFANS][ASPECTFANLEDS];      // array to hold colors for all Aspect fans in the system
-	CRGB cpuFanLeds[NUMCPUFANS][CPUFANLEDS];								  // array to hold colors for all cpu fans (one of them)
-	CRGB linearStripLeds[NUMLINEARSTRIPS][LINEARSTRIPLEDS];  // array to hold colors for all linear strip LEDs
-																												// might need to rework if I add more strips with different numbers of LEDs
-  CRGB combined2AspectFans[ASPECTFANLEDS * 2];
-	
-	full_SystemLeds()																				// constructor function
-	{
-		for (int i = 0; i < NUMASPECTFANS; i++)
-			for (int j = 0; j < ASPECTFANLEDS; j++)
-				aspectFansLeds[i][j] = CRGB::Black;
-		for (int i = 0; i < NUMCPUFANS; i++)
-			for (int j = 0; j < CPUFANLEDS; j++)
-				cpuFanLeds[i][j] = CRGB::Black;
-		for (int i = 0; i < NUMLINEARSTRIPS; i++)
-			for (int j = 0; j < LINEARSTRIPLEDS; j++)
-				linearStripLeds[i][j] = CRGB::Black;
-	}
-	
-	void TranslateCombinedAspectsToIndividualFans(int,int);  //translates a populated combined2AspectFans array into 2 separate 1-dimension elements of aspectFansLeds
-	void CopyAspectFanToExternalArray(int, CRGB*);
-};
-	
-	
 // ░█▀▀░█▀▀░█▀█░█▀▀░█▀▄░▀█▀░█▀▀░░░█░░░█▀▀░█▀▄░░░█▀▄░█▀▀░█░█░▀█▀░█▀▀░█▀▀░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
 // ░█░█░█▀▀░█░█░█▀▀░█▀▄░░█░░█░░░░░█░░░█▀▀░█░█░░░█░█░█▀▀░▀▄▀░░█░░█░░░█▀▀░░░█░░░█░░░█▀█░▀▀█░▀▀█
 // ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀░░░░▀▀░░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
@@ -88,11 +57,15 @@ class generic_Fan : public generic_LedDevice
 	public:
 	
 	CRGB leds[6];										// holds CRGB values that will be written by an effects function, then written out to the display hardware at end of main loop
+	int fanNumber;									// to use when calling methods from systemleds to tell systemleds which fan it is and which memberfan to use
 		
 	generic_Fan()										// constructor function
 	{}	
 	
-	//effects functions
+	// utility functions
+	void CopyToExternalArray(CRGB*);									 // copies contents of this objects leds array to an external CRGB array
+	
+	// effects functions
 	void BlankFan();																	 // Set all LEDs to black
 	void BlinkLeds(int speed, CRGB* palette); 				 // blink all LEDs the same color following passed palette
 	void FadeThroughColors(int,const CRGB*);  				 // fades one color into the next progressing through a palette
@@ -102,6 +75,8 @@ class generic_Fan : public generic_LedDevice
 	void SpinLeds(int, CRGB, CRGB = CRGB::Black, CRGB = CRGB::Black);  //Spin 1-3 LEDs around a fan
 	void SpinOneLed(int speed, CRGB* palette);  			 // One LED rotates around fan
 	void MovingLine(int speed, CRGB* palette);				 // Line of LEDs bounces back and forth across fan
+	
+	
 };
 
 // ░█▀▀░█▀█░█░█░░░█▀▀░█▀█░█▀█░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
@@ -132,8 +107,10 @@ class aspect_Fan: public generic_Fan
 	{
 		NUMLEDS = 6;															// number of LEDs on the device
 		initializedFrame = 0;											// whether starting frame is initialized
-		initializedColor = 0;											// whether starting color is initialized
+		initializedColor = 0;											// whether starting color is initialized		
 	};
+	//method declarations
+	//void CopyToExternalArray(CRGB*);
 };
 
 // ░█▀▄░█░█░█▀█░█░░░░░█▀▀░█▀▄░█▀█░█▀█░▀█▀░░░█▀█░█▀▀░█▀█░█▀▀░█▀▀░▀█▀░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
@@ -174,9 +151,10 @@ class dual_FrontAspectFans: public generic_Fan
 	void StackRight();
 }; 
 
-// ░█▀▀░█▀▄░█▀█░█▀█░▀█▀░░░█░░░█▀▀░█▀▄░░░█▀▀░▀█▀░█▀▄░▀█▀░█▀█░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
-// ░█▀▀░█▀▄░█░█░█░█░░█░░░░█░░░█▀▀░█░█░░░▀▀█░░█░░█▀▄░░█░░█▀▀░░░█░░░█░░░█▀█░▀▀█░▀▀█
-// ░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀░░░░▀▀▀░░▀░░▀░▀░▀▀▀░▀░░░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
+// ░█▀▀░█░░░░░░░█▀▀░█▀▀░█▀█░█▀▀░█▀▄░▀█▀░█▀▀░░░█░░░█▀▀░█▀▄░░░█▀▀░▀█▀░█▀▄░▀█▀░█▀█
+// ░█░░░█░░░▄▄▄░█░█░█▀▀░█░█░█▀▀░█▀▄░░█░░█░░░░░█░░░█▀▀░█░█░░░▀▀█░░█░░█▀▄░░█░░█▀▀
+// ░▀▀▀░▀▀▀░░░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀░░░░▀▀▀░░▀░░▀░▀░▀▀▀░▀░░
+
 class generic_LedStrip: public generic_LedDevice
 {
 	public:
@@ -185,6 +163,10 @@ class generic_LedStrip: public generic_LedDevice
 	
 	// utility functions
 };
+
+// ░█▀▀░█▀▄░█▀█░█▀█░▀█▀░░░█░░░█▀▀░█▀▄░░░█▀▀░▀█▀░█▀▄░▀█▀░█▀█░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
+// ░█▀▀░█▀▄░█░█░█░█░░█░░░░█░░░█▀▀░█░█░░░▀▀█░░█░░█▀▄░░█░░█▀▀░░░█░░░█░░░█▀█░▀▀█░▀▀█
+// ░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀░░░░▀▀▀░░▀░░▀░▀░▀▀▀░▀░░░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
 
 class front_LedStrip : public generic_LedStrip
 {
@@ -210,6 +192,7 @@ class front_LedStrip : public generic_LedStrip
 		initializedColor = 0;
 	}
 	//utility functions
+	void CopyToExternalArray(CRGB*);
 	void WriteToOutgoingArray(int side, CRGB* outArray);
 	void DetermineTimer(bool tl, bool tr, bool bl, bool br);
 	
@@ -222,5 +205,52 @@ class front_LedStrip : public generic_LedStrip
 	void ScrollColorsOnFrontStrips(int, const CRGB*, bool, bool, bool, bool);
 	void WriteColorsToOutPutArray(CRGB* outArray, bool tl, bool tr, bool bl, bool br, int vertRows);
 };
+
+// ░█▀▀░█░█░█░░░█░░░░░█▀▀░█░█░█▀▀░▀█▀░█▀▀░█▄█░░░█░░░█▀▀░█▀▄░█▀▀░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
+// ░█▀▀░█░█░█░░░█░░░░░▀▀█░░█░░▀▀█░░█░░█▀▀░█░█░░░█░░░█▀▀░█░█░▀▀█░░░█░░░█░░░█▀█░▀▀█░▀▀█
+// ░▀░░░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░░▀░░▀▀▀░░▀░░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀
+class full_SystemLeds
+{
+	public:
+	
+	// create array members to hold colors for all Aspect fans in the system
+	CRGB aspectFansLeds[NUMASPECTFANS][ASPECTFANLEDS];				// aspect fans
+	CRGB cpuFanLeds[NUMCPUFANS][CPUFANLEDS];									// cpu fans
+	CRGB linearStripLeds[NUMLINEARSTRIPS][LINEARSTRIPLEDS];		// linear strips
+	// create arrays for other virtual objects	
+	CRGB combined2AspectFans[ASPECTFANLEDS * 2];							// combination of two front Aspect fans
+	
+	// create two virtual fans for each physical one, allowing blending of effect
+	aspect_Fan virtualAspectFan[NUMASPECTFANS * 2];					
+	cpu_Fan virtualCPUFan[NUMCPUFANS * 2];
+	front_LedStrip virtualLedStrip[NUMLINEARSTRIPS * 2];
+	// will need to add linear strip and combined front fan members
+	
+	full_SystemLeds()																				// constructor function
+	{
+		// set all leds in array members to black
+		for (int i = 0; i < NUMASPECTFANS; i++)
+			for (int j = 0; j < ASPECTFANLEDS; j++)
+				aspectFansLeds[i][j] = CRGB::Black;
+		for (int i = 0; i < NUMCPUFANS; i++)
+			for (int j = 0; j < CPUFANLEDS; j++)
+				cpuFanLeds[i][j] = CRGB::Black;
+		for (int i = 0; i < NUMLINEARSTRIPS; i++)
+			for (int j = 0; j < LINEARSTRIPLEDS; j++)
+				linearStripLeds[i][j] = CRGB::Black;		
+	}
+
+	void CopyFanToExternalArray(int, CRGB*);
+	void CopyAspectFanToExternalArray(int, CRGB*);
+	void TranslateCombinedAspectsToIndividualFans(int,int);  //translates a populated combined2AspectFans array into 2 separate 1-dimension elements of aspectFansLeds
+
+};
+
+// instance of full_SystemLeds for the program to use in maniuplating and writing colors
+extern full_SystemLeds systemLeds; /* declared/defined here because it needs to be accessible
+	by various classes in classesfordoggos, but it can't be defined in globalsfordoggos because
+	it relies on the full_SystemLeds class which is defined in classesfordoggos. I tried 
+	#includinging classesfordoggos.h in the global files, but that gave me duplicate definition
+	problems.  */
 
 #endif
