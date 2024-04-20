@@ -1,11 +1,9 @@
 /*
-----classesfordoggos.cpp
-classesfordoggos contains classes used for 
-Contains definitions for declarations in classesfordoggos.h
+	FILE: classesfordoggos.cpp
+Contains definitions for functions and classes from ledcontrolfordoggos.cpp
 
-
-  	ASCII font for large comments: 		
-		https://www.asciiart.eu/text-to-ascii-art - pagga - medium header (function names)		
+	ASCII font for large comments: 		
+https://www.asciiart.eu/text-to-ascii-art - pagga - medium header (function names)		
 */
 
 // include LED control library
@@ -38,7 +36,7 @@ void SerialPrintColor(CRGB color)
 // ░█▀█░█▀▄░▀█▀░█▀█░▀█▀░░░█▀▀░█▀█░█░░░█▀█░█▀▄░░░█▀█░█▀▄░█▀▄░█▀█░█░█
 // ░█▀▀░█▀▄░░█░░█░█░░█░░░░█░░░█░█░█░░░█░█░█▀▄░░░█▀█░█▀▄░█▀▄░█▀█░░█░
 // ░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░░▀░▀░▀░▀░▀░▀░▀░▀░░▀░
-// Accepts a CRGB array and prints each color in it. Must manual hard-code the array length.
+// Accepts a CRGB array and prints each color in it. Must manually hard-code the array length.
 void PrintColorArray(CRGB *arr, int length)
 {	
 	for (int i = 0; i < length; i++)
@@ -57,7 +55,7 @@ void PrintColorArray(CRGB *arr, int length)
 int GetLengthOfBlackTerminatedCRGBArray(const CRGB* arr)
 {
 		int lengthCount = 0;
-		CRGB color = CRGB::Blue; //doesn't matter what color as long as it's not black
+		CRGB color;// = CRGB::Blue; //doesn't matter what color as long as it's not black
 		do
 		{
 			color = arr[lengthCount];
@@ -194,7 +192,6 @@ if (*p_activeFrameCounter > FRAMELIMIT)				// if another effect left the frame n
 // ░▄▄▄░▄▄▄░█░█░░█░░░█░░█░░░░█░░░█░░░█░░░░█▀▀░█░█░█░█░█░░░░█░░░█░░█░█░█░█░▀▀█░▄▄▄░▄▄▄
 // ░░░░░░░░░▀▀▀░░▀░░▀▀▀░▀▀▀░▀▀▀░░▀░░░▀░░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀░▀▀▀░░░░░░░░
 
-
 // ░█▀▀░█▀█░█▀█░█░█░░░▀█▀░█▀█░░░█▀▀░█░█░▀█▀░█▀▀░█▀▄░█▀█░█▀█░█░░░░░█▀█░█▀▄░█▀▄░█▀█░█░█
 // ░█░░░█░█░█▀▀░░█░░░░░█░░█░█░░░█▀▀░▄▀▄░░█░░█▀▀░█▀▄░█░█░█▀█░█░░░░░█▀█░█▀▄░█▀▄░█▀█░░█░
 // ░▀▀▀░▀▀▀░▀░░░░▀░░░░░▀░░▀▀▀░░░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀░▀░▀░▀░▀░▀▀▀░░░▀░▀░▀░▀░▀░▀░▀░▀░░▀░
@@ -202,7 +199,7 @@ void generic_Fan::CopyToExternalArray(CRGB* extArray)
 {
 	for (int i = 0; i < NUMLEDS; i++)
 	{		
-		extArray[i] = leds[i];
+		extArray[i] = p_objectLedArray[i];
 	}
 };
 
@@ -211,6 +208,7 @@ void generic_Fan::CopyToExternalArray(CRGB* extArray)
 // ░▄▄▄░▄▄▄░░░█▀▀░█▀▀░█▀▀░█▀▀░█░░░░█░░▀▀█░░░█▀▀░█░█░█░█░█░░░░█░░░█░░█░█░█░█░▀▀█░▄▄▄░▄▄▄
 // ░░░░░░░░░░░▀▀▀░▀░░░▀░░░▀▀▀░▀▀▀░░▀░░▀▀▀░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀░▀▀▀░░░░░░░░
 
+
 // ░█▀▄░█░░░█▀█░█▀█░█░█░░░█▀▀░█▀█░█▀█
 // ░█▀▄░█░░░█▀█░█░█░█▀▄░░░█▀▀░█▀█░█░█
 // ░▀▀░░▀▀▀░▀░▀░▀░▀░▀░▀░░░▀░░░▀░▀░▀░▀
@@ -218,9 +216,9 @@ void generic_Fan::CopyToExternalArray(CRGB* extArray)
 //typically called prior to code that writes the current frame to the output array
 void generic_Fan::BlankFan()
 {
-	for (int i = 0; i < NUMLEDS; i++)
-	  leds[i] = CRGB::Black;
-}  
+	for(int i = 0; i < NUMLEDS; i++)
+		p_objectLedArray[i] = CRGB::Black;	
+}
 
 // ░█▀▄░█░░░▀█▀░█▀█░█░█░░░█░░░█▀▀░█▀▄░█▀▀
 // ░█▀▄░█░░░░█░░█░█░█▀▄░░░█░░░█▀▀░█░█░▀▀█
@@ -233,14 +231,14 @@ void generic_Fan::BlinkLeds(int speed, CRGB* palette)
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
 	return;	
 	
-	BlankFan();			// set all LEDs to black before writing frame
+	BlankFan();				// set all LEDs to black before writing frame
 	
-	if (frameNumber == 0)		// On frame 0, set all LEDs on with saved color
+	if (frameNumber == 0)	// On frame 0, set all LEDs on with saved color
 		for (int i = 0; i < NUMLEDS; i++)		// once for each LED
-			leds[i] = savedColor;
+			p_objectLedArray[i] = savedColor;			
 	
-	AdvanceColor(palette, FRAMELIMIT, speed);  //manage color progression
-	AdvanceFrame(speed, FRAMELIMIT);		// manage frame advancement	
+	AdvanceColor(palette, FRAMELIMIT, speed);	//manage color progression
+	AdvanceFrame(speed, FRAMELIMIT);			// manage frame advancement	
 };
 
 // ░█▀▀░█▀█░█▀▄░█▀▀░░░▀█▀░█░█░█▀▄░█▀█░█░█░█▀▀░█░█░░░█▀▀░█▀█░█░░░█▀█░█▀▄░█▀▀
@@ -255,7 +253,7 @@ void generic_Fan::FadeThroughColors(int speed, const CRGB* palette)
 	float change; 						// to track amount of blending to apply to colors based on elapsed millis between frames
 	float changePerMilli = 255 / (float)speed; // how much change is applied per millisecond
 	change = changePerMilli * *p_activeTimer;  // how much change/blending to apply this function iteration	
-	if (changePerMilli < 0)  								 	 // convert to positive change in case of negative speed
+	if (changePerMilli < 0)  			// convert to positive change in case of negative speed
 	changePerMilli *= -1;	
 	
 	CheckInitialization();             // check to see if function has been given a start frame at first run 
@@ -264,10 +262,10 @@ void generic_Fan::FadeThroughColors(int speed, const CRGB* palette)
 	
 	// blends color matching current frame number into next color on the palette array
 	for (int i = 0; i < NUMLEDS; i++)  
-			leds[i] = blend(	 
-										 palette[*p_activeFrameCounter],     																											 // argument 1
-										 (palette[ (*p_activeFrameCounter + 1) % GetLengthOfBlackTerminatedCRGBArray(palette) ]),  // argument 2
-										 change);																								  					  			       			   // argument 3	
+			p_objectLedArray[i] = blend(	 
+				palette[*p_activeFrameCounter],		// argument 1																										 // argument 1
+				(palette[ (*p_activeFrameCounter + 1) % GetLengthOfBlackTerminatedCRGBArray(palette) ]),  // argument 2
+				change);							// argument 3														  					  			       			   // argument 3	
 	
 	if (nextFrame)
     AdvanceFrame(speed, FRAMELIMIT);  //advance frame as appropriate		
@@ -280,7 +278,7 @@ void generic_Fan::FadeThroughColors(int speed, const CRGB* palette)
 void generic_Fan::FillFan(CRGB color)
 {
 	for (int i = 0; i < NUMLEDS; i++)
-		leds[i] = color;	
+		p_objectLedArray[i] = color;	
 }
 
 // ░█▀▀░█▀█░▀█▀░█▀█░░░█▀▀░█▀█░█░░░█▀█░█▀▄░░░█░█░█▀█░█░█░█▀▀
@@ -293,36 +291,36 @@ void generic_Fan::SpinColorWave(int speed, const CRGB* palette)
 	const int FRAMELIMIT = NUMLEDS;
 
 	CheckInitialization();             // check to see if function has been given a start frame at first run 
-	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, p_activeTimer))	// manage frame write timing
 		return;		
 
-	leds[frameNumber] = savedColor; 									// lighting led corresponding to current frame number
+	p_objectLedArray[frameNumber] = savedColor;			// lighting led corresponding to current frame number
 	//SerialPrintColor(leds[frameNumber]);
 	
-	AdvanceColor(palette, FRAMELIMIT, speed);				// manage color progression	
-	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement	
+	AdvanceColor(palette, FRAMELIMIT, speed);			// manage color progression	
+	AdvanceFrame(speed, FRAMELIMIT);  				  	// manage frame advancement	
 };
 
 // ░█▀▀░█▀█░▀█▀░█▀█░░░█▀▀░█▀█░█░░░█▀█░█▀▄░░░█░█░█▀█░█░█░█▀▀░░░█▀▀░█▀█░█▀▄░█▀▀
 // ░▀▀█░█▀▀░░█░░█░█░░░█░░░█░█░█░░░█░█░█▀▄░░░█▄█░█▀█░▀▄▀░█▀▀░░░█▀▀░█▀█░█░█░█▀▀
 // ░▀▀▀░▀░░░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░░▀░▀░▀░▀░░▀░░▀▀▀░░░▀░░░▀░▀░▀▀░░▀▀▀
 // Rotates a light around a fan while leaving a trail that fades behind it
-void generic_Fan::SpinColorWaveFade(int speed, const CRGB* palette, float fadeAmount)
+void generic_Fan::SpinColorWaveFade(int speed, const CRGB* palette, float fadeAmount /* 0.6 */)
 {
 	const int FRAMELIMIT = NUMLEDS;
-	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
+	if (!CheckTimeForFrameDraw(speed, p_activeTimer))	// manage frame write timing
 		return;		
 		
-	for (int i = 0; i < NUMLEDS; i++)  								// fade each LED by a percentage passed to function
+	for (int i = 0; i < NUMLEDS; i++)	// fade each LED by a percentage passed to function (40% default)
 	{
-		leds[i].red *= fadeAmount;
-		leds[i].green *= fadeAmount;
-		leds[i].blue *= fadeAmount;
+		p_objectLedArray[i].red *= fadeAmount;
+		p_objectLedArray[i].green *= fadeAmount;
+		p_objectLedArray[i].blue *= fadeAmount;
 	}
-	leds[*p_activeFrameCounter] = savedColor;					// light LED matching frame number
+	p_objectLedArray[*p_activeFrameCounter] = savedColor;	// light LED matching frame number
 		
-	AdvanceColor(palette, FRAMELIMIT, speed);					// manage color progression	
-	AdvanceFrame(speed, FRAMELIMIT);  				  			// manage frame advancement
+	AdvanceColor(palette, FRAMELIMIT, speed);		// manage color progression	
+	AdvanceFrame(speed, FRAMELIMIT);				// manage frame advancement
 };
 	
 // ░█▀▀░█▀█░▀█▀░█▀█░░░█░░░█▀▀░█▀▄░█▀▀
@@ -343,31 +341,31 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 , CRGB color3)
 		return;
 	
 	// Limiting fans with only 4 LEDS to having two colors
-  if (NUMLEDS == 4)
+  	if (NUMLEDS == 4)
 		color3 = CRGB::Black;
 
 	// counting the number of lights to use in this effect	
 	if (color2 != CRGB::Black)
-    numberOfLights++;
-  if (color3 != CRGB::Black)
-    numberOfLights++;
+    	numberOfLights++;
+  	if (color3 != CRGB::Black)
+    	numberOfLights++;
 	
 	// actual effects portion
 	BlankFan();                        // write black to all leds before writing frame data	
 	// For one/first light
-	leds[frameNumber] = color1;    		 // write color to led with same number as frame number 
-  // for two lights only	
+	p_objectLedArray[frameNumber] = color1;    		 // write color to led with same number as frame number 
+  	// for two lights only	
 	if (numberOfLights == 2)  
-		leds[ ( (NUMLEDS + (NUMLEDS/numberOfLights) + frameNumber) % NUMLEDS) ] = color2; 
+		p_objectLedArray[ ( (NUMLEDS + (NUMLEDS/numberOfLights) + frameNumber) % NUMLEDS) ] = color2; 
 	// produces framenumber + 2 wrapping around from NUMLEDS -1 to 0
 	// for three lights only
 	if (numberOfLights == 3)     
-  {
-		leds[ ( (NUMLEDS + (NUMLEDS/numberOfLights) + frameNumber) % NUMLEDS) ] = color2; 
+	{
+		p_objectLedArray[ ( (NUMLEDS + (NUMLEDS/numberOfLights) + frameNumber) % NUMLEDS) ] = color2; 
 		// produces framenumber + 2 wrapping around from NUMLEDS -1 to 0
-		leds[ ( (NUMLEDS + ( (2 * NUMLEDS/numberOfLights)) + frameNumber) % NUMLEDS)] = color3; 
+		p_objectLedArray[ ( (NUMLEDS + ( (2 * NUMLEDS/numberOfLights)) + frameNumber) % NUMLEDS)] = color3; 
 		// produces framenumber + 4 wrapping around from NUMLEDS -1 to 0
-  }  		
+	}  		
 		
 	// housekeeping portion
 	AdvanceFrame(speed, FRAMELIMIT);   // manage frame advancement		
@@ -377,8 +375,8 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 , CRGB color3)
 // ░▀▀█░█▀▀░░█░░█░█░░░█░█░█░█░█▀▀░░░█░░░█▀▀░█░█
 // ░▀▀▀░▀░░░▀▀▀░▀░▀░░░▀▀▀░▀░▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀░
 // make one led "spin" around the fan by lighting them sequentially
-// parameters: speed - milliseconds between frame advances | color: color to use when running the effect 
-// This kind of only exists to support random colors since SpinLeds does everything else this effect does
+// parameters: speed - milliseconds between frame advances | color: color palette to use when running the effect 
+// This supports color cycling through paelettes, whereas SpinLeds does not
 void generic_Fan::SpinOneLed(int speed, CRGB* palette)  
 {
 	//  housekeeping portion
@@ -390,7 +388,7 @@ void generic_Fan::SpinOneLed(int speed, CRGB* palette)
 		
 	// actual effects portion
 	BlankFan();                        // write black to all leds before writing frame data
-	leds[frameNumber] = savedColor;    // write color to led with same number as frame number    
+	p_objectLedArray[frameNumber] = savedColor;    // write color to led with same number as frame number    
 	
 	// housekeeping portion
 	AdvanceColor(palette, FRAMELIMIT, speed);
@@ -403,7 +401,8 @@ void generic_Fan::SpinOneLed(int speed, CRGB* palette)
 //Causes a color to move across the fan from top to bottom (reversible)
 // on Aspect fans, uses top two LEDs, then middle two, then bottom two
 // on CPU fan, does top to bottom to top
-//TO TO - update to allow line to move left/right on cpu fan, or other ways on Aspect fan
+// TO DO - update to allow line to move left/right on cpu fan, or other ways on Aspect fan
+// Can this be written separately for Aspect vs CPU classes to avoid the outer if/else structure?
 void generic_Fan::MovingLine(int speed, CRGB* palette)
 {
 	const int FRAMELIMIT = NUMLEDS - 2;  													// set number of frames in the effect
@@ -417,13 +416,13 @@ void generic_Fan::MovingLine(int speed, CRGB* palette)
 	{
 		if (frameNumber == 0)
 		{
-			leds[frameNumber] = savedColor;
-			leds[frameNumber + 1] = savedColor;
+			p_objectLedArray[frameNumber] = savedColor;
+			p_objectLedArray[frameNumber + 1] = savedColor;
 		}
 		else if (frameNumber == 1)
 		{
-			leds[frameNumber + 1] = savedColor;
-			leds[frameNumber + 2] = savedColor;
+			p_objectLedArray[frameNumber + 1] = savedColor;
+			p_objectLedArray[frameNumber + 2] = savedColor;
 		}
 	}
 	
@@ -431,18 +430,18 @@ void generic_Fan::MovingLine(int speed, CRGB* palette)
 	{
 		if (frameNumber == 0)
 		{
-			leds[3] = savedColor;
-			leds[4] = savedColor;
+			p_objectLedArray[3] = savedColor;
+			p_objectLedArray[4] = savedColor;
 		}
 		else if ((frameNumber == 1) || (frameNumber == 3))
 		{
-			leds[2] = savedColor;
-			leds[5] = savedColor;
+			p_objectLedArray[2] = savedColor;
+			p_objectLedArray[5] = savedColor;
 		}
 		else if (frameNumber == 2)
 		{
-			leds[1] = savedColor;
-			leds[0] = savedColor;
+			p_objectLedArray[1] = savedColor;
+			p_objectLedArray[0] = savedColor;
 		}
 	}
 		
@@ -453,14 +452,7 @@ void generic_Fan::MovingLine(int speed, CRGB* palette)
 			// ░█▀▀░█░░░░░░░█▀█░█▀▀░█▀█░█▀▀░█▀▀░▀█▀░░░█▀▀░█▀█░█▀█
 			// ░█░░░█░░░▄▄▄░█▀█░▀▀█░█▀▀░█▀▀░█░░░░█░░░░█▀▀░█▀█░█░█
 			// ░▀▀▀░▀▀▀░░░░░▀░▀░▀▀▀░▀░░░▀▀▀░▀▀▀░░▀░░░░▀░░░▀░▀░▀░▀
-/*
-void aspect_Fan::CopyToExternalArray(CRGB* extArray)
-{
-	for (int i = 0; i < NUMLEDS; i++)
-	{		
-		extArray[i] = virtualAspectFan[fanNumber].leds[i];
-	}
-};*/
+
 			// ░█▀▀░█░░░░░░░█▀▄░█░█░█▀█░█░░░░░█▀▀░█▀▄░█▀█░█▀█░▀█▀░░░█▀█░█▀▀░█▀█░█▀▀░█▀▀░▀█▀░░░█▀▀░█▀█░█▀█░█▀▀
 			// ░█░░░█░░░▄▄▄░█░█░█░█░█▀█░█░░░░░█▀▀░█▀▄░█░█░█░█░░█░░░░█▀█░▀▀█░█▀▀░█▀▀░█░░░░█░░░░█▀▀░█▀█░█░█░▀▀█
 			// ░▀▀▀░▀▀▀░░░░░▀▀░░▀▀▀░▀░▀░▀▀▀░░░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀░▀░▀▀▀░▀░░░▀▀▀░▀▀▀░░▀░░░░▀░░░▀░▀░▀░▀░▀▀▀
@@ -679,7 +671,7 @@ void front_LedStrip::DetermineTimer(bool tl, bool tr, bool bl, bool br)
 void front_LedStrip::BlankLeds()
 {
 	for (int i = 0; i < NUMLEDS; i++)
-		leds[i] = CRGB::Black;
+		p_objectLedArray[i] = CRGB::Black;
 };
 	
 // ░█▀▄░█░░░▀█▀░█▀█░█░█░░░█░░░█▀▀░█▀▄░█▀▀
@@ -696,7 +688,7 @@ void front_LedStrip::BlinkLeds(int speed, CRGB* palette)
 	
 	if (frameNumber == 0)											// On frame 0, set all LEDs on with saved color
 		for (int i = 0; i < NUMLEDS; i++)				// once for each LED
-			leds[i] = savedColor;
+			p_objectLedArray[i] = savedColor;
 	
 	AdvanceColor(palette, FRAMELIMIT, speed);	//manage color progression
 	AdvanceFrame(speed, FRAMELIMIT);					// manage frame advancement
@@ -709,13 +701,13 @@ void front_LedStrip::BlinkLeds(int speed, CRGB* palette)
 void front_LedStrip::FillLeds(CRGB color)
 {
 	for (int i = 0; i < NUMLEDS; i++)
-		leds[i] = color;
+		p_objectLedArray[i] = color;
 }
 
 // ░█▀▀░█░█░█▀█░█▀▀░█▀▀░░░█░█░▀█▀░▀█▀░█░█░░░█▀▀░█▀█░█▀▄░█▀▀
 // ░█░░░█▀█░█▀█░▀▀█░█▀▀░░░█▄█░░█░░░█░░█▀█░░░█▀▀░█▀█░█░█░█▀▀
 // ░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀░░░▀░▀░▀▀▀░░▀░░▀░▀░░░▀░░░▀░▀░▀▀░░▀▀▀
-void front_LedStrip::ChaseWithFade(int speed, const CRGB* palette, float fadeAmount, int lights)
+void front_LedStrip::ChaseWithFade(int speed, const CRGB* palette, float fadeAmount, int lights /* 1 */)
 {
 	const int FRAMELIMIT = NUMLEDS;
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write timing
@@ -724,14 +716,14 @@ void front_LedStrip::ChaseWithFade(int speed, const CRGB* palette, float fadeAmo
 	// first, fade all the LEDs by selected amount
 	for (int i = 0; i < NUMLEDS; i++)  
 	{
-		leds[i].red *= fadeAmount;
-		leds[i].green *= fadeAmount;
-		leds[i].blue *= fadeAmount;
+		p_objectLedArray[i].red *= fadeAmount;
+		p_objectLedArray[i].green *= fadeAmount;
+		p_objectLedArray[i].blue *= fadeAmount;
 	}
-	// second, light LEDs by framenumber
-	leds[*p_activeFrameCounter] = savedColor;   // for one light	
+	// second, light led by framenumber
+	p_objectLedArray[*p_activeFrameCounter] = savedColor;   // for one light	
 	if (lights == 2)														// for two lights	
-		leds[(*p_activeFrameCounter + 10) % 20] = savedColor;	
+		p_objectLedArray[(*p_activeFrameCounter + 10) % 20] = savedColor;	
 		
 	AdvanceColor(palette, FRAMELIMIT, speed);		// manage color progression	
 	AdvanceFrame(speed, FRAMELIMIT);  				 	// manage frame advancement
@@ -752,31 +744,31 @@ void front_LedStrip::ScrollColors(int speed, const CRGB* palette, int vertRows, 
 	int lengthOfInputArray = (GetLengthOfBlackTerminatedCRGBArray(palette)); // the number of colors in the passed array
 	int lengthOfBaseArray = lengthOfInputArray * 2;		// the base array holds the input array plus blends	
 	int count = 1; 														// math for assigning blended colors to baseArray
-	const int FRAMELIMIT = lengthOfBaseArray; // how many frames until positions of input array colors repeat
+	const int FRAMELIMIT = lengthOfBaseArray; 	// how many frames until positions of input array colors repeat
 	float change; 						// to track amount of blending to apply to colors based on elapsed millis between frames
-	float changePerMilli = 255 / (float)speed;// how much change is applied per millisecond
-	bool nextFrame = 1; 		 								  // flag to advance frame at end of function
-	CRGB baseArray[lengthOfBaseArray];  		  // creating array to hold basecolors and blended colors
-  CRGB outArray[vertRows];  						  	// Array to hold colors ready to write out to LEDs
-	CRGB blendColor; 		  									  // to temporarily hold color to write to outarray	
+	float changePerMilli = 255 / (float)speed;	// how much change is applied per millisecond
+	bool nextFrame = 1; 		 				// flag to advance frame at end of function
+	CRGB baseArray[lengthOfBaseArray];  		// creating array to hold basecolors and blended colors
+  	CRGB outArray[vertRows];					// Array to hold colors ready to write out to LEDs
+	CRGB blendColor;							// to temporarily hold color to write to outarray	
 	
-	DetermineTimer(tl, tr, bl, br);  					//determine which of the object's frame counters and timers to run the effect on		
-																						//this sets the pointers p_activeFrameCounter and p_activeTimer
+	DetermineTimer(tl, tr, bl, br);  			//determine which of the object's frame counters and timers to run the effect on		
+												//this sets the pointers p_activeFrameCounter and p_activeTimer
 	
 	if (!CheckTimeForFrameDraw(speed, p_activeTimer)) // manage frame write - if false, function progresses with between-frame blending
-			nextFrame = 0;									 			// but will not advance frame	
+			nextFrame = 0;						// but will not advance frame	
 			
-	if (changePerMilli < 0)  									// convert to positive change in case of negative speed
+	if (changePerMilli < 0)  					// convert to positive change in case of negative speed
 		changePerMilli *= -1;	
 	
-	change = changePerMilli * *p_activeTimer;  // how much change/blending to apply this function iteration	
+	change = changePerMilli * *p_activeTimer;  	// how much change/blending to apply this function iteration	
 					
 	// populating base array
 	for (int i = 0; i < lengthOfBaseArray; i++) // once for each color + each color blend
 	{		
-		if (i % 2 == 0)														// even lines (and 0) get colors directly from input array
+		if (i % 2 == 0)			// even lines (and 0) get colors directly from input array
 			baseArray[i] = palette[ (i / 2) % lengthOfInputArray];
-		else if (i % 2 == 1)											// odd lines get blends of colors from input array
+		else if (i % 2 == 1)	// odd lines get blends of colors from input array
 		{	
 			baseArray[i] = blend( palette[ (i - count) % lengthOfInputArray], palette[ (i - count + 1) % lengthOfInputArray], 128);
 			count++;			
@@ -784,23 +776,23 @@ void front_LedStrip::ScrollColors(int speed, const CRGB* palette, int vertRows, 
 	}	
 	
 	// Populate outArray with blends of the colors in the base array
-  // for positive speed
-  if (speed >= 0)
-    for (int i = 0; i < vertRows; i++)  //once for each hardware row
-		{							
-      outArray[i] = blend(
-									 (baseArray[ (i + *p_activeFrameCounter) % lengthOfBaseArray ]),      // argument 1
-									 (baseArray[ (i + 1 + *p_activeFrameCounter) % lengthOfBaseArray ]),  // argument 2
-									 change);																						  			          // argument 3
-		}     
+  	// for positive speed
+	if (speed >= 0)
+		for (int i = 0; i < vertRows; i++)  //once for each hardware row
+			{							
+		outArray[i] = blend(
+			(baseArray[ (i + *p_activeFrameCounter) % lengthOfBaseArray ]),		// argument 1
+			(baseArray[ (i + 1 + *p_activeFrameCounter) % lengthOfBaseArray ]),	// argument 2
+			change);															// argument 3																				  			          // argument 3
+			}     
 	// for negative speed
 	else if (speed < 0)  
 		for (int i = 0; i < vertRows; i++)
 		{				
 			outArray[i] = blend(										 
-									 (baseArray [(*p_activeFrameCounter + i) % lengthOfBaseArray ]),		           							 // argument 1
-									 (baseArray [ (*p_activeFrameCounter - 1 + lengthOfBaseArray + i) % lengthOfBaseArray ] ),   // argument 2
-									  change);																								 								 							     // argument 3				
+					(baseArray [(*p_activeFrameCounter + i) % lengthOfBaseArray ]),								// argument 1
+					(baseArray [ (*p_activeFrameCounter - 1 + lengthOfBaseArray + i) % lengthOfBaseArray ] ),   // argument 2
+					change);																					// argument 3																								 								 							     // argument 3				
 		}		
 		
 	WriteColorsToOutPutArray(outArray, tl, tr, bl, br, vertRows);	  //populates object's array of LEDs with the colors to be written to the hardware
@@ -834,35 +826,35 @@ void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, 
 	{
 		if (tl)
 		{
-			leds[19] = outArray[0];
-			leds[18] = outArray[1];
-			leds[17] = outArray[2];    
-			leds[16] = outArray[3];  
-			leds[15] = outArray[4];  
+			p_objectLedArray[19] = outArray[0];
+			p_objectLedArray[18] = outArray[1];
+			p_objectLedArray[17] = outArray[2];    
+			p_objectLedArray[16] = outArray[3];  
+			p_objectLedArray[15] = outArray[4];  
 		}
 		if (bl)
 		{
-			leds[14] = outArray[5];  
-			leds[13] = outArray[6];  
-			leds[12] = outArray[7];  
-			leds[11] = outArray[8];  
-			leds[10] = outArray[9];
+			p_objectLedArray[14] = outArray[5];  
+			p_objectLedArray[13] = outArray[6];  
+			p_objectLedArray[12] = outArray[7];  
+			p_objectLedArray[11] = outArray[8];  
+			p_objectLedArray[10] = outArray[9];
 		}
 		if (tr)
 		{
-			leds[0] = outArray[0];
-			leds[1] = outArray[1];
-			leds[2] = outArray[2];
-			leds[3] = outArray[3];
-			leds[4] = outArray[4];
+			p_objectLedArray[0] = outArray[0];
+			p_objectLedArray[1] = outArray[1];
+			p_objectLedArray[2] = outArray[2];
+			p_objectLedArray[3] = outArray[3];
+			p_objectLedArray[4] = outArray[4];
 		}
 		if (br)
 		{
-			leds[5] = outArray[5];  
-			leds[6] = outArray[6];  
-			leds[7] = outArray[7];  
-			leds[8] = outArray[8];  
-			leds[9] = outArray[9];
+			p_objectLedArray[5] = outArray[5];  
+			p_objectLedArray[6] = outArray[6];  
+			p_objectLedArray[7] = outArray[7];  
+			p_objectLedArray[8] = outArray[8];  
+			p_objectLedArray[9] = outArray[9];
 		}
 	}
 		
@@ -870,36 +862,36 @@ void front_LedStrip::WriteColorsToOutPutArray(CRGB *outArray, bool tl, bool tr, 
 	{
 		if (tl)
 		{
-			leds[19] = outArray[0];
-			leds[18] = outArray[1];
-			leds[17] = outArray[2];    
-			leds[16] = outArray[3];  
-			leds[15] = outArray[4]; 
+			p_objectLedArray[19] = outArray[0];
+			p_objectLedArray[18] = outArray[1];
+			p_objectLedArray[17] = outArray[2];    
+			p_objectLedArray[16] = outArray[3];  
+			p_objectLedArray[15] = outArray[4]; 
 		}
 		if (bl)
 		{
-			leds[14] = outArray[0];  
-			leds[13] = outArray[1];  
-			leds[12] = outArray[2];  
-			leds[11] = outArray[3];  
-			leds[10] = outArray[4];
+			p_objectLedArray[14] = outArray[0];  
+			p_objectLedArray[13] = outArray[1];  
+			p_objectLedArray[12] = outArray[2];  
+			p_objectLedArray[11] = outArray[3];  
+			p_objectLedArray[10] = outArray[4];
 		}
 		if (tr)
 		{
-			leds[0] = outArray[0];
-			leds[1] = outArray[1];
-			leds[2] = outArray[2];
-			leds[3] = outArray[3];
-			leds[4] = outArray[4];
-			leds[5] = outArray[5];
+			p_objectLedArray[0] = outArray[0];
+			p_objectLedArray[1] = outArray[1];
+			p_objectLedArray[2] = outArray[2];
+			p_objectLedArray[3] = outArray[3];
+			p_objectLedArray[4] = outArray[4];
+			p_objectLedArray[5] = outArray[5];
 		}
 		if (br)
 		{
-			leds[5] = outArray[0];
-			leds[6] = outArray[1];
-			leds[7] = outArray[2];
-			leds[8] = outArray[3];
-			leds[9] = outArray[4];
+			p_objectLedArray[5] = outArray[0];
+			p_objectLedArray[6] = outArray[1];
+			p_objectLedArray[7] = outArray[2];
+			p_objectLedArray[8] = outArray[3];
+			p_objectLedArray[9] = outArray[4];
 		}
 	}
 };
@@ -933,6 +925,7 @@ void full_SystemLeds::CopyFanToExternalArray(int fanNumber, CRGB* extArray)
 // ░░█░░█▀▄░█▀█░█░█░▀▀█░█░░░█▀█░░█░░█▀▀░░░█░░░█░█░█░█░█▀▄░░█░░█░█░█▀▀░█░█░░░█▀█░▀▀█░█▀▀░█▀▀░█░░░░█░░▀▀█
 // ░░▀░░▀░▀░▀░▀░▀░▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀░░▀▀▀░▀░▀░▀▀▀░▀▀░░░░▀░▀░▀▀▀░▀░░░▀▀▀░▀▀▀░░▀░░▀▀▀
 //translates a populated combined2AspectFans array into 2 separate 1-dimension elements of aspectFansLeds
+/*
 void full_SystemLeds::TranslateCombinedAspectsToIndividualFans(int fan1, int fan2)
 {
 	aspectFansLeds[fan1][3] = combined2AspectFans [0];
@@ -947,17 +940,17 @@ void full_SystemLeds::TranslateCombinedAspectsToIndividualFans(int fan1, int fan
 	aspectFansLeds[fan2][4] = combined2AspectFans [9];
 	aspectFansLeds[fan2][5] = combined2AspectFans [10];
 	aspectFansLeds[fan2][0] = combined2AspectFans [11];	
-};
+}; */
 // assuming that fan 2 is above fan 1:
 // the order that combined2AspectFans will be translated
 // to the aspectFansLeds array is as below
 // LEFT  | RIGHT 
-//  5        11
-//  4				 10
-//  3					9
-//  2					8
-//  1					7
-//  0					6
+//  5		11
+//  4		10
+//  3		9
+//  2		8
+//  1		7
+//  0		6
 
 			// ░█▀▀░█░░░░░░░█▀▀░█░█░█▀▀░▀█▀░█▀▀░█▄█░░░▀█▀░▀█▀░█▄█░█▀▀░█▀▄
 			// ░█░░░█░░░▄▄▄░▀▀█░░█░░▀▀█░░█░░█▀▀░█░█░░░░█░░░█░░█░█░█▀▀░█▀▄

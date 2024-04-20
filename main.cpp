@@ -1,6 +1,11 @@
 	//ASCII fonts for large comments: 
 	//https://www.asciiart.eu/text-to-ascii-art - pagga from ASCII art archive - medium header
 
+  /* TO-DOs
+Add default speeds (and other default values like fade percentage in SpinColorWaveFade)
+*/
+
+
 #include "FastLED.h"                       // for backend hardware interfacing
 #include "globalsfordoggos.h"       // global settings like number of leds per type of fan and similar
 #include "ledcontrolfordoggos.h"  //  classes and functions that support and control the lighting effects
@@ -47,7 +52,7 @@ void setup() {
 
 void loop() {
 
-  systemTimer.UpdateSystemTimer();
+  systemTimer.UpdateSystemTimer();                  // have the system timer object find time passed since last main loop execution
   deltaMillis = systemTimer.GetDeltaMillis();       // deltaMillis is defined in globals for doggos. It is global so that all classes have access to the value for use in timing
 
   //pastMillis = currentMillis;
@@ -56,11 +61,15 @@ void loop() {
 
   //Serial.println(systemTimer.GetDeltaMillis() );
 
-  systemLeds.virtualAspectFan[0].SpinColorWave(50,prideTransgender);
-  systemLeds.virtualAspectFan[1].SpinColorWave(-50,prideLesbian);
-  systemLeds.virtualLedStrip[0].ScrollColorsOnFrontStrips(300,prideLesbian,1,0,1,0);
-  systemLeds.virtualLedStrip[0].ScrollColorsOnFrontStrips(-300,prideTransgender,0,1,0,1);
+  //systemLeds.virtualAspectFan[0].SpinOneLed(80, prideLesbian);
+  //systemLeds.virtualAspectFan[1].MovingLine(-80, prideTransgender);
   
+  //systemLeds.virtualLedStrip[0].ChaseWithFade(60,prideTransgender, .6,2);
+  
+  systemLeds.virtualLedStrip[0].ScrollColorsOnFrontStrips(300, prideLesbian, 1,0,1,0);
+  systemLeds.virtualLedStrip[0].ScrollColorsOnFrontStrips(-300, prideTransgender, 0,1,0,1);
+  
+
   systemLeds.CopyAspectFanToExternalArray(0,aspect0Leds);
   systemLeds.CopyAspectFanToExternalArray(1,aspect1Leds);
 
