@@ -1,4 +1,5 @@
-/*
+/* **********************************************************
+
 	FILE: globalsfordoggos.h -
 Contains global constants and variables related to aRGB lighting code  
 Variables are declared here but defined in globalsfordoggos.cpp to avoid
@@ -6,22 +7,25 @@ multiple definitions coming from including this header too many times
 (though I'm not actually sure why that's a problem when the constexpr statements in 
 here don't result in multiple definitions).
 
+	AUTHOR: Meghan Allen
+
 	DEPENDENCIES:
-FastLED.h
+FastLED.h - required for CRGB datatype
 
 	ASCII fonts for large comments: 
 https://www.asciiart.eu/text-to-ascii-art - pagga from ASCII art archive - medium header
-*/
+************************************************************/
 
 // include guard statements
 #ifndef globalsfordoggos_h
 #define globalsfordoggos_h
 
+// dependancy inclusions
 #include "FastLED.h"	// required for CRGB data types - backend that interfaces with the hardware
 
-									// ░█▀▀░█░░░█▀█░█▀▄░█▀█░█░░░░░█▀▀░█▀█░█▀█░█▀▀░▀█▀░█▀█░█▀█░▀█▀░█▀▀
-									// ░█░█░█░░░█░█░█▀▄░█▀█░█░░░░░█░░░█░█░█░█░▀▀█░░█░░█▀█░█░█░░█░░▀▀█
-									// ░▀▀▀░▀▀▀░▀▀▀░▀▀░░▀░▀░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░░▀░░▀░▀░▀░▀░░▀░░▀▀▀
+						// ░█▀▀░█░░░█▀█░█▀▄░█▀█░█░░░░░█▀▀░█▀█░█▀█░█▀▀░▀█▀░█▀█░█▀█░▀█▀░█▀▀
+						// ░█░█░█░░░█░█░█▀▄░█▀█░█░░░░░█░░░█░█░█░█░▀▀█░░█░░█▀█░█░█░░█░░▀▀█
+						// ░▀▀▀░▀▀▀░▀▀▀░▀▀░░▀░▀░▀▀▀░░░▀▀▀░▀▀▀░▀░▀░▀▀▀░░▀░░▀░▀░▀░▀░░▀░░▀▀▀
 
 // ░█▀▀░█▀█░█▀█░█▀▀░▀█▀░█▀█░█▀█░▀█▀░░░▀█▀░█▀█░▀█▀░█▀▀░█▀▀░█▀▀░█▀▄░█▀▀
 // ░█░░░█░█░█░█░▀▀█░░█░░█▀█░█░█░░█░░░░░█░░█░█░░█░░█▀▀░█░█░█▀▀░█▀▄░▀▀█
@@ -66,6 +70,9 @@ const CRGB blackForRandom[] = {CRGB::Black};
 const CRGB singleGreen[] = {CRGB::Green, CRGB::Black};
 const CRGB singlePurple[] = {CRGB::Purple, CRGB::Black};
 
+// ARRAYS OF SINGLE COLOR PLUS ALMOST-BLACK TO USE FOR BREATHING EFFECT WITH FADETHROUGHCOLORS
+const CRGB pinkBreathing[] = {CRGB::HotPink, CRGB(0,0,1), CRGB::Black};
+
 // PRIDE COLOR ARRAYS
 const CRGB prideBisexual[] = {CRGB(214,2,112), CRGB(155,79,150), CRGB(0,56, 168), CRGB::Black};
 const CRGB prideBisexualBreak[] = {CRGB(214,2,112), CRGB(155,79,150), CRGB(0,56, 168), CRGB(0,0,1), CRGB::Black};
@@ -75,9 +82,9 @@ const CRGB prideTransgenderBreak[] = {CRGB::Turquoise, CRGB::DeepPink, CRGB::Lin
 const CRGB prideLesbian[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRGB(125,38,87),CRGB(125,5,82),CRGB::Black};
 const CRGB prideLesbianBreak[] = {CRGB(214,46,2),CRGB(184, 60, 8),CRGB(253,152,85),CRGB(125,38,87),CRGB(125,5,82),CRGB(0,0,1),CRGB(0,0,1),CRGB::Black};
 
-									// ░█▀▀░█░░░█▀█░█▀▄░█▀█░█░░░░░█░█░█▀█░█▀▄░▀█▀░█▀█░█▀▄░█░░░█▀▀░█▀▀
-									// ░█░█░█░░░█░█░█▀▄░█▀█░█░░░░░▀▄▀░█▀█░█▀▄░░█░░█▀█░█▀▄░█░░░█▀▀░▀▀█
-									// ░▀▀▀░▀▀▀░▀▀▀░▀▀░░▀░▀░▀▀▀░░░░▀░░▀░▀░▀░▀░▀▀▀░▀░▀░▀▀░░▀▀▀░▀▀▀░▀▀▀
+						// ░█▀▀░█░░░█▀█░█▀▄░█▀█░█░░░░░█░█░█▀█░█▀▄░▀█▀░█▀█░█▀▄░█░░░█▀▀░█▀▀
+						// ░█░█░█░░░█░█░█▀▄░█▀█░█░░░░░▀▄▀░█▀█░█▀▄░░█░░█▀█░█▀▄░█░░░█▀▀░▀▀█
+						// ░▀▀▀░▀▀▀░▀▀▀░▀▀░░▀░▀░▀▀▀░░░░▀░░▀░▀░▀░▀░▀▀▀░▀░▀░▀▀░░▀▀▀░▀▀▀░▀▀▀
 
 // These are defined in .cpp file. Declaring here as extern allows this header to be included in multiple files without duplicate defiitions.
 // See - https://stackoverflow.com/questions/14526153/multiple-definition-of-a-global-variable

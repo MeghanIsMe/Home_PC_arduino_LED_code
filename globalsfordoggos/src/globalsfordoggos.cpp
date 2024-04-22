@@ -1,10 +1,15 @@
-/*
-  globalsfordoggos.cpp - definitions for variables and constants declared in globalsfordoggos.h
-  CRGB datatyle relies on FastLED library
-*/
+/* **********************************************************
+	FILE: globalsfordoggos.cpp
+Contains Definitions for variables and constants declared in globalsfordoggos.h
+CRGB datatype relies on FastLED library
+	
+	AUTHOR: Meghan Allen
 
-#include "FastLED.h" // required for CRGB datatype
-#include "globalsfordoggos.h"
+	ASCII font for large comments: 		
+https://www.asciiart.eu/text-to-ascii-art - pagga	
+************************************************************/
+
+#include "globalsfordoggos.h" // include this source file's header
 
 //#include "classesfordoggos.h"
 
