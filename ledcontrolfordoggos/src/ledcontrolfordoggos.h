@@ -61,6 +61,7 @@ class generic_LedDevice
 	// effects functions
 	void BlankLeds(int);					// sets all of object's leds to black(off)
 	void BlinkLeds(int, const CRGB*);		// blink all of objects's leds the same color following palette order
+	void LightAllLeds(int, CRGB);
 };
 
 // ░█▀▀░█░░░░░░░█▀▀░█▀▀░█▀█░█▀▀░█▀▄░▀█▀░█▀▀░░░█▀▀░█▀█░█▀█
@@ -80,7 +81,6 @@ class generic_Fan : public generic_LedDevice
 	
 	// effects functions
 	void FadeThroughColors(int,const CRGB*);		// fades one color into the next progressing through a palette
-	void FillFan(CRGB);								// Fill all LEDs on fan with passed color
 	void SpinColorWave(int, const CRGB*);			// Waves of color rotate around fan
 	void SpinColorWaveFade(int, const CRGB*, float = .3);	// waves of color rotate around fan and fade out	
 	void SpinLeds(int, CRGB, CRGB = BLACK, CRGB = BLACK);	//Spin 1-3 LEDs around a fan
@@ -103,7 +103,7 @@ class cpu_Fan: public generic_Fan
 
   cpu_Fan()								// constructor function
   {		
-		NUMLEDS = CPUFANLEDS;					// number of LEDs on the device
+		NUMLEDS = CPUFANLEDS;			// number of LEDs on the device
 		initializedFrame = 0;			// whether starting frame is initialized
 		initializedColor = 0;			// whether starting color is initialized
 		p_objectLedArray = leds;		// initialize array pointer to object's LED array							
@@ -122,7 +122,7 @@ class aspect_Fan: public generic_Fan
   
 	aspect_Fan()						// constructor function
 	{
-		NUMLEDS = ASPECTFANLEDS;					// number of LEDs on the device
+		NUMLEDS = ASPECTFANLEDS;		// number of LEDs on the device
 		initializedFrame = 0;			// whether starting frame is initialized
 		initializedColor = 0;			// whether starting color is initialized		
 		p_objectLedArray = leds;		// initialize array pointer to object's LED array		
@@ -216,10 +216,8 @@ class front_LedStrip : public generic_LedStrip
 	void DetermineTimer(bool, bool, bool, bool);
 	
 	//effects functions
-	void BlankLeds();					// Set all LEDs to black
-	void BlinkLeds(int, CRGB*);  		// Blinks all LEDs
+	
 	void ChaseWithFade(int, const CRGB*, float, int = 1); // chasing affect with fading tail
-	void FillLeds(CRGB);				// set all leds to passed color
 	void ScrollColors(int, const CRGB*, int, bool, bool, bool, bool);
 	void ScrollColorsOnFrontStrips(int, const CRGB*, bool, bool, bool, bool);
 	void WriteColorsToOutPutArray(CRGB*, bool, bool, bool, bool, int);

@@ -18,6 +18,9 @@ https://www.asciiart.eu/text-to-ascii-art - pagga
 // ░▀▀█░█▀▀░█▀▄░░█░░█▀█░█░░░░░█▀▀░█▀▄░░█░░█░█░░█░░░░█░░░█░█░█░░░█░█░█▀▄
 // ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░░░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀
 // Accepts a CRGB variable and prints its red, green, and blue values in a formatted way, then prints a newline
+//		Parameters:  
+// color - the CRGB variable whose values will be printed to screen via serial connection
+
 void SerialPrintColor(CRGB color)
 {
   int r = color.red;
@@ -36,7 +39,11 @@ void SerialPrintColor(CRGB color)
 // ░█▀▀░█▀▄░░█░░█░█░░█░░░░█░░░█░█░█░░░█░█░█▀▄░░░█▀█░█▀▄░█▀▄░█▀█░░█░
 // ░▀░░░▀░▀░▀▀▀░▀░▀░░▀░░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░░▀░▀░▀░▀░▀░▀░▀░▀░░▀░
 // Accepts a CRGB array and prints each color in it. Must pass the array length.
-void PrintColorArray(CRGB *arr, int length)
+//		Parameters:  
+// arr - an array of CRGB vars whose colors will be printed via serial connection
+// length - the number of elements in the array arr
+
+void PrintColorArray(CRGB* arr, int length)
 {	
 	for (int i = 0; i < length; i++)
 	{
@@ -51,6 +58,8 @@ void PrintColorArray(CRGB *arr, int length)
 // ░█░█░█▀▀░░█░░█░░░█▀▀░█░█░█░█░░█░░█▀█░█░█░█▀▀░█▀▄░█░░░█▀█░█░░░█▀▄░░█░░█▀▀░█▀▄░█░█░░█░░█░█░█▀█░░█░░█▀▀░█░█░█▀█░█▀▄░█▀▄░█▀█░░█░
 // ░▀▀▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀░▀▀▀░░▀░░▀░▀░▀▀▀░▀░░░▀▀░░▀▀▀░▀░▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀░▀░▀░▀▀▀░▀░▀░▀░▀░░▀░░▀▀▀░▀▀░░▀░▀░▀░▀░▀░▀░▀░▀░░▀░
 // Accepts a CRGB array and returns the number of elements prior to the first black in it as an int
+//		Parameters:  
+// arr - the array whose length will be determined and returned
 int GetLengthOfBlackTerminatedCRGBArray(const CRGB* arr)
 {
 		int lengthCount = 0;
@@ -72,8 +81,8 @@ int GetLengthOfBlackTerminatedCRGBArray(const CRGB* arr)
 // ░█▄█░█▀█░█░█░█▀▀░░░█▀▄░█▀█░█▀█░█▀▄░█▀█░█▄█░░░█▀▀░█▀█░█░░░█▀█░█▀▄
 // ░█░█░█▀█░█▀▄░█▀▀░░░█▀▄░█▀█░█░█░█░█░█░█░█░█░░░█░░░█░█░█░░░█░█░█▀▄
 // ░▀░▀░▀░▀░▀░▀░▀▀▀░░░▀░▀░▀░▀░▀░▀░▀▀░░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀
-//Parameters: none
-//returns a random CRGB color
+// returns a random CRGB color
+//		Parameters: none
 CRGB MakeRandomColor()
 {
   int rval = random(256);
@@ -94,9 +103,10 @@ CRGB MakeRandomColor()
 // ░█▀▀░█░█░█▀▀░█▀▀░█░█░▀█▀░█▀█░▀█▀░▀█▀░▀█▀░█▀█░█░░░▀█▀░▀▀█░█▀█░▀█▀░▀█▀░█▀█░█▀█
 // ░█░░░█▀█░█▀▀░█░░░█▀▄░░█░░█░█░░█░░░█░░░█░░█▀█░█░░░░█░░▄▀░░█▀█░░█░░░█░░█░█░█░█
 // ░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀▀▀░▀░▀
-//called by effects function to see if the frame number is initialized and initialize it if necessary.
-//new fan objects have a non-intialized frame number, so this sets it to 0.
-//could also be used to switch to a different frame number before or while running, possibly. Not implemented yet.
+// called by effects function to see if the frame number is initialized and initialize it if necessary.
+// new fan objects have a non-intialized frame number, so this sets it to 0.
+// could also be used to switch to a different frame number before or while running, possibly. Not implemented yet.
+//		Parameters: none
 void generic_LedDevice::CheckInitialization()
 {
 	if (!initializedFrame)
@@ -113,8 +123,14 @@ void generic_LedDevice::CheckInitialization()
 // ░█▀▀░█░█░█▀▀░█▀▀░█░█░░░▀█▀░▀█▀░█▄█░█▀▀░░░█▀▀░█▀█░█▀▄░░░█▀▀░█▀▄░█▀█░█▄█░█▀▀░░░█▀▄░█▀▄░█▀█░█░█
 // ░█░░░█▀█░█▀▀░█░░░█▀▄░░░░█░░░█░░█░█░█▀▀░░░█▀▀░█░█░█▀▄░░░█▀▀░█▀▄░█▀█░█░█░█▀▀░░░█░█░█▀▄░█▀█░█▄█
 // ░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀░▀░░░░▀░░▀▀▀░▀░▀░▀▀▀░░░▀░░░▀▀▀░▀░▀░░░▀░░░▀░▀░▀░▀░▀░▀░▀▀▀░░░▀▀░░▀░▀░▀░▀░▀░▀
-//checks to see whether enough time has passed to advance to the next frame of the effects animation
-bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)  
+// called by effects functions to check whether enough time has passed to advance
+// to the next frame of the effects animation. Returns true if the frame should advance,
+// false otherwise.
+//		Parameters:  
+// speed - milliseconds between frame advancement: passed from calling function
+// length - the number of elements in the array arr
+// counter - pointer to the calling object's current accumulated milliseconds variable
+bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int* counter)  
 {	
 	*counter += deltaMillis;	// add elapsed milliseconds since last main loop to running total
 	
@@ -133,7 +149,10 @@ bool generic_LedDevice::CheckTimeForFrameDraw(int speed, int *counter)
 // ░█▀▀░█▀█░█▀█░█░█░░░▀█▀░█▀█░░░█▀▀░█░█░▀█▀░█▀▀░█▀▄░█▀█░█▀█░█░░░░░█▀█░█▀▄░█▀▄░█▀█░█░█
 // ░█░░░█░█░█▀▀░░█░░░░░█░░█░█░░░█▀▀░▄▀▄░░█░░█▀▀░█▀▄░█░█░█▀█░█░░░░░█▀█░█▀▄░█▀▄░█▀█░░█░
 // ░▀▀▀░▀▀▀░▀░░░░▀░░░░░▀░░▀▀▀░░░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀░▀░▀░▀░▀░▀▀▀░░░▀░▀░▀░▀░▀░▀░▀░▀░░▀░
-
+// For copying the calling object's array of CRGB data to one of the arrays defined in
+// the main program and associated to hardware LEDs via FastLED's addLeds statement.
+//		Parameters:  
+// extArray - an array of CRGB vars to which the calling object's CRGB array will be copied
 void generic_LedDevice::CopyToExternalArray(CRGB* extArray)
 {
 	for (int i = 0; i < NUMLEDS; i++)		
@@ -196,7 +215,8 @@ if (*p_activeFrameCounter > FRAMELIMIT)		// if another effect left the frame num
 // sets all of calling objects LEDs to black (off)
 // called at the beginning of many effects functions 
 //		parameters:
-// NUMLEDS - the number of LEDs on the calling object. Defined in individual child classes
+// NUMLEDS - the number of LEDs on the calling object. Attribute of individual child classes
+// and passed by the method that the calling object is using to call BlankLeds
 void generic_LedDevice::BlankLeds(int NUMLEDS)
 {
 	for (int i = 0; i < NUMLEDS; i++)
@@ -207,9 +227,9 @@ void generic_LedDevice::BlankLeds(int NUMLEDS)
 // ░█▀▄░█░░░░█░░█░█░█▀▄░░░█░░░█▀▀░█░█░▀▀█
 // ░▀▀░░▀▀▀░▀▀▀░▀░▀░▀░▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀
 // blink all LEDs the same color following passed palette
-// Parameters:  
-//	speed - time in milliseconds between frame
-//	palette - color palette used for effect
+//		Parameters:  
+// speed - time in milliseconds between frame
+// palette - color palette used for effect
 void generic_LedDevice::BlinkLeds(int speed, const CRGB* palette)
 {
 	const int FRAMELIMIT = 2;
@@ -227,6 +247,22 @@ void generic_LedDevice::BlinkLeds(int speed, const CRGB* palette)
 	AdvanceFrame(speed, FRAMELIMIT);			// manage frame advancement	
 };
 
+// ░█░░░▀█▀░█▀▀░█░█░▀█▀░█▀█░█░░░█░░░█░░░█▀▀░█▀▄░█▀▀
+// ░█░░░░█░░█░█░█▀█░░█░░█▀█░█░░░█░░░█░░░█▀▀░█░█░▀▀█
+// ░▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀▀░░▀▀▀
+/* Set all LEDS on calling device to the color passed to function
+This will almost never be called directly from main: instead, it will be called
+as a portion of another effects function. In that context, NUMLEDS can be passed
+directly from the calling object's attributes
+	Parameters:
+NUMLEDS - The number of LEDs to be lit
+color - The color to set the LEDs to */
+void generic_LedDevice::LightAllLeds(int NUMLEDS, CRGB color)
+{
+	for (int i = 0; i < NUMLEDS; i++)
+		p_objectLedArray[i] = color;
+};
+
 
 			// ░█▀▀░█░░░░░░░█▀▀░█▀▀░█▀█░█▀▀░█▀▄░▀█▀░█▀▀░░░█▀▀░█▀█░█▀█░░░█▀▀░█░░░█▀█░█▀▀░█▀▀
 			// ░█░░░█░░░▄▄▄░█░█░█▀▀░█░█░█▀▀░█▀▄░░█░░█░░░░░█▀▀░█▀█░█░█░░░█░░░█░░░█▀█░▀▀█░▀▀█
@@ -240,9 +276,9 @@ void generic_LedDevice::BlinkLeds(int speed, const CRGB* palette)
 // ░█▀▀░█▀█░█░█░█▀▀░░░░█░░█▀█░█▀▄░█░█░█░█░█░█░█▀█░░░█░░░█░█░█░░░█░█░█▀▄░▀▀█
 // ░▀░░░▀░▀░▀▀░░▀▀▀░░░░▀░░▀░▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀▀▀
 // fades all LEDs on fan from one color to the next through the passed CRGB palette array. 
-// Parameters:
-//	speed - time in milliseconds between frame
-//	palette - color palette used for effect
+//		Parameters:
+// speed - time in milliseconds between frame
+// palette - color palette used for effect
 void generic_Fan::FadeThroughColors(int speed, const CRGB* palette)
 {
 	const int FRAMELIMIT = GetLengthOfBlackTerminatedCRGBArray(palette);  // each color in the palette array gets one frame
@@ -269,26 +305,13 @@ void generic_Fan::FadeThroughColors(int speed, const CRGB* palette)
     AdvanceFrame(speed, FRAMELIMIT);  //advance frame as appropriate		
 };
 
-// ░█▀▀░▀█▀░█░░░█░░░░░█▀▀░█▀█░█▀█
-// ░█▀▀░░█░░█░░░█░░░░░█▀▀░█▀█░█░█
-// ░▀░░░▀▀▀░▀▀▀░▀▀▀░░░▀░░░▀░▀░▀░▀
-// Fill all LEDs with passed color
-// Parameters:
-//	color - the non-array CRGB variable to use in the effect
-
-void generic_Fan::FillFan(CRGB color)
-{
-	for (int i = 0; i < NUMLEDS; i++)
-		p_objectLedArray[i] = color;	
-}
-
 // ░█▀▀░█▀█░▀█▀░█▀█░░░█▀▀░█▀█░█░░░█▀█░█▀▄░░░█░█░█▀█░█░█░█▀▀
 // ░▀▀█░█▀▀░░█░░█░█░░░█░░░█░█░█░░░█░█░█▀▄░░░█▄█░█▀█░▀▄▀░█▀▀
 // ░▀▀▀░▀░░░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░░▀░▀░▀░▀░░▀░░▀▀▀
 //Lights each LED around an Aspect fan sequentially, leaves them on, and repeats with a new color
-// Parameters:
-//	speed - time in milliseconds between frame
-//	palette - color palette used for effect
+//		Parameters:
+// speed - time in milliseconds between frame
+// palette - color palette used for effect
 void generic_Fan::SpinColorWave(int speed, const CRGB* palette)
 
 {
@@ -309,10 +332,10 @@ void generic_Fan::SpinColorWave(int speed, const CRGB* palette)
 // ░▀▀█░█▀▀░░█░░█░█░░░█░░░█░█░█░░░█░█░█▀▄░░░█▄█░█▀█░▀▄▀░█▀▀░░░█▀▀░█▀█░█░█░█▀▀
 // ░▀▀▀░▀░░░▀▀▀░▀░▀░░░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░░░▀░▀░▀░▀░░▀░░▀▀▀░░░▀░░░▀░▀░▀▀░░▀▀▀
 // Rotates a light around a fan while leaving a trail that fades behind it
-// Parameters:
-//	speed - time in milliseconds between frame
-//	palette - color palette used for effect
-//	fadeAmount - factor by which to multiply each led value at each frame until rewritten with new frame
+//		Parameters:
+// speed - time in milliseconds between frame
+// palette - color palette used for effect
+// fadeAmount - factor by which to multiply each led value at each frame until rewritten with new frame
 void generic_Fan::SpinColorWaveFade(int speed, const CRGB* palette, float fadeAmount /* 0.3 */)
 {
 	const int FRAMELIMIT = NUMLEDS;
@@ -337,9 +360,9 @@ void generic_Fan::SpinColorWaveFade(int speed, const CRGB* palette, float fadeAm
 // make up to three leds spin around the fan by lighting them sequentially
 // parameters: speed - milliseconds between frame advances | color: color to use when running the effect 
 // this effect does not support random colors
-// Parameters:
-//	speed - time in milliseconds between frame
-//	CRGB vars - the respective colors of the lights to spin around the fan
+//		Parameters:
+// speed - time in milliseconds between frame
+// CRGB vars - the respective colors of the lights to spin around the fan
 void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 , CRGB color3)
 {
 	int numberOfLights = 1;
@@ -388,11 +411,10 @@ void generic_Fan::SpinLeds(int speed, CRGB color1, CRGB color2 , CRGB color3)
 // ░▀▀█░█▀▀░░█░░█░█░░░█░█░█░█░█▀▀░░░█░░░█▀▀░█░█
 // ░▀▀▀░▀░░░▀▀▀░▀░▀░░░▀▀▀░▀░▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀░
 // make one led "spin" around the fan by lighting them sequentially
-// parameters: speed - milliseconds between frame advances | color: color palette to use when running the effect 
 // This supports color cycling through paelettes, whereas SpinLeds does not
-// Parameters:
-//	speed - time in milliseconds between frame
-//	palette - color palette used for effect
+//		Parameters:
+// speed - time in milliseconds between frame
+// palette - color palette used for effect
 void generic_Fan::SpinOneLed(int speed, const CRGB* palette)  
 {
 	//  housekeeping portion
@@ -417,10 +439,10 @@ void generic_Fan::SpinOneLed(int speed, const CRGB* palette)
 //Causes a color to move across the fan from top to bottom (reversible)
 // on Aspect fans, uses top two LEDs, then middle two, then bottom two
 // on CPU fan, does top to bottom to top
-// Parameters:
-//	speed - time in milliseconds between frame
-//	palette - color palette used for effect
-// TO DO - update to allow line to move left/right on cpu fan, or other ways on Aspect fan
+//		Parameters:
+// speed - time in milliseconds between frame
+// palette - color palette used for effect
+//		TO DO - update to allow line to move left/right on cpu fan, or other ways on Aspect fan
 // Can this be written separately for Aspect vs CPU classes to avoid the outer if/else structure?
 void generic_Fan::MovingLine(int speed, const CRGB* palette)
 {
@@ -734,61 +756,14 @@ void front_LedStrip::DetermineTimer(bool tl, bool tr, bool bl, bool br)
 // ░▄▄▄░▄▄▄░█▀▀░█▀▀░█▀▀░█▀▀░█░░░░█░░▀▀█░░░█▀▀░█░█░█░█░█░░░░█░░░█░░█░█░█░█░▀▀█░▄▄▄░▄▄▄
 // ░░░░░░░░░▀▀▀░▀░░░▀░░░▀▀▀░▀▀▀░░▀░░▀▀▀░░░▀░░░▀▀▀░▀░▀░▀▀▀░░▀░░▀▀▀░▀▀▀░▀░▀░▀▀▀░░░░░░░░
 
-// ░█▀▄░█░░░█▀█░█▀█░█░█░░░█░░░█▀▀░█▀▄░█▀▀
-// ░█▀▄░█░░░█▀█░█░█░█▀▄░░░█░░░█▀▀░█░█░▀▀█
-// ░▀▀░░▀▀▀░▀░▀░▀░▀░▀░▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀
-// this function and others in child object classes of generic_ledDevice could be replaced by
-//	one function in that class
-void front_LedStrip::BlankLeds()
-{
-	for (int i = 0; i < NUMLEDS; i++)
-		p_objectLedArray[i] = CRGB::Black;
-};
-	
-// ░█▀▄░█░░░▀█▀░█▀█░█░█░░░█░░░█▀▀░█▀▄░█▀▀
-// ░█▀▄░█░░░░█░░█░█░█▀▄░░░█░░░█▀▀░█░█░▀▀█
-// ░▀▀░░▀▀▀░▀▀▀░▀░▀░▀░▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀
-// Make all LEDs on the object flash following color series of the passed palette
-// Parameters:
-//	speed - time in milliseconds between frame
-//	palette - color palette used for effect
-void front_LedStrip::BlinkLeds(int speed, CRGB* palette)
-{
-	const int FRAMELIMIT = 2;					// frames in this animation
-	
-	if (!CheckTimeForFrameDraw(speed, &accumulatedMilliseconds)) // manage frame write timing
-		return;	
-	
-	BlankLeds();								// set all LEDs to black before writing frame
-	
-	if (frameNumber == 0)						// On frame 0, set all LEDs on with saved color
-		for (int i = 0; i < NUMLEDS; i++)		// once for each LED
-			p_objectLedArray[i] = savedColor;
-	
-	AdvanceColor(palette, FRAMELIMIT, speed);	//manage color progression
-	AdvanceFrame(speed, FRAMELIMIT);			// manage frame advancement
-};
-
-// ░█▀▀░▀█▀░█░░░█░░░░░█░░░█▀▀░█▀▄░█▀▀
-// ░█▀▀░░█░░█░░░█░░░░░█░░░█▀▀░█░█░▀▀█
-// ░▀░░░▀▀▀░▀▀▀░▀▀▀░░░▀▀▀░▀▀▀░▀▀░░▀▀▀
-//  Fill all LEDs with passed color
-// Parameters:
-//	color - the non-array CRGB variable used in setting the effect color
-void front_LedStrip::FillLeds(CRGB color)
-{
-	for (int i = 0; i < NUMLEDS; i++)
-		p_objectLedArray[i] = color;
-}
-
 // ░█▀▀░█░█░█▀█░█▀▀░█▀▀░░░█░█░▀█▀░▀█▀░█░█░░░█▀▀░█▀█░█▀▄░█▀▀
 // ░█░░░█▀█░█▀█░▀▀█░█▀▀░░░█▄█░░█░░░█░░█▀█░░░█▀▀░█▀█░█░█░█▀▀
 // ░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀░░░▀░▀░▀▀▀░░▀░░▀░▀░░░▀░░░▀░▀░▀▀░░▀▀▀
-// Parameters:
-//	speed - time in milliseconds between frame
-//	palette - color palette used for effect
-//	fadeAmount - factor by which to multiply each LED at frameAdvance
-//	lights * 1 * - the number of LEDs to use in the chasing effect
+//		Parameters:
+// speed - time in milliseconds between frame
+// palette - color palette used for effect
+// fadeAmount - factor by which to multiply each LED at frameAdvance
+// lights * 1 * - the number of LEDs to use in the chasing effect
 void front_LedStrip::ChaseWithFade(int speed, const CRGB* palette, float fadeAmount, int lights /* 1 */)
 {
 	const int FRAMELIMIT = NUMLEDS;
@@ -821,13 +796,13 @@ void front_LedStrip::ChaseWithFade(int speed, const CRGB* palette, float fadeAmo
 //	Creates an array of double that length (baseArray) which includes blends of colors between the ones on the input array
 //	Does math to write baseArray's values into outArray in the correct order based on frame number
 //	Calls WriteColorsToOutPutArray to write outArray to the calling object's LED array
-//	Parameters:
-//	speed - time in milliseconds between advancing a color fully from one array position to the next (one frame)
-//	palette - color palette used for effect
-//	vertRows - the number of vertical LEDs the effect spans - either 5 or 10
-//		determined by ScrollColorsOnFrontStrips function and passed to ScrollColors
-//	bool vars - one for each quarter of the strip to indicate whether or not
-// 		calling effect is running on it
+//		Parameters:
+// speed - time in milliseconds between advancing a color fully from one array position to the next (one frame)
+// palette - color palette used for effect
+// vertRows - the number of vertical LEDs the effect spans - either 5 or 10
+//	determined by ScrollColorsOnFrontStrips function and passed to ScrollColors
+// bool vars - one for each quarter of the strip to indicate whether or not
+//	calling effect is running on it
 void front_LedStrip::ScrollColors(int speed, const CRGB* palette, int vertRows, bool tl, bool tr, bool bl, bool br)
 {
 	int lengthOfInputArray = (GetLengthOfBlackTerminatedCRGBArray(palette)); // the number of colors in the passed array
